@@ -88,6 +88,17 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
                 <div className="flex space-x-2">
                     <button className="p-2 text-gray-400 hover:text-red-500 rounded-full hover:bg-red-50" title="Add to Wishlist"><Heart className="w-6 h-6" /></button>
                     
+                    {/* Direct WhatsApp Share Button */}
+                    <a 
+                       href={`https://wa.me/?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`} 
+                       target="_blank" 
+                       rel="noopener noreferrer"
+                       className="p-2 text-gray-400 hover:text-green-600 rounded-full hover:bg-green-50 transition-colors flex items-center justify-center"
+                       title="Share on WhatsApp"
+                    >
+                        <MessageCircle className="w-6 h-6" />
+                    </a>
+
                     {/* Share Button Dropdown */}
                     <div className="relative">
                         <button 
