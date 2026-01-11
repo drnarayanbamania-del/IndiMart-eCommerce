@@ -91,4 +91,23 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPage }) => {
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
              <button onClick={() => handleNav('home')} className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-50 w-full text-left">Home</button>
              <button onClick={() => handleNav('shop')} className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-50 w-full text-left">Shop</button>
-             {user?.role ===
+             {user?.role === UserRole.ADMIN && (
+                <button onClick={() => handleNav('admin_dashboard')} className="block px-3 py-2 rounded-md text-base font-medium text-red-600 hover:bg-red-50 w-full text-left">Admin Panel</button>
+             )}
+             {user?.role === UserRole.USER && (
+                <button onClick={() => handleNav('user_dashboard')} className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-50 w-full text-left">Dashboard</button>
+             )}
+             {!user && (
+               <button onClick={() => handleNav('login')} className="block px-3 py-2 rounded-md text-base font-medium text-primary-600 hover:bg-gray-50 w-full text-left">Login / Sign Up</button>
+             )}
+             {user && (
+               <button onClick={() => { logout(); setMobileMenuOpen(false); }} className="block px-3 py-2 rounded-md text-base font-medium text-red-500 hover:bg-gray-50 w-full text-left">Logout</button>
+             )}
+          </div>
+        </div>
+      )}
+    </nav>
+  );
+};
+
+export default Navbar;

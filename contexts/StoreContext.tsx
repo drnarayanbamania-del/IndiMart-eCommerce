@@ -27,7 +27,8 @@ const INITIAL_USER: User = {
 
 interface StoreContextType {
   user: User | null;
-  login: (email: string, role: UserRole) => void;
+  login: (email: string, password: string, role: UserRole) => void;
+  signup: (name: string, email: string, password: string) => void;
   logout: () => void;
   products: Product[];
   addProduct: (product: Product) => void;
@@ -84,14 +85,25 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
 
-  const login = (email: string, role: UserRole) => {
+  const login = (email: string, password: string, role: UserRole) => {
     // Simulated login
     setUser({
       id: Math.random().toString(36).substr(2, 9),
       name: email.split('@')[0],
       email,
       role,
-      password: 'hash'
+      password // storing password just for mock consistency
+    });
+  };
+
+  const signup = (name: string, email: string, password: string) => {
+    // Simulated Signup
+    setUser({
+      id: Math.random().toString(36).substr(2, 9),
+      name,
+      email,
+      role: UserRole.USER, // Default to Customer
+      password
     });
   };
 
@@ -154,7 +166,7 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <StoreContext.Provider value={{
-      user, login, logout,
+      user, login, signup, logout,
       products, addProduct, deleteProduct,
       cart, addToCart, removeFromCart, updateCartQuantity, clearCart,
       orders, placeOrder, updateOrderStatus,
