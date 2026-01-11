@@ -138,6 +138,12 @@ const Checkout = ({ onNavigate }: { onNavigate: (page: string) => void }) => {
 
         console.log("Submitting order data:", orderData);
 
+        // Open payment tab immediately to avoid popup blockers and handle "redirect" behavior
+        const paymentWindow = window.open('', '_blank');
+        if (paymentWindow) {
+            paymentWindow.document.write('<html><head><title>Processing Payment</title></head><body style="display:flex;justify-content:center;align-items:center;height:100vh;font-family:sans-serif;background-color:#f9fafb;"><div><h2>Processing your order...</h2><p>Redirecting to Razorpay secure payment...</p></div></body></html>');
+        }
+
         try {
             await fetch('https://script.google.com/macros/s/AKfycbyfjw6EEDpNk0za4YWldI7ul0Nd4qZVkNL3pS4lotwBlm4N-pyIi_ZIGmu4-Nt7GAwv0w/exec', {
                 method: 'POST',
@@ -150,12 +156,20 @@ const Checkout = ({ onNavigate }: { onNavigate: (page: string) => void }) => {
 
             placeOrder({ address: orderData["Address"] as string });
             
-            // Redirect to Razorpay
-            alert("Order details saved! Redirecting to payment...");
-            window.location.href = "https://razorpay.me/@wonderimggen?amount=EPec5evqGoRk2C8icWNJlQ%3D%3D";
+            if (paymentWindow) {
+                // Redirect the new tab to Razorpay
+                paymentWindow.location.href = "https://razorpay.me/@wonderimggen?amount=EPec5evqGoRk2C8icWNJlQ%3D%3D";
+                // Redirect the main app to Home
+                onNavigate('home');
+            } else {
+                // Fallback for popup blockers
+                alert("Order details saved! Redirecting to payment...");
+                window.location.href = "https://razorpay.me/@wonderimggen?amount=EPec5evqGoRk2C8icWNJlQ%3D%3D";
+            }
             
         } catch (error) {
             console.error("Error submitting order:", error);
+            if (paymentWindow) paymentWindow.close();
             alert("There was a problem placing your order. Please try again.");
         } finally {
             setLoading(false);
