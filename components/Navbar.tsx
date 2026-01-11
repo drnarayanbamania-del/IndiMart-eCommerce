@@ -24,6 +24,12 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPage }) => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           <div className="flex items-center cursor-pointer" onClick={() => handleNav('home')}>
+             {/* Logo Image */}
+            <img 
+              src="https://placehold.co/40x40/2563eb/ffffff?text=EOW" 
+              alt="LuxeMart Logo" 
+              className="h-10 w-10 mr-3 rounded-md object-cover" 
+            />
             <span className="text-2xl font-heading font-bold text-primary-600">LuxeMart</span>
           </div>
 

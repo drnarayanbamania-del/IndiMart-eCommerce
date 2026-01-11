@@ -43,18 +43,44 @@ interface StoreContextType {
   categories: Category[];
   isCartOpen: boolean;
   setIsCartOpen: (isOpen: boolean) => void;
+  resetProducts: () => void;
 }
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
 export const StoreProvider = ({ children }: { children: ReactNode }) => {
   // Auth State
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(() => {
+    const saved = localStorage.getItem('luxemart_user');
+    return saved ? JSON.parse(saved) : null;
+  });
+
+  useEffect(() => {
+    if (user) localStorage.setItem('luxemart_user', JSON.stringify(user));
+    else localStorage.removeItem('luxemart_user');
+  }, [user]);
 
   // Data State
-  const [products, setProducts] = useState<Product[]>(INITIAL_PRODUCTS);
+  const [products, setProducts] = useState<Product[]>(() => {
+    const saved = localStorage.getItem('luxemart_products');
+    return saved ? JSON.parse(saved) : INITIAL_PRODUCTS;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('luxemart_products', JSON.stringify(products));
+  }, [products]);
+
   const [categories, setCategories] = useState<Category[]>(INITIAL_CATEGORIES);
-  const [cart, setCart] = useState<CartItem[]>([]);
+
+  const [cart, setCart] = useState<CartItem[]>(() => {
+    const saved = localStorage.getItem('luxemart_cart');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('luxemart_cart', JSON.stringify(cart));
+  }, [cart]);
+
   const [orders, setOrders] = useState<Order[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
 
@@ -81,6 +107,10 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
   const deleteProduct = (id: string) => {
     setProducts(products.filter(p => p.id !== id));
   };
+
+  const resetProducts = () => {
+    setProducts(INITIAL_PRODUCTS);
+  }
 
   const addToCart = (product: Product) => {
     setCart(prev => {
@@ -129,7 +159,7 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
       cart, addToCart, removeFromCart, updateCartQuantity, clearCart,
       orders, placeOrder, updateOrderStatus,
       categories,
-      isCartOpen, setIsCartOpen
+      isCartOpen, setIsCartOpen, resetProducts
     }}>
       {children}
     </StoreContext.Provider>

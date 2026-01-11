@@ -3,14 +3,14 @@ import { useStore } from '../../contexts/StoreContext';
 import { UserRole, Product } from '../../types';
 import { generateProductDescription } from '../../services/geminiService';
 import {
-  LayoutDashboard, ShoppingBag, Users, Settings, Plus, Trash, Edit, Bot, TrendingUp
+  LayoutDashboard, ShoppingBag, Users, Settings, Plus, Trash, Edit, Bot, TrendingUp, RefreshCcw
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
 
 const AdminDashboard: React.FC = () => {
-  const { user, products, orders, addProduct, deleteProduct, categories } = useStore();
+  const { user, products, orders, addProduct, deleteProduct, categories, resetProducts } = useStore();
   const [activeTab, setActiveTab] = useState<'overview' | 'products' | 'orders'>('overview');
   const [showAddModal, setShowAddModal] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -64,6 +64,18 @@ const AdminDashboard: React.FC = () => {
       setNewProduct({ name: '', category: 'Electronics', price: 0, description: '', stock: 0, image: 'https://picsum.photos/400/400' });
     }
   };
+
+  const handleDeleteProduct = (id: string, name: string) => {
+    if (window.confirm(`Are you sure you want to delete "${name}" from the catalog? This action cannot be undone.`)) {
+      deleteProduct(id);
+    }
+  };
+
+  const handleReset = () => {
+      if(window.confirm("Reset all products to default demo data? This will clear any custom products.")) {
+          resetProducts();
+      }
+  }
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -157,12 +169,21 @@ const AdminDashboard: React.FC = () => {
           <div>
             <div className="flex justify-between items-center mb-6">
               <h1 className="text-2xl font-bold text-gray-800">Manage Products</h1>
-              <button
-                onClick={() => setShowAddModal(true)}
-                className="flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
-              >
-                <Plus className="w-5 h-5 mr-2" /> Add Product
-              </button>
+              <div className="flex space-x-3">
+                  <button
+                    onClick={handleReset}
+                    className="flex items-center px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                    title="Reset to default products"
+                  >
+                    <RefreshCcw className="w-5 h-5 mr-2" /> Reset
+                  </button>
+                  <button
+                    onClick={() => setShowAddModal(true)}
+                    className="flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                  >
+                    <Plus className="w-5 h-5 mr-2" /> Add Product
+                  </button>
+              </div>
             </div>
 
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
@@ -197,10 +218,23 @@ const AdminDashboard: React.FC = () => {
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₹{product.price}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{product.stock}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button onClick={() => deleteProduct(product.id)} className="text-red-600 hover:text-red-900 ml-4"><Trash className="w-4 h-4" /></button>
+                        <button 
+                            onClick={() => handleDeleteProduct(product.id, product.name)} 
+                            className="text-red-600 hover:text-red-900 ml-4 p-2 hover:bg-red-50 rounded-full"
+                            title="Delete Product"
+                        >
+                            <Trash className="w-4 h-4" />
+                        </button>
                       </td>
                     </tr>
                   ))}
+                  {products.length === 0 && (
+                      <tr>
+                          <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
+                              No products found. Add one to get started!
+                          </td>
+                      </tr>
+                  )}
                 </tbody>
               </table>
             </div>
@@ -248,7 +282,7 @@ const AdminDashboard: React.FC = () => {
       {/* Add Product Modal */}
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-lg w-full p-6">
+          <div className="bg-white rounded-xl shadow-xl max-w-lg w-full p-6 animate-in zoom-in duration-200">
             <h3 className="text-xl font-bold text-gray-900 mb-4">Add New Product</h3>
             <form onSubmit={handleAddProduct} className="space-y-4">
               <div>
@@ -259,6 +293,7 @@ const AdminDashboard: React.FC = () => {
                   className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                   value={newProduct.name}
                   onChange={e => setNewProduct({ ...newProduct, name: e.target.value })}
+                  placeholder="e.g. Wireless Headphones"
                 />
               </div>
               <div className="flex gap-4">
@@ -273,7 +308,7 @@ const AdminDashboard: React.FC = () => {
                   </select>
                 </div>
                 <div className="flex-1">
-                  <label className="block text-sm font-medium text-gray-700">Price</label>
+                  <label className="block text-sm font-medium text-gray-700">Price (₹)</label>
                   <input
                     required
                     type="number"
@@ -294,6 +329,7 @@ const AdminDashboard: React.FC = () => {
                     className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                     value={newProduct.description}
                     onChange={e => setNewProduct({ ...newProduct, description: e.target.value })}
+                    placeholder="Enter description..."
                   />
                   <button
                     type="button"
@@ -317,6 +353,15 @@ const AdminDashboard: React.FC = () => {
                       className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                       value={newProduct.stock}
                       onChange={e => setNewProduct({ ...newProduct, stock: Number(e.target.value) })}
+                    />
+                 </div>
+                 <div className="flex-1">
+                    <label className="block text-sm font-medium text-gray-700">Image URL</label>
+                     <input
+                      type="text"
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                      value={newProduct.image}
+                      onChange={e => setNewProduct({ ...newProduct, image: e.target.value })}
                     />
                  </div>
               </div>
