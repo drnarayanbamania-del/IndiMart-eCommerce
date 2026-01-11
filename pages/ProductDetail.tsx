@@ -52,15 +52,19 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
           {/* Image Gallery */}
           <div className="product-images">
             <div className="relative aspect-w-1 aspect-h-1 bg-gray-100 rounded-lg overflow-hidden mb-4 group">
-              <img 
-                src={images[activeImage]} 
-                alt={product.name} 
-                className="w-full h-full object-center object-cover"
-              />
-              <button onClick={handlePrevImage} className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 p-2 rounded-full shadow-md hover:bg-white opacity-0 group-hover:opacity-100 transition-opacity">
+              {images.map((img, idx) => (
+                <img 
+                  key={idx}
+                  src={img} 
+                  alt={`${product.name} - View ${idx + 1}`} 
+                  className={`absolute inset-0 w-full h-full object-center object-cover transition-opacity duration-500 ease-in-out ${activeImage === idx ? 'opacity-100' : 'opacity-0'}`}
+                />
+              ))}
+              
+              <button onClick={handlePrevImage} className="absolute z-10 left-4 top-1/2 transform -translate-y-1/2 bg-white/80 p-2 rounded-full shadow-md hover:bg-white opacity-0 group-hover:opacity-100 transition-opacity">
                 <ChevronLeft className="w-6 h-6 text-gray-800" />
               </button>
-              <button onClick={handleNextImage} className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 p-2 rounded-full shadow-md hover:bg-white opacity-0 group-hover:opacity-100 transition-opacity">
+              <button onClick={handleNextImage} className="absolute z-10 right-4 top-1/2 transform -translate-y-1/2 bg-white/80 p-2 rounded-full shadow-md hover:bg-white opacity-0 group-hover:opacity-100 transition-opacity">
                 <ChevronRight className="w-6 h-6 text-gray-800" />
               </button>
             </div>
