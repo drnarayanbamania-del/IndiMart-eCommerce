@@ -24,9 +24,9 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPage }) => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           <div className="flex items-center cursor-pointer" onClick={() => handleNav('home')}>
-             {/* Logo - CSS generated to ensure it always displays without external dependencies */}
-             <div className="h-10 w-10 mr-3 rounded-md bg-gradient-to-br from-primary-600 to-primary-800 flex items-center justify-center text-white font-bold text-xs tracking-tighter shadow-sm shrink-0">
-                EOW
+             {/* Logo - Vector Icon */}
+             <div className="flex items-center justify-center h-10 w-10 mr-3 rounded-lg bg-primary-600 text-white shadow-md shrink-0">
+                <ShoppingBag className="w-6 h-6" />
              </div>
             <span className="text-2xl font-heading font-bold text-primary-600">LuxeMart</span>
           </div>
@@ -91,23 +91,4 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPage }) => {
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
              <button onClick={() => handleNav('home')} className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-50 w-full text-left">Home</button>
              <button onClick={() => handleNav('shop')} className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-50 w-full text-left">Shop</button>
-             {user?.role === UserRole.ADMIN && (
-                <button onClick={() => handleNav('admin_dashboard')} className="block px-3 py-2 rounded-md text-base font-medium text-red-600 hover:bg-red-50 w-full text-left">Admin Panel</button>
-             )}
-             {user?.role === UserRole.USER && (
-                <button onClick={() => handleNav('user_dashboard')} className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-50 w-full text-left">Dashboard</button>
-             )}
-             {!user && (
-               <button onClick={() => handleNav('login')} className="block px-3 py-2 rounded-md text-base font-medium text-primary-600 hover:bg-gray-50 w-full text-left">Login / Sign Up</button>
-             )}
-             {user && (
-               <button onClick={() => { logout(); setMobileMenuOpen(false); }} className="block px-3 py-2 rounded-md text-base font-medium text-red-500 hover:bg-gray-50 w-full text-left">Logout</button>
-             )}
-          </div>
-        </div>
-      )}
-    </nav>
-  );
-};
-
-export default Navbar;
+             {user?.role ===
