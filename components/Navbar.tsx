@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useStore } from '../contexts/StoreContext';
 import { UserRole } from '../types';
-import { ShoppingCart, User as UserIcon, Menu, X, LogOut } from 'lucide-react';
+import { ShoppingCart, User as UserIcon, Menu, X, LogOut, ShoppingBag } from 'lucide-react';
 
 interface NavbarProps {
   onNavigate: (page: string) => void;
@@ -24,12 +24,10 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPage }) => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           <div className="flex items-center cursor-pointer" onClick={() => handleNav('home')}>
-             {/* Logo Image */}
-            <img 
-              src="https://placehold.co/40x40/2563eb/ffffff?text=EOW" 
-              alt="LuxeMart Logo" 
-              className="h-10 w-10 mr-3 rounded-md object-cover" 
-            />
+             {/* Logo - CSS generated to ensure it always displays without external dependencies */}
+             <div className="h-10 w-10 mr-3 rounded-md bg-gradient-to-br from-primary-600 to-primary-800 flex items-center justify-center text-white font-bold text-xs tracking-tighter shadow-sm shrink-0">
+                EOW
+             </div>
             <span className="text-2xl font-heading font-bold text-primary-600">LuxeMart</span>
           </div>
 
