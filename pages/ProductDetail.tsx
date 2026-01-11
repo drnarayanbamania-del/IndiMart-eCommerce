@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useStore } from '../contexts/StoreContext';
-import { Star, ShoppingCart, ArrowLeft, Heart, Share2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Star, ShoppingCart, ArrowLeft, Heart, Share2, ChevronLeft, ChevronRight, Facebook, Twitter, Linkedin, MessageCircle } from 'lucide-react';
 import { Product } from '../types';
 
 interface ProductDetailProps {
@@ -14,6 +14,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
   const product = products.find(p => p.id === productId);
   const [activeImage, setActiveImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
+  const [showShareMenu, setShowShareMenu] = useState(false);
 
   if (!product) {
     return <div className="p-8 text-center">Product not found. <button onClick={onBack} className="text-primary-600 underline">Go back</button></div>;
@@ -33,6 +34,9 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
 
   const handleNextImage = () => setActiveImage((prev) => (prev + 1) % images.length);
   const handlePrevImage = () => setActiveImage((prev) => (prev - 1 + images.length) % images.length);
+
+  const shareUrl = window.location.href;
+  const shareText = `Check out ${product.name} (₹${product.price}) on LuxeMart!`;
 
   return (
     <div className="bg-white min-h-screen pb-12">
@@ -75,11 +79,65 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
 
           {/* Product Info */}
           <div className="mt-10 px-4 sm:px-0 sm:mt-16 lg:mt-0">
-            <div className="flex justify-between">
+            <div className="flex justify-between relative">
                 <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 font-heading">{product.name}</h1>
                 <div className="flex space-x-2">
-                    <button className="p-2 text-gray-400 hover:text-red-500 rounded-full hover:bg-red-50"><Heart className="w-6 h-6" /></button>
-                    <button className="p-2 text-gray-400 hover:text-primary-500 rounded-full hover:bg-primary-50"><Share2 className="w-6 h-6" /></button>
+                    <button className="p-2 text-gray-400 hover:text-red-500 rounded-full hover:bg-red-50" title="Add to Wishlist"><Heart className="w-6 h-6" /></button>
+                    
+                    {/* Share Button Dropdown */}
+                    <div className="relative">
+                        <button 
+                            onClick={() => setShowShareMenu(!showShareMenu)}
+                            className="p-2 text-gray-400 hover:text-primary-500 rounded-full hover:bg-primary-50"
+                            title="Share Product"
+                        >
+                            <Share2 className="w-6 h-6" />
+                        </button>
+                        
+                        {showShareMenu && (
+                            <div className="absolute right-0 mt-2 w-48 rounded-lg shadow-xl bg-white ring-1 ring-black ring-opacity-5 z-20 p-3 animate-in fade-in zoom-in duration-200">
+                                <p className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wider text-center">Share Via</p>
+                                <div className="grid grid-cols-4 gap-2">
+                                     <a 
+                                        href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer" 
+                                        className="flex items-center justify-center p-2 text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                                        title="Share on Facebook"
+                                     >
+                                        <Facebook className="w-5 h-5" />
+                                     </a>
+                                     <a 
+                                        href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer" 
+                                        className="flex items-center justify-center p-2 text-sky-500 hover:bg-sky-50 rounded-md transition-colors"
+                                        title="Share on Twitter"
+                                     >
+                                        <Twitter className="w-5 h-5" />
+                                     </a>
+                                     <a 
+                                        href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer" 
+                                        className="flex items-center justify-center p-2 text-blue-700 hover:bg-blue-50 rounded-md transition-colors"
+                                        title="Share on LinkedIn"
+                                     >
+                                        <Linkedin className="w-5 h-5" />
+                                     </a>
+                                     <a 
+                                        href={`https://wa.me/?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer" 
+                                        className="flex items-center justify-center p-2 text-green-500 hover:bg-green-50 rounded-md transition-colors"
+                                        title="Share on WhatsApp"
+                                     >
+                                        <MessageCircle className="w-5 h-5" />
+                                     </a>
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
             
