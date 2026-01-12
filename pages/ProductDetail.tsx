@@ -15,6 +15,7 @@ interface Review {
   rating: number;
   comment: string;
   date: string;
+  timestamp: number;
   verified?: boolean;
 }
 
@@ -31,9 +32,9 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
 
   // Review State
   const [reviews, setReviews] = useState<Review[]>([
-      { id: '1', userName: 'John Doe', rating: 5, comment: 'Absolutely love this product! The quality is outstanding and it arrived earlier than expected.', date: '2 days ago', verified: true },
-      { id: '2', userName: 'Jane Smith', rating: 4, comment: 'Great value for money. The color matches the photos perfectly.', date: '1 week ago', verified: true },
-      { id: '3', userName: 'Mike Johnson', rating: 5, comment: 'Exceeded my expectations. Highly recommended! I will definitely buy again.', date: '2 weeks ago', verified: false }
+      { id: '1', userName: 'John Doe', rating: 5, comment: 'Absolutely love this product! The quality is outstanding and it arrived earlier than expected.', date: '2 days ago', timestamp: Date.now() - 172800000, verified: true },
+      { id: '2', userName: 'Jane Smith', rating: 4, comment: 'Great value for money. The color matches the photos perfectly.', date: '1 week ago', timestamp: Date.now() - 604800000, verified: true },
+      { id: '3', userName: 'Mike Johnson', rating: 2, comment: 'The product is okay, but the packaging was slightly damaged upon arrival. Expected a bit more for the price.', date: '2 weeks ago', timestamp: Date.now() - 1209600000, verified: false }
   ]);
   
   // Review Form State
@@ -55,6 +56,14 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
     );
   }
 
+  // Real-time Validation Logic
+  const validationErrors = {
+    name: touched.name && reviewForm.name.trim().length < 2 ? 'Identity must be at least 2 characters' : null,
+    comment: touched.comment && reviewForm.comment.trim().length < 10 ? 'Perspective must be at least 10 characters' : null,
+  };
+
+  const isFormValid = reviewForm.name.trim().length >= 2 && reviewForm.comment.trim().length >= 10;
+
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!containerRef.current) return;
     const { left, top, width, height } = containerRef.current.getBoundingClientRect();
@@ -66,13 +75,6 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
   const handleMouseLeave = () => {
     setZoomPos(prev => ({ ...prev, opacity: 0 }));
   };
-
-  const errors = {
-    name: reviewForm.name.trim().length < 2 ? 'Name must be at least 2 characters' : null,
-    comment: reviewForm.comment.trim().length < 10 ? 'Comment must be at least 10 characters' : null,
-  };
-
-  const isFormValid = !errors.name && !errors.comment;
 
   const images = [
     product.image,
@@ -103,6 +105,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
       const sorted = [...reviews];
       if (sortBy === 'highest') return sorted.sort((a, b) => b.rating - a.rating);
       if (sortBy === 'lowest') return sorted.sort((a, b) => a.rating - b.rating);
+      if (sortBy === 'newest') return sorted.sort((a, b) => b.timestamp - a.timestamp);
       return sorted;
   }, [reviews, sortBy]);
 
@@ -125,8 +128,10 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
 
   const handleReviewSubmit = (e: React.FormEvent) => {
       e.preventDefault();
-      setTouched({ name: true, comment: true });
-      if (!isFormValid) return;
+      if (!isFormValid) {
+          setTouched({ name: true, comment: true });
+          return;
+      }
       setIsSubmittingReview(true);
       setTimeout(() => {
           const newReview: Review = {
@@ -135,6 +140,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
               rating: reviewForm.rating,
               comment: reviewForm.comment,
               date: 'Just now',
+              timestamp: Date.now(),
               verified: true 
           };
           setReviews([newReview, ...reviews]);
@@ -142,8 +148,8 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
           setTouched({ name: false, comment: false });
           setIsSubmittingReview(false);
           setShowSuccessMessage(true);
-          setTimeout(() => setShowSuccessMessage(false), 4000);
-      }, 800);
+          setTimeout(() => setShowSuccessMessage(false), 5000);
+      }, 1200);
   };
 
   const shareUrl = window.location.href;
@@ -160,7 +166,6 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="lg:grid lg:grid-cols-2 lg:gap-x-12 xl:gap-x-16">
-          {/* Enhanced Image Gallery with High-Fidelity Zoom */}
           <div className="product-images">
             <div 
               ref={containerRef}
@@ -185,7 +190,6 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
                 </div>
               ))}
               
-              {/* Refined Magnifier Overlay */}
               <div 
                 className="absolute inset-0 z-30 pointer-events-none transition-opacity duration-500 ease-out shadow-inner"
                 role="img"
@@ -199,7 +203,6 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
                 }}
               />
 
-              {/* Navigation Controls */}
               <button 
                 onClick={(e) => { e.stopPropagation(); handlePrevImage(); }} 
                 aria-label="Previous product image"
@@ -227,7 +230,6 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
               </div>
             </div>
 
-            {/* Thumbnail Grid */}
             <div className="grid grid-cols-4 gap-5 px-1">
               {images.map((img, idx) => (
                 <button 
@@ -242,7 +244,6 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
             </div>
           </div>
 
-          {/* Product Information */}
           <div className="mt-10 lg:mt-0">
             <div className="flex justify-between items-start">
                 <div>
@@ -344,7 +345,6 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
               </div>
             </div>
             
-            {/* Social Sharing */}
             <div className="mt-8 pt-8 border-t border-gray-100 flex items-center space-x-6">
                 <span className="text-xs font-black text-gray-400 uppercase tracking-widest">Share this</span>
                 <div className="flex space-x-4">
@@ -367,7 +367,6 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
             </div>
             
             <div className="lg:grid lg:grid-cols-12 lg:gap-x-20">
-                {/* Statistics & Form */}
                 <div className="lg:col-span-4 space-y-12">
                     <div className="bg-white p-10 rounded-[2.5rem] shadow-xl border border-gray-50 text-center">
                         <p className="text-7xl font-black text-gray-900 mb-2">{averageRating.toFixed(1)}</p>
@@ -396,13 +395,14 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
                         </div>
                     </div>
 
-                    <div className="bg-gray-900 p-10 rounded-[2.5rem] text-white relative overflow-hidden">
+                    <div className="bg-gray-900 p-10 rounded-[2.5rem] text-white relative overflow-hidden group">
+                        {/* Success Feedback Overlay */}
                         {showSuccessMessage && (
-                            <div className="absolute inset-0 bg-primary-600 flex flex-col items-center justify-center z-20 animate-in fade-in slide-in-from-bottom duration-500 p-10 text-center">
-                                <CheckCircle2 className="w-20 h-20 mb-6 animate-bounce" />
+                            <div className="absolute inset-0 bg-primary-600 flex flex-col items-center justify-center z-50 animate-in fade-in slide-in-from-bottom duration-500 p-10 text-center">
+                                <CheckCircle2 className="w-24 h-24 mb-6 text-white animate-bounce" />
                                 <h4 className="text-3xl font-black mb-4">Grazie!</h4>
-                                <p className="text-primary-50 font-medium">Your experience is now part of our story.</p>
-                                <button onClick={() => setShowSuccessMessage(false)} className="mt-8 px-8 py-3 bg-white text-primary-600 rounded-2xl font-black text-sm uppercase">Close</button>
+                                <p className="text-primary-50 text-lg font-medium">Your experience has been successfully added to our community wall.</p>
+                                <button onClick={() => setShowSuccessMessage(false)} className="mt-8 px-8 py-3 bg-white text-primary-600 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-gray-100 transition-colors">Done</button>
                             </div>
                         )}
 
@@ -412,12 +412,15 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
                                 <input 
                                     type="text" 
                                     aria-label="Your Name"
-                                    className="block w-full rounded-2xl bg-white/10 border-white/10 text-white placeholder-white/30 p-4 focus:ring-primary-500 focus:bg-white/20 transition-all outline-none"
+                                    className={`block w-full rounded-2xl bg-white/10 border-2 placeholder-white/30 p-4 focus:ring-primary-500 focus:bg-white/20 transition-all outline-none ${validationErrors.name ? 'border-red-400 text-red-100' : 'border-white/10 text-white'}`}
                                     value={reviewForm.name}
+                                    onBlur={() => setTouched({...touched, name: true})}
                                     onChange={(e) => setReviewForm({...reviewForm, name: e.target.value})}
-                                    placeholder="Your Identity"
+                                    placeholder="Your Identity (e.g. Alex M.)"
                                 />
+                                {validationErrors.name && <p className="mt-2 text-xs font-bold text-red-400 ml-2">{validationErrors.name}</p>}
                             </div>
+                            
                             <div className="flex justify-center space-x-2">
                                 {[1, 2, 3, 4, 5].map((star) => (
                                     <button 
@@ -425,53 +428,72 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
                                         type="button"
                                         aria-label={`Rate ${star} out of 5 stars`}
                                         onClick={() => setReviewForm({...reviewForm, rating: star})}
-                                        className="focus:outline-none transition-transform active:scale-90"
+                                        className="focus:outline-none transition-transform active:scale-90 hover:scale-110"
                                     >
                                         <Star className={`w-10 h-10 ${star <= reviewForm.rating ? 'text-yellow-400 fill-current' : 'text-white/10'}`} />
                                     </button>
                                 ))}
                             </div>
-                            <textarea 
-                                rows={4}
-                                aria-label="Review comment"
-                                className="block w-full rounded-2xl bg-white/10 border-white/10 text-white placeholder-white/30 p-4 focus:ring-primary-500 focus:bg-white/20 transition-all outline-none resize-none"
-                                value={reviewForm.comment}
-                                onChange={(e) => setReviewForm({...reviewForm, comment: e.target.value})}
-                                placeholder="Your perspective..."
-                            />
+
+                            <div>
+                                <textarea 
+                                    rows={4}
+                                    aria-label="Review comment"
+                                    className={`block w-full rounded-2xl bg-white/10 border-2 placeholder-white/30 p-4 focus:ring-primary-500 focus:bg-white/20 transition-all outline-none resize-none ${validationErrors.comment ? 'border-red-400 text-red-100' : 'border-white/10 text-white'}`}
+                                    value={reviewForm.comment}
+                                    onBlur={() => setTouched({...touched, comment: true})}
+                                    onChange={(e) => setReviewForm({...reviewForm, comment: e.target.value})}
+                                    placeholder="Your perspective on this product..."
+                                />
+                                {validationErrors.comment && <p className="mt-2 text-xs font-bold text-red-400 ml-2">{validationErrors.comment}</p>}
+                            </div>
+
                             <button 
                                 type="submit" 
                                 disabled={isSubmittingReview || !isFormValid}
-                                className="w-full bg-primary-600 text-white py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-primary-500 disabled:opacity-30 transition-all shadow-xl shadow-primary-600/20"
+                                className={`w-full py-5 rounded-2xl font-black uppercase tracking-widest transition-all shadow-xl ${
+                                    isSubmittingReview || !isFormValid 
+                                    ? 'bg-gray-700 text-gray-400 cursor-not-allowed opacity-50' 
+                                    : 'bg-primary-600 text-white hover:bg-primary-500 shadow-primary-600/20 active:scale-95'
+                                }`}
                             >
-                                {isSubmittingReview ? <RefreshCcw className="w-6 h-6 animate-spin mx-auto" /> : 'Post Thought'}
+                                {isSubmittingReview ? (
+                                    <RefreshCcw className="w-6 h-6 animate-spin mx-auto" />
+                                ) : (
+                                    'Post Thought'
+                                )}
                             </button>
                         </form>
                     </div>
                 </div>
 
-                {/* Reviews List */}
                 <div className="lg:col-span-8 mt-16 lg:mt-0">
-                    <div className="flex items-center justify-between mb-10 pb-6 border-b border-gray-50">
-                        <span className="text-xs font-black text-gray-400 uppercase tracking-widest">{reviews.length} Reflections</span>
-                        <div className="flex items-center space-x-3 text-xs font-black">
-                            <span className="text-gray-400 uppercase">Sort by</span>
-                            <select 
-                                value={sortBy}
-                                aria-label="Sort reviews"
-                                onChange={(e) => setSortBy(e.target.value as any)}
-                                className="bg-gray-50 border-none rounded-xl text-primary-600 font-black py-2 pr-10 focus:ring-0 cursor-pointer"
-                            >
-                                <option value="newest">Newest</option>
-                                <option value="highest">Top Rated</option>
-                                <option value="lowest">Critical</option>
-                            </select>
+                    <div className="flex items-center justify-between mb-10 pb-6 border-b border-gray-100">
+                        <span className="text-sm font-black text-gray-500 uppercase tracking-widest">{reviews.length} Reflections</span>
+                        <div className="flex items-center space-x-4">
+                            <label htmlFor="review-sort" className="text-xs font-black text-gray-400 uppercase tracking-wider">Sort by</label>
+                            <div className="relative">
+                                <select 
+                                    id="review-sort"
+                                    value={sortBy}
+                                    onChange={(e) => setSortBy(e.target.value as any)}
+                                    className="appearance-none bg-gray-50 border-none rounded-2xl py-2.5 pl-6 pr-12 text-sm font-black text-primary-600 focus:ring-2 focus:ring-primary-500/20 transition-all cursor-pointer hover:bg-gray-100"
+                                    aria-label="Sort product reviews"
+                                >
+                                    <option value="newest">Newest First</option>
+                                    <option value="highest">Top Rated</option>
+                                    <option value="lowest">Most Critical</option>
+                                </select>
+                                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-primary-600">
+                                    <ChevronDown className="w-4 h-4" />
+                                </div>
+                            </div>
                         </div>
                     </div>
 
                     <div className="space-y-10">
                         {sortedReviews.map((review) => (
-                            <div key={review.id} className="group bg-white p-10 rounded-[2.5rem] border border-gray-50 shadow-sm hover:shadow-2xl transition-all duration-500">
+                            <div key={review.id} className="group bg-white p-10 rounded-[2.5rem] border border-gray-50 shadow-sm hover:shadow-2xl transition-all duration-500 animate-in fade-in slide-in-from-bottom-2">
                                 <div className="flex items-start justify-between mb-6">
                                     <div className="flex items-center space-x-5">
                                         <div className="h-16 w-16 rounded-[1.25rem] bg-primary-50 flex items-center justify-center text-primary-600 font-black text-2xl shadow-inner border border-primary-100" aria-hidden="true">
@@ -500,12 +522,17 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
                                 </p>
                             </div>
                         ))}
+                        {sortedReviews.length === 0 && (
+                            <div className="text-center py-20 bg-gray-50 rounded-[2.5rem] border-2 border-dashed border-gray-200">
+                                <MessageCircle className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                                <p className="text-gray-500 font-bold">No reviews found for this selection.</p>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
         </div>
 
-        {/* Cross Sell */}
         {relatedProducts.length > 0 && (
             <div className="mt-40 border-t border-gray-100 pt-20 pb-20">
                 <div className="flex items-end justify-between mb-12">
@@ -545,6 +572,10 @@ const RefreshCcw = ({ className }: { className?: string }) => (
 
 const ArrowRight = ({ className }: { className?: string }) => (
     <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+);
+
+const ChevronDown = ({ className }: { className?: string }) => (
+    <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
 );
 
 export default ProductDetail;
