@@ -20,6 +20,11 @@ const INITIAL_CATEGORIES: Category[] = [
 
 const ADMIN_EMAIL = 'drnarayanbamania@gmail.com';
 
+export interface Notification {
+    message: string;
+    type: 'success' | 'error' | 'info';
+}
+
 interface StoreContextType {
   user: User | null;
   login: (email: string, password: string, role: UserRole) => boolean;
@@ -40,6 +45,8 @@ interface StoreContextType {
   isCartOpen: boolean;
   setIsCartOpen: (isOpen: boolean) => void;
   resetProducts: () => void;
+  notification: Notification | null;
+  hideNotification: () => void;
 }
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
@@ -79,6 +86,14 @@ export const StoreProvider = ({ children }: { children?: ReactNode }) => {
 
   const [orders, setOrders] = useState<Order[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [notification, setNotification] = useState<Notification | null>(null);
+
+  const showNotification = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
+    setNotification({ message, type });
+    setTimeout(() => setNotification(null), 3000);
+  };
+
+  const hideNotification = () => setNotification(null);
 
   const login = (email: string, password: string, role: UserRole): boolean => {
     // Check if trying to login as admin but email doesn't match
@@ -123,7 +138,7 @@ export const StoreProvider = ({ children }: { children?: ReactNode }) => {
     setProducts(INITIAL_PRODUCTS);
   }
 
-  const addToCart = (product: Product, quantity: number = 1, openDrawer: boolean = true) => {
+  const addToCart = (product: Product, quantity: number = 1, openDrawer: boolean = false) => {
     setCart(prev => {
       const existing = prev.find(item => item.id === product.id);
       if (existing) {
@@ -131,8 +146,11 @@ export const StoreProvider = ({ children }: { children?: ReactNode }) => {
       }
       return [...prev, { ...product, quantity: quantity }];
     });
+    
     if (openDrawer) {
       setIsCartOpen(true);
+    } else {
+      showNotification(`${product.name} added to cart`);
     }
   };
 
@@ -158,7 +176,8 @@ export const StoreProvider = ({ children }: { children?: ReactNode }) => {
       date: new Date().toISOString()
     };
     setOrders([newOrder, ...orders]);
-    clearCart();
+    // clearCart(); // Removed to persist items until user manually deletes them
+    showNotification("Order placed successfully!");
   };
 
   const updateOrderStatus = (id: string, status: Order['status']) => {
@@ -172,7 +191,8 @@ export const StoreProvider = ({ children }: { children?: ReactNode }) => {
       cart, addToCart, removeFromCart, updateCartQuantity, clearCart,
       orders, placeOrder, updateOrderStatus,
       categories,
-      isCartOpen, setIsCartOpen, resetProducts
+      isCartOpen, setIsCartOpen, resetProducts,
+      notification, hideNotification
     }}>
       {children}
     </StoreContext.Provider>

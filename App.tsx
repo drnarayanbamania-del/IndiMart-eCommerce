@@ -8,7 +8,41 @@ import Shop from './pages/Shop';
 import ProductDetail from './pages/ProductDetail';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import { UserRole } from './types';
-import { CreditCard, Truck, Banknote, ShieldCheck, Lock, CheckCircle, AlertCircle, ShoppingCart, ExternalLink, Instagram, Facebook, Twitter } from 'lucide-react';
+import { CreditCard, Truck, Banknote, ShieldCheck, Lock, CheckCircle, AlertCircle, ShoppingCart, ExternalLink, Instagram, Facebook, Twitter, X as XIcon } from 'lucide-react';
+
+// Toast Notification Component
+const NotificationToast = () => {
+    const { notification, hideNotification } = useStore();
+
+    if (!notification) return null;
+
+    const bgColors = {
+        success: 'bg-green-600',
+        error: 'bg-red-600',
+        info: 'bg-blue-600'
+    };
+
+    const icons = {
+        success: <CheckCircle className="w-5 h-5 text-white" />,
+        error: <AlertCircle className="w-5 h-5 text-white" />,
+        info: <AlertCircle className="w-5 h-5 text-white" />
+    };
+
+    return (
+        <div className="fixed bottom-4 right-4 z-[100] animate-in slide-in-from-bottom-5 duration-300">
+            <div className={`${bgColors[notification.type]} text-white px-4 py-3 rounded-lg shadow-lg flex items-center space-x-3 pr-10 relative`}>
+                {icons[notification.type]}
+                <p className="font-medium text-sm">{notification.message}</p>
+                <button 
+                    onClick={hideNotification}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-white/20 rounded-full transition-colors"
+                >
+                    <XIcon className="w-4 h-4" />
+                </button>
+            </div>
+        </div>
+    );
+};
 
 // Login / Sign Up Component
 const Login = ({ onLogin, targetPage }: { onLogin: () => void, targetPage?: string }) => {
@@ -578,6 +612,7 @@ const AppContent = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar onNavigate={setCurrentPage} currentPage={currentPage} />
+      <NotificationToast />
       <CartDrawer onCheckout={() => setCurrentPage('checkout')} />
       <main className="flex-grow">
         {renderPage()}
