@@ -52,7 +52,7 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPage }) => {
 
   const navItemClass = (page: string) => `
     relative px-1 py-2 text-sm font-bold tracking-wide transition-all duration-300
-    ${currentPage === page ? 'text-primary-600' : 'text-gray-500 hover:text-gray-900'}
+    ${currentPage === page ? 'text-primary-600' : 'text-slate-500 hover:text-slate-900'}
     group
   `;
 
@@ -69,10 +69,10 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPage }) => {
           <div className="flex items-center cursor-pointer group" onClick={() => handleNav('home')}>
              <ApnaStoreLogo />
              <div className="flex flex-col">
-                <span className="text-2xl font-black text-gray-900 leading-none tracking-tighter uppercase font-heading group-hover:text-primary-600 transition-colors">
-                  Apna<span className="text-primary-600 group-hover:text-orange-600 transition-colors">Store</span>
+                <span className="text-2xl font-black text-slate-900 leading-none tracking-tighter uppercase font-heading group-hover:text-primary-700 transition-colors">
+                  Apna<span className="text-indigo-700 group-hover:text-indigo-900 transition-colors">Store</span>
                 </span>
-                <span className="text-[10px] font-bold text-gray-400 tracking-[0.2em] uppercase mt-0.5">Curated Excellence</span>
+                <span className="text-[10px] font-bold text-slate-400 tracking-[0.2em] uppercase mt-0.5">Curated Excellence</span>
              </div>
           </div>
 
@@ -101,11 +101,11 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPage }) => {
 
           {/* Actions */}
           <div className="flex items-center space-x-2 md:space-x-5">
-            <button className="p-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-full transition-all md:block hidden">
+            <button className="p-2 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-full transition-all md:block hidden">
               <Search className="w-5 h-5" />
             </button>
 
-            <button onClick={() => setIsCartOpen(true)} className="relative p-2.5 text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-full transition-all">
+            <button onClick={() => setIsCartOpen(true)} className="relative p-2.5 text-slate-700 hover:text-primary-600 hover:bg-primary-50 rounded-full transition-all">
               <ShoppingCart className="w-5 h-5" />
               {cartCount > 0 && (
                 <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary-600 text-[10px] font-black text-white ring-2 ring-white">
@@ -114,27 +114,27 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPage }) => {
               )}
             </button>
 
-            <div className="h-6 w-px bg-gray-200 mx-2 hidden md:block"></div>
+            <div className="h-6 w-px bg-slate-200 mx-2 hidden md:block"></div>
 
             {user ? (
               <div className="hidden md:flex items-center space-x-4">
                 <div className="flex flex-col items-end">
-                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-tighter">Welcome</span>
-                  <span className="text-xs font-bold text-gray-900 truncate max-w-[100px]">{user.name}</span>
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Welcome</span>
+                  <span className="text-xs font-bold text-slate-900 truncate max-w-[100px]">{user.name}</span>
                 </div>
-                <button onClick={logout} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all" title="Logout">
+                <button onClick={logout} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all" title="Logout">
                   <LogOut className="w-5 h-5" />
                 </button>
               </div>
             ) : (
-              <button onClick={() => handleNav('login')} className="flex items-center space-x-2 px-5 py-2.5 bg-gray-900 text-white text-xs font-black rounded-full hover:bg-primary-600 transition-all shadow-md active:scale-95">
+              <button onClick={() => handleNav('login')} className="flex items-center space-x-2 px-5 py-2.5 bg-slate-900 text-white text-xs font-black rounded-full hover:bg-primary-600 transition-all shadow-md active:scale-95">
                 <UserIcon className="w-4 h-4" />
                 <span className="uppercase tracking-widest">Login</span>
               </button>
             )}
 
             {/* Mobile Toggle */}
-            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-lg">
+            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden p-2 text-slate-600 hover:bg-slate-100 rounded-lg">
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>
@@ -143,15 +143,15 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPage }) => {
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-white border-t border-gray-100 animate-in slide-in-from-top duration-300">
+        <div className="md:hidden bg-white border-t border-slate-100 animate-in slide-in-from-top duration-300">
           <div className="px-4 pt-4 pb-6 space-y-3">
-             <button onClick={() => handleNav('home')} className="block w-full text-left px-4 py-3 rounded-xl text-sm font-black text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-all">HOME</button>
-             <button onClick={() => handleNav('shop')} className="block w-full text-left px-4 py-3 rounded-xl text-sm font-black text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-all">COLLECTIONS</button>
+             <button onClick={() => handleNav('home')} className="block w-full text-left px-4 py-3 rounded-xl text-sm font-black text-slate-700 hover:bg-primary-50 hover:text-primary-600 transition-all">HOME</button>
+             <button onClick={() => handleNav('shop')} className="block w-full text-left px-4 py-3 rounded-xl text-sm font-black text-slate-700 hover:bg-primary-50 hover:text-primary-600 transition-all">COLLECTIONS</button>
              {user?.role === UserRole.ADMIN && (
                 <button onClick={() => handleNav('admin_dashboard')} className="block w-full text-left px-4 py-3 rounded-xl text-sm font-black text-red-600 bg-red-50">ADMIN PANEL</button>
              )}
              {user?.role === UserRole.USER && (
-                <button onClick={() => handleNav('user_dashboard')} className="block w-full text-left px-4 py-3 rounded-xl text-sm font-black text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-all">MY ACCOUNT</button>
+                <button onClick={() => handleNav('user_dashboard')} className="block w-full text-left px-4 py-3 rounded-xl text-sm font-black text-slate-700 hover:bg-primary-50 hover:text-primary-600 transition-all">MY ACCOUNT</button>
              )}
              {user && (
                <button onClick={() => { logout(); setMobileMenuOpen(false); }} className="block w-full text-left px-4 py-3 rounded-xl text-sm font-black text-red-500 hover:bg-red-50 transition-all">LOGOUT</button>
