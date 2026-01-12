@@ -170,62 +170,85 @@ const Checkout = ({ onNavigate }: { onNavigate: (page: string) => void }) => {
     const [loading, setLoading] = useState(false);
     const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-    const handlePlaceOrder = async (e: React.FormEvent<HTMLFormElement>) => {
+    const handlePlaceOrder = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setLoading(true);
 
         const formData = new FormData(e.currentTarget);
         
-        const orderData = {
-            "First Name": formData.get('first-name'),
-            "Last Name": formData.get('last-name'),
-            "Email": formData.get('email-address'),
-            "Address": formData.get('address'),
-            "City": formData.get('city'),
-            "Zip": formData.get('postal-code'),
-            "Product Name": cart.map(item => `${item.name} (x${item.quantity})`).join(', '),
-            "Total Amount": subtotal.toFixed(2),
-            "Order Date": new Date().toLocaleString()
+        // Ensure Razorpay SDK is loaded
+        if (!(window as any).Razorpay) {
+            alert("Razorpay SDK is not loaded. Please check your internet connection.");
+            setLoading(false);
+            return;
+        }
+
+        const options = {
+            key: "rzp_test_YOUR_KEY_HERE", // Replace with your actual Razorpay Key ID
+            amount: Math.round(subtotal * 100), // Amount in paise
+            currency: "INR",
+            name: "Apna Store",
+            description: "Order Payment",
+            image: "https://via.placeholder.com/150",
+            handler: async function (response: any) {
+                console.log("Razorpay Response:", response);
+                
+                const orderData = {
+                    "First Name": formData.get('first-name'),
+                    "Last Name": formData.get('last-name'),
+                    "Email": formData.get('email-address'),
+                    "Address": formData.get('address'),
+                    "City": formData.get('city'),
+                    "Zip": formData.get('postal-code'),
+                    "Product Name": cart.map(item => `${item.name} (x${item.quantity})`).join(', '),
+                    "Total Amount": subtotal.toFixed(2),
+                    "Order Date": new Date().toLocaleString(),
+                    "Payment ID": response.razorpay_payment_id
+                };
+
+                // Log order to Google Sheets
+                try {
+                    await fetch('https://script.google.com/macros/s/AKfycbyfjw6EEDpNk0za4YWldI7ul0Nd4qZVkNL3pS4lotwBlm4N-pyIi_ZIGmu4-Nt7GAwv0w/exec', {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: {
+                            'Content-Type': 'text/plain',
+                        },
+                        body: JSON.stringify(orderData)
+                    });
+                } catch (error) {
+                    console.error("Error submitting order to sheet:", error);
+                }
+
+                // Internal app logic
+                placeOrder({ address: formData.get('address') as string });
+                setLoading(false);
+                onNavigate('home');
+                alert(`Order Placed Successfully! Payment ID: ${response.razorpay_payment_id}`);
+            },
+            prefill: {
+                name: `${formData.get('first-name')} ${formData.get('last-name')}`,
+                email: formData.get('email-address') as string,
+                contact: ""
+            },
+            theme: {
+                color: "#2563eb"
+            },
+            modal: {
+                ondismiss: function() {
+                    setLoading(false);
+                }
+            }
         };
 
-        console.log("Submitting order data:", orderData);
-
-        // Open payment tab immediately to avoid popup blockers and handle "redirect" behavior
-        const paymentWindow = window.open('', '_blank');
-        if (paymentWindow) {
-            paymentWindow.document.write('<html><head><title>Processing Payment</title></head><body style="display:flex;justify-content:center;align-items:center;height:100vh;font-family:sans-serif;background-color:#f9fafb;"><div><h2>Processing your order...</h2><p>Redirecting to Razorpay secure payment...</p></div></body></html>');
-        }
-
-        try {
-            await fetch('https://script.google.com/macros/s/AKfycbyfjw6EEDpNk0za4YWldI7ul0Nd4qZVkNL3pS4lotwBlm4N-pyIi_ZIGmu4-Nt7GAwv0w/exec', {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: {
-                    'Content-Type': 'text/plain',
-                },
-                body: JSON.stringify(orderData)
-            });
-
-            placeOrder({ address: orderData["Address"] as string });
-            
-            if (paymentWindow) {
-                // Redirect the new tab to Razorpay
-                paymentWindow.location.href = "https://razorpay.me/@wonderimggen?amount=EPec5evqGoRk2C8icWNJlQ%3D%3D";
-                // Redirect the main app to Home
-                onNavigate('home');
-            } else {
-                // Fallback for popup blockers
-                alert("Order details saved! Redirecting to payment...");
-                window.location.href = "https://razorpay.me/@wonderimggen?amount=EPec5evqGoRk2C8icWNJlQ%3D%3D";
-            }
-            
-        } catch (error) {
-            console.error("Error submitting order:", error);
-            if (paymentWindow) paymentWindow.close();
-            alert("There was a problem placing your order. Please try again.");
-        } finally {
+        const rzp1 = new (window as any).Razorpay(options);
+        
+        rzp1.on('payment.failed', function (response: any){
+            alert("Payment Failed: " + response.error.description);
             setLoading(false);
-        }
+        });
+
+        rzp1.open();
     }
 
     if(cart.length === 0) return <div className="p-12 text-center">Your cart is empty.</div>

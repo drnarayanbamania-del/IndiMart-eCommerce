@@ -8,19 +8,25 @@ interface NavbarProps {
   currentPage: string;
 }
 
-// Modern SVG Logo Component
+// Modern SVG Logo Component - Redesigned (Premium Flat Style)
 const ApnaStoreLogo = () => (
   <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2 flex-shrink-0">
-    {/* Handle */}
-    <path d="M13 11V7C13 3.13401 16.134 0 20 0C23.866 0 27 3.13401 27 7V11" stroke="#15803D" strokeWidth="3.5" strokeLinecap="round"/>
-    {/* Bag Body - Orange Top */}
-    <path d="M5.5 11H34.5L32.8 36.6C32.65 38.5 31.1 40 29.2 40H10.8C8.9 40 7.35 38.5 7.2 36.6L5.5 11Z" fill="#F97316"/>
-    {/* Bag Body - Green Bottom (Live Better) */}
-    <path d="M6.2 25H33.8L32.8 36.6C32.65 38.5 31.1 40 29.2 40H10.8C8.9 40 7.35 38.5 7.2 36.6L6.2 25Z" fill="#16A34A"/>
-    {/* Minimalist Mascot Face */}
-    <circle cx="14" cy="19" r="2.5" fill="white"/>
-    <circle cx="26" cy="19" r="2.5" fill="white"/>
-    <path d="M17 25C17 25 18.5 27 20 27C21.5 27 23 25 23 25" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+    {/* Variation 1: Modern Minimalist Mascot */}
+    {/* Handle: Darker premium green, positioned perfectly */}
+    <path d="M12 12V8C12 4.5 15.5 1.5 20 1.5C24.5 1.5 28 4.5 28 8V12" stroke="#15803D" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"/>
+    
+    {/* Body: Premium Orange with soft corners */}
+    <rect x="5" y="10" width="30" height="28" rx="6" fill="#EA580C"/>
+    
+    {/* Bottom: Premium Green with a subtle wave/smile curve for brand personality */}
+    <path d="M5 26C5 26 15 23 20 23C25 23 35 26 35 26V32C35 35.3137 32.3137 38 29 38H11C7.68629 38 5 35.3137 5 32V26Z" fill="#15803D"/>
+    
+    {/* Face: Simplified, less cartoonish, more icon-like */}
+    <circle cx="13.5" cy="17" r="2" fill="white" fillOpacity="0.95"/>
+    <circle cx="26.5" cy="17" r="2" fill="white" fillOpacity="0.95"/>
+    
+    {/* Smile: Subtle and balanced */}
+    <path d="M17.5 21.5C18 22.5 19 23 20 23C21 23 22 22.5 22.5 21.5" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 );
 
@@ -41,7 +47,7 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPage }) => {
         <div className="flex justify-between h-16 items-center">
           <div className="flex items-center cursor-pointer" onClick={() => handleNav('home')}>
              <ApnaStoreLogo />
-            <span className="text-2xl font-heading font-bold text-primary-600 tracking-tight">ApnaStore</span>
+            <span className="text-2xl font-heading font-bold text-primary-600 tracking-tight">Apna Store</span>
           </div>
 
           {/* Desktop Menu */}

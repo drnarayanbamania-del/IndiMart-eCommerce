@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useStore } from '../contexts/StoreContext';
-import { Star, ShoppingCart, ArrowLeft, Heart, Share2, ChevronLeft, ChevronRight, Facebook, Twitter, Linkedin, MessageCircle } from 'lucide-react';
+import { Star, ShoppingCart, ArrowLeft, Heart, ChevronLeft, ChevronRight, Facebook, Twitter, Linkedin, MessageCircle } from 'lucide-react';
 import { Product } from '../types';
 
 interface ProductDetailProps {
@@ -9,12 +9,28 @@ interface ProductDetailProps {
   onViewProduct: (id: string) => void;
 }
 
+interface Review {
+  id: string;
+  userName: string;
+  rating: number;
+  comment: string;
+  date: string;
+}
+
 const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onViewProduct }) => {
   const { products, addToCart } = useStore();
   const product = products.find(p => p.id === productId);
   const [activeImage, setActiveImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
-  const [showShareMenu, setShowShareMenu] = useState(false);
+
+  // Review State
+  const [reviews, setReviews] = useState<Review[]>([
+      { id: '1', userName: 'John Doe', rating: 5, comment: 'Absolutely love this product! The quality is outstanding.', date: '2 days ago' },
+      { id: '2', userName: 'Jane Smith', rating: 4, comment: 'Great value for money, but shipping took a bit longer than expected.', date: '1 week ago' },
+      { id: '3', userName: 'Mike Johnson', rating: 5, comment: 'Exceeded my expectations. Highly recommended!', date: '2 weeks ago' }
+  ]);
+  const [reviewForm, setReviewForm] = useState({ name: '', rating: 5, comment: '' });
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
 
   if (!product) {
     return <div className="p-8 text-center">Product not found. <button onClick={onBack} className="text-primary-600 underline">Go back</button></div>;
@@ -35,8 +51,29 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
   const handleNextImage = () => setActiveImage((prev) => (prev + 1) % images.length);
   const handlePrevImage = () => setActiveImage((prev) => (prev - 1 + images.length) % images.length);
 
+  const handleReviewSubmit = (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!reviewForm.name || !reviewForm.comment) return;
+
+      setIsSubmittingReview(true);
+      
+      // Simulate network delay
+      setTimeout(() => {
+          const newReview: Review = {
+              id: Math.random().toString(36).substr(2, 9),
+              userName: reviewForm.name,
+              rating: reviewForm.rating,
+              comment: reviewForm.comment,
+              date: 'Just now'
+          };
+          setReviews([newReview, ...reviews]);
+          setReviewForm({ name: '', rating: 5, comment: '' });
+          setIsSubmittingReview(false);
+      }, 600);
+  };
+
   const shareUrl = window.location.href;
-  const shareText = `Check out ${product.name} (₹${product.price}) on ApnaStore!`;
+  const shareText = `Check out ${product.name} (₹${product.price}) on Apna Store!`;
 
   return (
     <div className="bg-white min-h-screen pb-12">
@@ -56,15 +93,23 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
                 <img 
                   key={idx}
                   src={img} 
-                  alt={`${product.name} - View ${idx + 1}`} 
+                  alt={`${product.name} - Detailed view ${idx + 1} of ${images.length}`} 
                   className={`absolute inset-0 w-full h-full object-center object-cover transition-opacity duration-500 ease-in-out ${activeImage === idx ? 'opacity-100' : 'opacity-0'}`}
                 />
               ))}
               
-              <button onClick={handlePrevImage} className="absolute z-10 left-4 top-1/2 transform -translate-y-1/2 bg-white/80 p-2 rounded-full shadow-md hover:bg-white opacity-0 group-hover:opacity-100 transition-opacity">
+              <button 
+                onClick={handlePrevImage} 
+                className="absolute z-10 left-4 top-1/2 transform -translate-y-1/2 bg-white/80 p-2 rounded-full shadow-md hover:bg-white opacity-0 group-hover:opacity-100 transition-opacity"
+                aria-label="Previous image"
+              >
                 <ChevronLeft className="w-6 h-6 text-gray-800" />
               </button>
-              <button onClick={handleNextImage} className="absolute z-10 right-4 top-1/2 transform -translate-y-1/2 bg-white/80 p-2 rounded-full shadow-md hover:bg-white opacity-0 group-hover:opacity-100 transition-opacity">
+              <button 
+                onClick={handleNextImage} 
+                className="absolute z-10 right-4 top-1/2 transform -translate-y-1/2 bg-white/80 p-2 rounded-full shadow-md hover:bg-white opacity-0 group-hover:opacity-100 transition-opacity"
+                aria-label="Next image"
+              >
                 <ChevronRight className="w-6 h-6 text-gray-800" />
               </button>
             </div>
@@ -74,8 +119,9 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
                   key={idx} 
                   onClick={() => setActiveImage(idx)}
                   className={`relative rounded-md overflow-hidden aspect-w-1 aspect-h-1 ${activeImage === idx ? 'ring-2 ring-primary-500' : 'opacity-70 hover:opacity-100'}`}
+                  aria-label={`View image ${idx + 1} of ${product.name}`}
                 >
-                  <img src={img} alt={`View ${idx}`} className="w-full h-full object-cover" />
+                  <img src={img} alt={`Thumbnail of ${product.name} - View ${idx + 1}`} className="w-full h-full object-cover" />
                 </button>
               ))}
             </div>
@@ -85,74 +131,50 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
           <div className="mt-10 px-4 sm:px-0 sm:mt-16 lg:mt-0">
             <div className="flex justify-between relative">
                 <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 font-heading">{product.name}</h1>
-                <div className="flex space-x-2">
-                    <button className="p-2 text-gray-400 hover:text-red-500 rounded-full hover:bg-red-50" title="Add to Wishlist"><Heart className="w-6 h-6" /></button>
+                <div className="flex items-center space-x-2">
+                    <button className="p-2 text-gray-400 hover:text-red-500 rounded-full hover:bg-red-50 transition-colors" title="Add to Wishlist">
+                        <Heart className="w-6 h-6" />
+                    </button>
                     
-                    {/* Direct WhatsApp Share Button */}
-                    <a 
-                       href={`https://wa.me/?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`} 
-                       target="_blank" 
-                       rel="noopener noreferrer"
-                       className="p-2 text-gray-400 hover:text-green-600 rounded-full hover:bg-green-50 transition-colors flex items-center justify-center"
-                       title="Share on WhatsApp"
-                    >
-                        <MessageCircle className="w-6 h-6" />
-                    </a>
+                    <div className="h-6 w-px bg-gray-300 mx-1"></div>
 
-                    {/* Share Button Dropdown */}
-                    <div className="relative">
-                        <button 
-                            onClick={() => setShowShareMenu(!showShareMenu)}
-                            className="p-2 text-gray-400 hover:text-primary-500 rounded-full hover:bg-primary-50"
-                            title="Share Product"
-                        >
-                            <Share2 className="w-6 h-6" />
-                        </button>
-                        
-                        {showShareMenu && (
-                            <div className="absolute right-0 mt-2 w-48 rounded-lg shadow-xl bg-white ring-1 ring-black ring-opacity-5 z-20 p-3 animate-in fade-in zoom-in duration-200">
-                                <p className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wider text-center">Share Via</p>
-                                <div className="grid grid-cols-4 gap-2">
-                                     <a 
-                                        href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`} 
-                                        target="_blank" 
-                                        rel="noopener noreferrer" 
-                                        className="flex items-center justify-center p-2 text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
-                                        title="Share on Facebook"
-                                     >
-                                        <Facebook className="w-5 h-5" />
-                                     </a>
-                                     <a 
-                                        href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`} 
-                                        target="_blank" 
-                                        rel="noopener noreferrer" 
-                                        className="flex items-center justify-center p-2 text-sky-500 hover:bg-sky-50 rounded-md transition-colors"
-                                        title="Share on Twitter"
-                                     >
-                                        <Twitter className="w-5 h-5" />
-                                     </a>
-                                     <a 
-                                        href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`} 
-                                        target="_blank" 
-                                        rel="noopener noreferrer" 
-                                        className="flex items-center justify-center p-2 text-blue-700 hover:bg-blue-50 rounded-md transition-colors"
-                                        title="Share on LinkedIn"
-                                     >
-                                        <Linkedin className="w-5 h-5" />
-                                     </a>
-                                     <a 
-                                        href={`https://wa.me/?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`} 
-                                        target="_blank" 
-                                        rel="noopener noreferrer" 
-                                        className="flex items-center justify-center p-2 text-green-500 hover:bg-green-50 rounded-md transition-colors"
-                                        title="Share on WhatsApp"
-                                     >
-                                        <MessageCircle className="w-5 h-5" />
-                                     </a>
-                                </div>
-                            </div>
-                        )}
-                    </div>
+                    {/* Social Share Buttons */}
+                    <a 
+                        href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
+                        title="Share on Facebook"
+                    >
+                        <Facebook className="w-5 h-5" />
+                    </a>
+                    <a 
+                        href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-2 text-gray-400 hover:text-sky-500 hover:bg-sky-50 rounded-full transition-colors"
+                        title="Share on Twitter"
+                    >
+                        <Twitter className="w-5 h-5" />
+                    </a>
+                    <a 
+                        href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-2 text-gray-400 hover:text-blue-700 hover:bg-blue-50 rounded-full transition-colors"
+                        title="Share on LinkedIn"
+                    >
+                        <Linkedin className="w-5 h-5" />
+                    </a>
+                    <a 
+                        href={`https://wa.me/?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-2 text-gray-400 hover:text-green-500 hover:bg-green-50 rounded-full transition-colors"
+                        title="Share on WhatsApp"
+                    >
+                        <MessageCircle className="w-5 h-5" />
+                    </a>
                 </div>
             </div>
             
@@ -229,29 +251,98 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
 
         {/* Reviews Section */}
         <div id="reviews" className="mt-16 border-t border-gray-200 pt-10">
-            <h2 className="text-2xl font-bold text-gray-900 font-heading mb-6">Customer Reviews</h2>
-            <div className="space-y-8">
-                {[1, 2, 3].map((i) => (
-                    <div key={i} className="flex space-x-4">
-                        <div className="flex-shrink-0">
-                            <img className="h-10 w-10 rounded-full" src={`https://i.pravatar.cc/150?u=${productId}${i}`} alt="" />
-                        </div>
-                        <div className="flex-1">
-                            <div className="flex items-center justify-between">
-                                <h3 className="text-sm font-bold text-gray-900">User {i}</h3>
-                                <p className="text-sm text-gray-500">2 days ago</p>
+            <h2 className="text-2xl font-bold text-gray-900 font-heading mb-8">Customer Reviews</h2>
+            
+            <div className="lg:grid lg:grid-cols-12 lg:gap-x-12">
+                {/* Review Form */}
+                <div className="lg:col-span-4 mb-10 lg:mb-0">
+                    <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
+                        <h3 className="text-lg font-medium text-gray-900 mb-4">Write a Review</h3>
+                        <form onSubmit={handleReviewSubmit} className="space-y-4">
+                            <div>
+                                <label htmlFor="name" className="block text-sm font-medium text-gray-700">Your Name</label>
+                                <input 
+                                    type="text" 
+                                    id="name"
+                                    required
+                                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm p-2 border"
+                                    value={reviewForm.name}
+                                    onChange={(e) => setReviewForm({...reviewForm, name: e.target.value})}
+                                    placeholder="John Doe"
+                                />
                             </div>
-                            <div className="flex items-center mt-1">
-                                {[...Array(5)].map((_, starIdx) => (
-                                    <Star key={starIdx} className={`w-4 h-4 ${starIdx < 4 ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
-                                ))}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Rating</label>
+                                <div className="flex items-center space-x-1">
+                                    {[1, 2, 3, 4, 5].map((star) => (
+                                        <button 
+                                            key={star}
+                                            type="button"
+                                            onClick={() => setReviewForm({...reviewForm, rating: star})}
+                                            className="focus:outline-none transition-colors"
+                                        >
+                                            <Star 
+                                                className={`w-6 h-6 ${star <= reviewForm.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
+                                            />
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
-                            <p className="mt-2 text-sm text-gray-600">
-                                This product exceeded my expectations! The quality is amazing for the price. Would definitely recommend.
-                            </p>
-                        </div>
+                            <div>
+                                <label htmlFor="comment" className="block text-sm font-medium text-gray-700">Review</label>
+                                <textarea 
+                                    id="comment"
+                                    rows={4}
+                                    required
+                                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm p-2 border"
+                                    value={reviewForm.comment}
+                                    onChange={(e) => setReviewForm({...reviewForm, comment: e.target.value})}
+                                    placeholder="Share your thoughts..."
+                                />
+                            </div>
+                            <button 
+                                type="submit" 
+                                disabled={isSubmittingReview}
+                                className="w-full bg-primary-600 text-white py-2 px-4 rounded-md text-sm font-medium hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
+                            >
+                                {isSubmittingReview ? 'Submitting...' : 'Submit Review'}
+                            </button>
+                        </form>
                     </div>
-                ))}
+                </div>
+
+                {/* Reviews List */}
+                <div className="lg:col-span-8">
+                    <div className="space-y-8">
+                        {reviews.length === 0 ? (
+                            <p className="text-gray-500">No reviews yet. Be the first to review!</p>
+                        ) : (
+                            reviews.map((review) => (
+                                <div key={review.id} className="flex space-x-4 pb-8 border-b border-gray-100 last:border-0">
+                                    <div className="flex-shrink-0">
+                                        <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500">
+                                            <span className="font-semibold text-sm">{review.userName.charAt(0).toUpperCase()}</span>
+                                        </div>
+                                    </div>
+                                    <div className="flex-1">
+                                        <div className="flex items-center justify-between">
+                                            <h3 className="text-sm font-bold text-gray-900">{review.userName}</h3>
+                                            <p className="text-sm text-gray-500">{review.date}</p>
+                                        </div>
+                                        <div className="flex items-center mt-1 mb-2">
+                                            {[...Array(5)].map((_, starIdx) => (
+                                                <Star key={starIdx} className={`w-4 h-4 ${starIdx < review.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
+                                            ))}
+                                        </div>
+                                        <p className="text-sm text-gray-600 leading-relaxed">
+                                            {review.comment}
+                                        </p>
+                                    </div>
+                                </div>
+                            ))
+                        )}
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -267,7 +358,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
                           onClick={() => onViewProduct(relProduct.id)}
                         >
                             <div className="w-full min-h-60 bg-gray-200 aspect-w-1 aspect-h-1 rounded-md overflow-hidden group-hover:opacity-75 lg:h-60 lg:aspect-none">
-                                <img src={relProduct.image} alt={relProduct.name} className="w-full h-full object-center object-cover lg:w-full lg:h-full" />
+                                <img src={relProduct.image} alt={`Product image of ${relProduct.name}`} className="w-full h-full object-center object-cover lg:w-full lg:h-full" />
                             </div>
                             <div className="mt-4 flex justify-between">
                                 <div>
