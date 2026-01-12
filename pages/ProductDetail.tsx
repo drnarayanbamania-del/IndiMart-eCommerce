@@ -552,4 +552,30 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
                                 <img src={rel.image} alt={`${rel.name} related product`} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                             </div>
                             <div>
-                                <h3 className="text-sm font-black text-slate-900 group-hover:text-indigo-60
+                                <h3 className="text-sm font-black text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-1">{rel.name}</h3>
+                                <p className="text-xs text-slate-300 font-bold mt-1 uppercase tracking-widest">{rel.category}</p>
+                                <p className="text-xl font-black text-slate-900 mt-4">₹{rel.price}</p>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const RefreshCcw = ({ className }: { className?: string }) => (
+    <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
+);
+
+const ArrowRight = ({ className }: { className?: string }) => (
+    <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+);
+
+const ChevronDown = ({ className }: { className?: string }) => (
+    <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+);
+
+export default ProductDetail;
