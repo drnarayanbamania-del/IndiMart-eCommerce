@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useStore } from '../contexts/StoreContext';
-import { Star, ShoppingCart, ArrowLeft, Heart, ChevronLeft, ChevronRight, Facebook, Twitter, Linkedin, MessageCircle, Check } from 'lucide-react';
-import { Product } from '../types';
+import { Star, ShoppingCart, ArrowLeft, Heart, ChevronLeft, ChevronRight, Facebook, Twitter, Linkedin, MessageCircle, Check, ShieldCheck, Filter } from 'lucide-react';
 
 interface ProductDetailProps {
   productId: string;
@@ -15,6 +14,7 @@ interface Review {
   rating: number;
   comment: string;
   date: string;
+  verified?: boolean;
 }
 
 const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onViewProduct }) => {
@@ -26,12 +26,13 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
 
   // Review State
   const [reviews, setReviews] = useState<Review[]>([
-      { id: '1', userName: 'John Doe', rating: 5, comment: 'Absolutely love this product! The quality is outstanding.', date: '2 days ago' },
-      { id: '2', userName: 'Jane Smith', rating: 4, comment: 'Great value for money, but shipping took a bit longer than expected.', date: '1 week ago' },
-      { id: '3', userName: 'Mike Johnson', rating: 5, comment: 'Exceeded my expectations. Highly recommended!', date: '2 weeks ago' }
+      { id: '1', userName: 'John Doe', rating: 5, comment: 'Absolutely love this product! The quality is outstanding and it arrived earlier than expected.', date: '2 days ago', verified: true },
+      { id: '2', userName: 'Jane Smith', rating: 4, comment: 'Great value for money. The color matches the photos perfectly.', date: '1 week ago', verified: true },
+      { id: '3', userName: 'Mike Johnson', rating: 5, comment: 'Exceeded my expectations. Highly recommended! I will definitely buy again.', date: '2 weeks ago', verified: false }
   ]);
   const [reviewForm, setReviewForm] = useState({ name: '', rating: 5, comment: '' });
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  const [sortBy, setSortBy] = useState<'newest' | 'highest' | 'lowest'>('newest');
 
   if (!product) {
     return <div className="p-8 text-center">Product not found. <button onClick={onBack} className="text-primary-600 underline">Go back</button></div>;
@@ -49,11 +50,36 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
     .filter(p => p.category === product.category && p.id !== product.id)
     .slice(0, 4);
 
+  // Derived Review Statistics
+  const averageRating = useMemo(() => {
+      if (reviews.length === 0) return 0;
+      return reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length;
+  }, [reviews]);
+
+  const ratingDistribution = useMemo(() => {
+      const dist = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+      reviews.forEach(r => {
+          // @ts-ignore
+          if (dist[r.rating] !== undefined) dist[r.rating]++;
+      });
+      return dist;
+  }, [reviews]);
+
+  const sortedReviews = useMemo(() => {
+      return [...reviews].sort((a, b) => {
+          if (sortBy === 'highest') return b.rating - a.rating;
+          if (sortBy === 'lowest') return a.rating - b.rating;
+          return 0; // Default to 'newest' (assuming array order is newest first for this mock)
+      });
+  }, [reviews, sortBy]);
+
   const handleNextImage = () => setActiveImage((prev) => (prev + 1) % images.length);
   const handlePrevImage = () => setActiveImage((prev) => (prev - 1 + images.length) % images.length);
 
   const handleAddToCart = () => {
-    for(let i=0; i<quantity; i++) addToCart(product);
+    if (isAdded) return;
+    // Add to cart without automatically opening the drawer to allow user to see the button animation
+    for(let i=0; i<quantity; i++) addToCart(product, false);
     setIsAdded(true);
     setTimeout(() => setIsAdded(false), 2000);
   };
@@ -71,7 +97,8 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
               userName: reviewForm.name,
               rating: reviewForm.rating,
               comment: reviewForm.comment,
-              date: 'Just now'
+              date: 'Just now',
+              verified: true // Simulate verified for new reviews
           };
           setReviews([newReview, ...reviews]);
           setReviewForm({ name: '', rating: 5, comment: '' });
@@ -207,7 +234,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
                 </div>
                 <p className="sr-only">{product.rating} out of 5 stars</p>
                 <a href="#reviews" className="ml-3 text-sm font-medium text-primary-600 hover:text-primary-500">
-                  {product.reviews} reviews
+                  {reviews.length} reviews
                 </a>
               </div>
             </div>
@@ -275,8 +302,38 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
             <h2 className="text-2xl font-bold text-gray-900 font-heading mb-8">Customer Reviews</h2>
             
             <div className="lg:grid lg:grid-cols-12 lg:gap-x-12">
-                {/* Review Form */}
-                <div className="lg:col-span-4 mb-10 lg:mb-0">
+                {/* Left Column: Form and Summary for Mobile */}
+                <div className="lg:col-span-4 mb-10 lg:mb-0 space-y-8">
+                    {/* Rating Snapshot */}
+                    <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                        <div className="text-center">
+                            <p className="text-5xl font-extrabold text-gray-900">{averageRating.toFixed(1)}</p>
+                            <div className="flex justify-center items-center mt-2 mb-1">
+                                {[1, 2, 3, 4, 5].map((star) => (
+                                    <Star key={star} className={`w-5 h-5 ${star <= Math.round(averageRating) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
+                                ))}
+                            </div>
+                            <p className="text-sm text-gray-500">Based on {reviews.length} reviews</p>
+                        </div>
+                        <div className="mt-6 space-y-2">
+                            {[5, 4, 3, 2, 1].map((rating) => {
+                                // @ts-ignore
+                                const count = ratingDistribution[rating] || 0;
+                                const percentage = reviews.length > 0 ? (count / reviews.length) * 100 : 0;
+                                return (
+                                    <div key={rating} className="flex items-center text-sm">
+                                        <div className="w-12 text-gray-600">{rating} star</div>
+                                        <div className="flex-1 mx-3 h-2 bg-gray-100 rounded-full overflow-hidden">
+                                            <div className="h-full bg-yellow-400 rounded-full" style={{ width: `${percentage}%` }}></div>
+                                        </div>
+                                        <div className="w-8 text-right text-gray-400 text-xs">{percentage.toFixed(0)}%</div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    {/* Write Review Form */}
                     <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
                         <h3 className="text-lg font-medium text-gray-900 mb-4">Write a Review</h3>
                         <form onSubmit={handleReviewSubmit} className="space-y-4">
@@ -300,7 +357,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
                                             key={star}
                                             type="button"
                                             onClick={() => setReviewForm({...reviewForm, rating: star})}
-                                            className="focus:outline-none transition-colors"
+                                            className="focus:outline-none transition-colors transform hover:scale-110"
                                         >
                                             <Star 
                                                 className={`w-6 h-6 ${star <= reviewForm.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
@@ -324,7 +381,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
                             <button 
                                 type="submit" 
                                 disabled={isSubmittingReview}
-                                className="w-full bg-primary-600 text-white py-2 px-4 rounded-md text-sm font-medium hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
+                                className="w-full bg-primary-600 text-white py-2 px-4 rounded-md text-sm font-medium hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 transition-colors"
                             >
                                 {isSubmittingReview ? 'Submitting...' : 'Submit Review'}
                             </button>
@@ -332,27 +389,53 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
                     </div>
                 </div>
 
-                {/* Reviews List */}
+                {/* Right Column: Reviews List */}
                 <div className="lg:col-span-8">
+                    {/* Sort Controls */}
+                    <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-100">
+                        <span className="text-sm text-gray-500">{reviews.length} Comments</span>
+                        <div className="flex items-center">
+                            <Filter className="w-4 h-4 text-gray-400 mr-2" />
+                            <select 
+                                value={sortBy}
+                                onChange={(e) => setSortBy(e.target.value as any)}
+                                className="text-sm border-none focus:ring-0 text-gray-700 font-medium cursor-pointer"
+                            >
+                                <option value="newest">Newest</option>
+                                <option value="highest">Highest Rating</option>
+                                <option value="lowest">Lowest Rating</option>
+                            </select>
+                        </div>
+                    </div>
+
                     <div className="space-y-8">
-                        {reviews.length === 0 ? (
-                            <p className="text-gray-500">No reviews yet. Be the first to review!</p>
+                        {sortedReviews.length === 0 ? (
+                            <div className="text-center py-10 bg-gray-50 rounded-lg">
+                                <p className="text-gray-500">No reviews yet. Be the first to review!</p>
+                            </div>
                         ) : (
-                            reviews.map((review) => (
-                                <div key={review.id} className="flex space-x-4 pb-8 border-b border-gray-100 last:border-0">
+                            sortedReviews.map((review) => (
+                                <div key={review.id} className="flex space-x-4 pb-8 border-b border-gray-100 last:border-0 hover:bg-gray-50/50 p-4 rounded-lg transition-colors">
                                     <div className="flex-shrink-0">
-                                        <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500">
-                                            <span className="font-semibold text-sm">{review.userName.charAt(0).toUpperCase()}</span>
+                                        <div className="h-12 w-12 rounded-full bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center text-primary-700 shadow-sm">
+                                            <span className="font-bold text-lg">{review.userName.charAt(0).toUpperCase()}</span>
                                         </div>
                                     </div>
                                     <div className="flex-1">
-                                        <div className="flex items-center justify-between">
-                                            <h3 className="text-sm font-bold text-gray-900">{review.userName}</h3>
-                                            <p className="text-sm text-gray-500">{review.date}</p>
+                                        <div className="flex items-center justify-between mb-1">
+                                            <div className="flex items-center">
+                                                <h3 className="text-base font-bold text-gray-900 mr-2">{review.userName}</h3>
+                                                {review.verified && (
+                                                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800" title="Verified Purchase">
+                                                        <ShieldCheck className="w-3 h-3 mr-1" /> Verified
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <p className="text-xs text-gray-500">{review.date}</p>
                                         </div>
-                                        <div className="flex items-center mt-1 mb-2">
+                                        <div className="flex items-center mb-3">
                                             {[...Array(5)].map((_, starIdx) => (
-                                                <Star key={starIdx} className={`w-4 h-4 ${starIdx < review.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
+                                                <Star key={starIdx} className={`w-4 h-4 ${starIdx < review.rating ? 'text-yellow-400 fill-current' : 'text-gray-200'}`} />
                                             ))}
                                         </div>
                                         <p className="text-sm text-gray-600 leading-relaxed">
