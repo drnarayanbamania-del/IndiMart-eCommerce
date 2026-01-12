@@ -122,37 +122,53 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
         <div className="lg:grid lg:grid-cols-2 lg:gap-x-12 xl:gap-x-16">
           {/* Image Gallery */}
           <div className="product-images">
-            <div className="relative aspect-w-1 aspect-h-1 bg-gray-100 rounded-lg overflow-hidden mb-4 group">
+            <div className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden mb-4 group">
               {images.map((img, idx) => (
                 <img 
                   key={idx}
                   src={img} 
                   alt={`${product.name} - Detailed view ${idx + 1} of ${images.length}`} 
-                  className={`absolute inset-0 w-full h-full object-center object-cover transition-opacity duration-500 ease-in-out ${activeImage === idx ? 'opacity-100' : 'opacity-0'}`}
+                  className={`absolute inset-0 w-full h-full object-center object-cover transition-all duration-700 ease-in-out transform ${
+                    activeImage === idx 
+                      ? 'opacity-100 scale-100 z-10' 
+                      : 'opacity-0 scale-110 z-0'
+                  }`}
                 />
               ))}
               
               <button 
                 onClick={handlePrevImage} 
-                className="absolute z-10 left-4 top-1/2 transform -translate-y-1/2 bg-white/80 p-2 rounded-full shadow-md hover:bg-white opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute z-20 left-4 top-1/2 transform -translate-y-1/2 bg-white/80 p-2 rounded-full shadow-md hover:bg-white opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm"
                 aria-label="Previous image"
               >
                 <ChevronLeft className="w-6 h-6 text-gray-800" />
               </button>
               <button 
                 onClick={handleNextImage} 
-                className="absolute z-10 right-4 top-1/2 transform -translate-y-1/2 bg-white/80 p-2 rounded-full shadow-md hover:bg-white opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute z-20 right-4 top-1/2 transform -translate-y-1/2 bg-white/80 p-2 rounded-full shadow-md hover:bg-white opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm"
                 aria-label="Next image"
               >
                 <ChevronRight className="w-6 h-6 text-gray-800" />
               </button>
+
+              {/* Dot Indicators */}
+              <div className="absolute bottom-4 left-0 right-0 flex justify-center space-x-2 z-20">
+                 {images.map((_, idx) => (
+                    <button
+                        key={idx}
+                        onClick={() => setActiveImage(idx)}
+                        className={`w-2 h-2 rounded-full transition-all duration-300 ${activeImage === idx ? 'bg-white w-6' : 'bg-white/50 hover:bg-white/80'}`}
+                        aria-label={`Go to image ${idx + 1}`}
+                    />
+                 ))}
+              </div>
             </div>
             <div className="grid grid-cols-4 gap-4">
               {images.map((img, idx) => (
                 <button 
                   key={idx} 
                   onClick={() => setActiveImage(idx)}
-                  className={`relative rounded-md overflow-hidden aspect-w-1 aspect-h-1 ${activeImage === idx ? 'ring-2 ring-primary-500' : 'opacity-70 hover:opacity-100'}`}
+                  className={`relative rounded-md overflow-hidden aspect-w-1 aspect-h-1 ${activeImage === idx ? 'ring-2 ring-primary-500' : 'opacity-70 hover:opacity-100 transition-opacity'}`}
                   aria-label={`View image ${idx + 1} of ${product.name}`}
                 >
                   <img src={img} alt={`Thumbnail of ${product.name} - View ${idx + 1}`} className="w-full h-full object-cover" />
