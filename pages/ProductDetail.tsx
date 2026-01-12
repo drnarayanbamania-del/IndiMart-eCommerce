@@ -189,26 +189,29 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
               ref={containerRef}
               onMouseMove={handleMouseMove}
               onMouseLeave={handleMouseLeave}
-              className="relative aspect-square bg-slate-50 rounded-[2.5rem] overflow-hidden mb-6 group shadow-2xl border border-slate-100 cursor-crosshair ring-1 ring-slate-900/5"
+              className="relative aspect-square bg-slate-50 rounded-[2.5rem] overflow-hidden mb-6 group shadow-2xl border border-slate-100 cursor-crosshair ring-1 ring-slate-900/5 bg-white"
             >
-              {/* Slider Track */}
-              <div 
-                className="flex h-full transition-transform duration-700 ease-[cubic-bezier(0.4,0,0.2,1)]"
-                style={{ transform: `translateX(-${activeImage * 100}%)` }}
-              >
-                {images.map((img, idx) => (
-                  <div key={idx} className="w-full h-full flex-shrink-0 bg-white relative">
-                    <img 
-                      src={img} 
-                      alt={`${product.name} - View ${idx + 1}`} 
-                      className="w-full h-full object-center object-cover"
-                    />
-                  </div>
-                ))}
-              </div>
+              {/* Stacked Images for Fade Transition */}
+              {images.map((img, idx) => (
+                <div 
+                  key={idx}
+                  className={`absolute inset-0 w-full h-full transition-all duration-700 ease-out ${
+                    activeImage === idx 
+                      ? 'opacity-100 scale-100 z-10' 
+                      : 'opacity-0 scale-110 z-0'
+                  }`}
+                >
+                  <img 
+                    src={img} 
+                    alt={`${product.name} - View ${idx + 1}`} 
+                    className="w-full h-full object-center object-cover"
+                  />
+                </div>
+              ))}
               
+              {/* Zoom Lens Overlay - Optimized Display */}
               <div 
-                className="absolute inset-0 z-30 pointer-events-none transition-opacity duration-500 ease-out shadow-inner"
+                className="absolute inset-0 z-30 pointer-events-none transition-opacity duration-300 ease-out bg-white"
                 role="img"
                 aria-label={`${product.name} zoomed view`}
                 style={{
@@ -216,23 +219,26 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
                   backgroundImage: `url(${images[activeImage]})`,
                   backgroundPosition: `${zoomPos.x}% ${zoomPos.y}%`,
                   backgroundSize: '250%',
-                  backgroundRepeat: 'no-repeat'
+                  backgroundRepeat: 'no-repeat',
                 }}
               />
 
               {/* Gallery Controls Overlay */}
-              <div className="absolute inset-0 z-40 pointer-events-none flex flex-col justify-between p-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                 <div className="flex justify-end">
+              <div className="absolute inset-0 z-40 pointer-events-none flex flex-col justify-between p-6">
+                 <div className="flex justify-between items-start">
+                     <span className="bg-black/50 backdrop-blur-md text-white px-3 py-1 rounded-full text-xs font-bold tracking-widest opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                        {activeImage + 1} / {images.length}
+                     </span>
                      <button 
                         onClick={(e) => { e.stopPropagation(); setIsLightboxOpen(true); }}
-                        className="pointer-events-auto p-2.5 bg-white/90 backdrop-blur-sm rounded-full shadow-lg text-slate-700 hover:text-indigo-600 hover:scale-110 transition-all"
+                        className="pointer-events-auto p-2.5 bg-white/90 backdrop-blur-sm rounded-full shadow-lg text-slate-700 hover:text-indigo-600 hover:scale-110 transition-all opacity-0 group-hover:opacity-100 duration-300"
                         title="View Fullscreen"
                      >
                          <Maximize2 className="w-5 h-5" />
                      </button>
                  </div>
                  
-                 <div className="flex justify-between items-center w-full px-1">
+                 <div className="flex justify-between items-center w-full px-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <button 
                       onClick={(e) => { e.stopPropagation(); handlePrevImage(); }} 
                       className="pointer-events-auto p-3 bg-white/80 backdrop-blur-sm rounded-full shadow-lg text-slate-700 hover:text-indigo-600 hover:bg-white hover:scale-110 transition-all active:scale-95"
@@ -260,8 +266,8 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
                   aria-label={`Show ${product.name} view ${idx + 1}`}
                   className={`relative rounded-2xl overflow-hidden aspect-square transition-all duration-300 transform group ${
                     activeImage === idx 
-                      ? 'ring-2 ring-indigo-600 ring-offset-2 scale-105 shadow-md z-10' 
-                      : 'opacity-80 hover:opacity-100 hover:scale-105 hover:shadow-sm ring-1 ring-slate-200'
+                      ? 'ring-2 ring-indigo-600 ring-offset-2 scale-95 shadow-md z-10' 
+                      : 'opacity-70 hover:opacity-100 hover:scale-105 hover:shadow-sm ring-1 ring-slate-200'
                   }`}
                 >
                   <img src={img} alt={`${product.name} view ${idx + 1} thumbnail`} className="w-full h-full object-cover" />

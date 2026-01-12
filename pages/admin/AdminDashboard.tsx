@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useStore } from '../../contexts/StoreContext';
 import { UserRole, Product } from '../../types';
@@ -16,6 +17,7 @@ const AdminDashboard: React.FC = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const [imagePreviewError, setImagePreviewError] = useState(false);
 
   // New product form state
   const [newProduct, setNewProduct] = useState<Partial<Product>>({
@@ -67,6 +69,7 @@ const AdminDashboard: React.FC = () => {
         if (part.inlineData) {
           const base64Data = `data:image/png;base64,${part.inlineData.data}`;
           setNewProduct({ ...newProduct, image: base64Data });
+          setImagePreviewError(false);
           break;
         }
       }
@@ -94,6 +97,7 @@ const AdminDashboard: React.FC = () => {
       } as Product);
       setShowAddModal(false);
       setNewProduct({ name: '', category: 'Electronics', price: 0, description: '', stock: 0, image: 'https://picsum.photos/400/400' });
+      setImagePreviewError(false);
     }
   };
 
@@ -368,10 +372,18 @@ const AdminDashboard: React.FC = () => {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Product Image</label>
                     <div className="relative aspect-square w-full bg-gray-100 rounded-lg overflow-hidden border-2 border-dashed border-gray-300 flex items-center justify-center">
-                      {newProduct.image ? (
-                        <img src={newProduct.image} alt="Preview" className="w-full h-full object-cover" />
+                      {newProduct.image && !imagePreviewError ? (
+                        <img 
+                          src={newProduct.image} 
+                          alt="Preview" 
+                          className="w-full h-full object-cover" 
+                          onError={() => setImagePreviewError(true)}
+                        />
                       ) : (
-                        <ImageIcon className="w-12 h-12 text-gray-300" />
+                        <div className="flex flex-col items-center justify-center text-gray-400">
+                           <ImageIcon className="w-12 h-12 mb-2" />
+                           <span className="text-xs">No Preview</span>
+                        </div>
                       )}
                       {isGeneratingImage && (
                         <div className="absolute inset-0 bg-white/60 flex items-center justify-center backdrop-blur-sm">
@@ -388,7 +400,10 @@ const AdminDashboard: React.FC = () => {
                         placeholder="Image URL or generate with AI"
                         className="flex-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                         value={newProduct.image}
-                        onChange={e => setNewProduct({ ...newProduct, image: e.target.value })}
+                        onChange={e => {
+                           setNewProduct({ ...newProduct, image: e.target.value });
+                           setImagePreviewError(false);
+                        }}
                       />
                       <button
                         type="button"
