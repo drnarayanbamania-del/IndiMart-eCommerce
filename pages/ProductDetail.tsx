@@ -1,7 +1,7 @@
 
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useStore } from '../contexts/StoreContext';
-import { Star, ShoppingCart, ArrowLeft, Heart, ChevronLeft, ChevronRight, Facebook, Twitter, MessageCircle, Check, ShieldCheck, Filter, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Star, ShoppingCart, ArrowLeft, Heart, ChevronLeft, ChevronRight, Facebook, Twitter, MessageCircle, Check, ShieldCheck, Filter, AlertCircle, CheckCircle2, Maximize2, X } from 'lucide-react';
 
 interface ProductDetailProps {
   productId: string;
@@ -26,6 +26,9 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
   const [quantity, setQuantity] = useState(1);
   const [isAdded, setIsAdded] = useState(false);
   
+  // Lightbox State
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+
   // Zoom State
   const [zoomPos, setZoomPos] = useState({ x: 0, y: 0, opacity: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
@@ -43,6 +46,42 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [sortBy, setSortBy] = useState<'newest' | 'highest' | 'lowest'>('newest');
+
+  const images = useMemo(() => {
+    if(!product) return [];
+    return [
+        product.image,
+        `https://picsum.photos/800/800?random=${product.id}1`,
+        `https://picsum.photos/800/800?random=${product.id}2`,
+        `https://picsum.photos/800/800?random=${product.id}3`,
+    ];
+  }, [product]);
+
+  const handleMouseLeave = () => {
+    setZoomPos(prev => ({ ...prev, opacity: 0 }));
+  };
+
+  const handleNextImage = () => {
+    handleMouseLeave();
+    setActiveImage((prev) => (prev + 1) % images.length);
+  };
+  
+  const handlePrevImage = () => {
+    handleMouseLeave();
+    setActiveImage((prev) => (prev - 1 + images.length) % images.length);
+  };
+
+  // Keyboard Navigation for Lightbox
+  useEffect(() => {
+      if (!isLightboxOpen) return;
+      const handleKeyDown = (e: KeyboardEvent) => {
+          if (e.key === 'Escape') setIsLightboxOpen(false);
+          if (e.key === 'ArrowLeft') handlePrevImage();
+          if (e.key === 'ArrowRight') handleNextImage();
+      };
+      window.addEventListener('keydown', handleKeyDown);
+      return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isLightboxOpen, activeImage]);
 
   if (!product) {
     return (
@@ -72,17 +111,6 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
     setZoomPos({ x, y, opacity: 1 });
   };
 
-  const handleMouseLeave = () => {
-    setZoomPos(prev => ({ ...prev, opacity: 0 }));
-  };
-
-  const images = [
-    product.image,
-    `https://picsum.photos/800/800?random=${product.id}1`,
-    `https://picsum.photos/800/800?random=${product.id}2`,
-    `https://picsum.photos/800/800?random=${product.id}3`,
-  ];
-
   const relatedProducts = products
     .filter(p => p.category === product.category && p.id !== product.id)
     .slice(0, 4);
@@ -108,16 +136,6 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
       if (sortBy === 'newest') return sorted.sort((a, b) => b.timestamp - a.timestamp);
       return sorted;
   }, [reviews, sortBy]);
-
-  const handleNextImage = () => {
-    handleMouseLeave();
-    setActiveImage((prev) => (prev + 1) % images.length);
-  };
-  
-  const handlePrevImage = () => {
-    handleMouseLeave();
-    setActiveImage((prev) => (prev - 1 + images.length) % images.length);
-  };
 
   const handleAddToCart = () => {
     if (isAdded) return;
@@ -173,22 +191,21 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
               onMouseLeave={handleMouseLeave}
               className="relative aspect-square bg-slate-50 rounded-[2.5rem] overflow-hidden mb-6 group shadow-2xl border border-slate-100 cursor-crosshair ring-1 ring-slate-900/5"
             >
-              {images.map((img, idx) => (
-                <div 
-                  key={idx}
-                  className={`absolute inset-0 w-full h-full transition-all duration-700 cubic-bezier(0.4, 0, 0.2, 1) ${
-                    activeImage === idx 
-                      ? 'opacity-100 scale-100 z-10' 
-                      : 'opacity-0 scale-105 z-0 pointer-events-none'
-                  }`}
-                >
-                  <img 
-                    src={img} 
-                    alt={`${product.name} - View ${idx + 1}`} 
-                    className="w-full h-full object-center object-cover"
-                  />
-                </div>
-              ))}
+              {/* Slider Track */}
+              <div 
+                className="flex h-full transition-transform duration-700 ease-[cubic-bezier(0.4,0,0.2,1)]"
+                style={{ transform: `translateX(-${activeImage * 100}%)` }}
+              >
+                {images.map((img, idx) => (
+                  <div key={idx} className="w-full h-full flex-shrink-0 bg-white relative">
+                    <img 
+                      src={img} 
+                      alt={`${product.name} - View ${idx + 1}`} 
+                      className="w-full h-full object-center object-cover"
+                    />
+                  </div>
+                ))}
+              </div>
               
               <div 
                 className="absolute inset-0 z-30 pointer-events-none transition-opacity duration-500 ease-out shadow-inner"
@@ -203,42 +220,52 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
                 }}
               />
 
-              <button 
-                onClick={(e) => { e.stopPropagation(); handlePrevImage(); }} 
-                aria-label="Previous product image"
-                className="absolute z-40 left-6 top-1/2 -translate-y-1/2 bg-white/90 p-4 rounded-full shadow-xl hover:bg-white opacity-0 group-hover:opacity-100 transition-all duration-300 backdrop-blur-md border border-slate-100 active:scale-90"
-              >
-                <ChevronLeft className="w-6 h-6 text-slate-800" />
-              </button>
-              <button 
-                onClick={(e) => { e.stopPropagation(); handleNextImage(); }} 
-                aria-label="Next product image"
-                className="absolute z-40 right-6 top-1/2 -translate-y-1/2 bg-white/90 p-4 rounded-full shadow-xl hover:bg-white opacity-0 group-hover:opacity-100 transition-all duration-300 backdrop-blur-md border border-slate-100 active:scale-90"
-              >
-                <ChevronRight className="w-6 h-6 text-slate-800" />
-              </button>
-
-              <div className="absolute bottom-8 left-0 right-0 flex justify-center space-x-3 z-40">
-                 {images.map((_, idx) => (
-                    <button
-                        key={idx}
-                        onClick={(e) => { e.stopPropagation(); setActiveImage(idx); }}
-                        aria-label={`Show image ${idx + 1}`}
-                        className={`h-1.5 rounded-full transition-all duration-500 ${activeImage === idx ? 'bg-indigo-600 w-12 shadow-md' : 'bg-slate-300/60 w-4 hover:bg-white'}`}
-                    />
-                 ))}
+              {/* Gallery Controls Overlay */}
+              <div className="absolute inset-0 z-40 pointer-events-none flex flex-col justify-between p-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                 <div className="flex justify-end">
+                     <button 
+                        onClick={(e) => { e.stopPropagation(); setIsLightboxOpen(true); }}
+                        className="pointer-events-auto p-2.5 bg-white/90 backdrop-blur-sm rounded-full shadow-lg text-slate-700 hover:text-indigo-600 hover:scale-110 transition-all"
+                        title="View Fullscreen"
+                     >
+                         <Maximize2 className="w-5 h-5" />
+                     </button>
+                 </div>
+                 
+                 <div className="flex justify-between items-center w-full px-1">
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); handlePrevImage(); }} 
+                      className="pointer-events-auto p-3 bg-white/80 backdrop-blur-sm rounded-full shadow-lg text-slate-700 hover:text-indigo-600 hover:bg-white hover:scale-110 transition-all active:scale-95"
+                    >
+                       <ChevronLeft className="w-6 h-6" />
+                    </button>
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); handleNextImage(); }} 
+                      className="pointer-events-auto p-3 bg-white/80 backdrop-blur-sm rounded-full shadow-lg text-slate-700 hover:text-indigo-600 hover:bg-white hover:scale-110 transition-all active:scale-95"
+                    >
+                       <ChevronRight className="w-6 h-6" />
+                    </button>
+                 </div>
+                 
+                 <div className="h-6"></div> {/* Spacer */}
               </div>
             </div>
 
-            <div className="grid grid-cols-4 gap-5 px-1">
+            {/* Thumbnail Navigation */}
+            <div className="grid grid-cols-4 gap-4 px-2">
               {images.map((img, idx) => (
                 <button 
                   key={idx} 
                   onClick={() => setActiveImage(idx)}
                   aria-label={`Show ${product.name} view ${idx + 1}`}
-                  className={`relative rounded-2xl overflow-hidden aspect-square border-4 transition-all duration-300 transform ${activeImage === idx ? 'border-indigo-500 scale-105 shadow-lg' : 'border-transparent opacity-50 hover:opacity-100 hover:scale-102'}`}
+                  className={`relative rounded-2xl overflow-hidden aspect-square transition-all duration-300 transform group ${
+                    activeImage === idx 
+                      ? 'ring-2 ring-indigo-600 ring-offset-2 scale-105 shadow-md z-10' 
+                      : 'opacity-80 hover:opacity-100 hover:scale-105 hover:shadow-sm ring-1 ring-slate-200'
+                  }`}
                 >
                   <img src={img} alt={`${product.name} view ${idx + 1} thumbnail`} className="w-full h-full object-cover" />
+                  {activeImage !== idx && <div className="absolute inset-0 bg-slate-900/10 group-hover:bg-transparent transition-colors" />}
                 </button>
               ))}
             </div>
@@ -562,6 +589,61 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
             </div>
         )}
       </div>
+
+      {/* Lightbox Modal */}
+      {isLightboxOpen && (
+          <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4 animate-in fade-in duration-300">
+              <button 
+                  onClick={() => setIsLightboxOpen(false)} 
+                  className="absolute top-6 right-6 p-2 text-white/50 hover:text-white hover:bg-white/10 rounded-full transition-all z-50"
+                  aria-label="Close fullscreen view"
+              >
+                  <X className="w-8 h-8" />
+              </button>
+              
+              <button 
+                   onClick={handlePrevImage}
+                   className="absolute left-6 top-1/2 -translate-y-1/2 p-4 text-white/50 hover:text-white hover:bg-white/10 rounded-full transition-all hidden md:block z-50"
+                   aria-label="Previous image"
+              >
+                  <ChevronLeft className="w-10 h-10" />
+              </button>
+
+              <button 
+                   onClick={handleNextImage}
+                   className="absolute right-6 top-1/2 -translate-y-1/2 p-4 text-white/50 hover:text-white hover:bg-white/10 rounded-full transition-all hidden md:block z-50"
+                   aria-label="Next image"
+              >
+                  <ChevronRight className="w-10 h-10" />
+              </button>
+
+              <div className="flex flex-col items-center w-full max-w-6xl h-full justify-center space-y-8">
+                  <div className="relative w-full flex-1 flex items-center justify-center min-h-0">
+                      <img 
+                          src={images[activeImage]} 
+                          alt="Full View" 
+                          className="max-w-full max-h-full object-contain drop-shadow-2xl rounded-lg animate-in zoom-in-95 duration-300" 
+                      />
+                  </div>
+                  
+                  <div className="flex space-x-4 overflow-x-auto max-w-full p-2">
+                       {images.map((img, idx) => (
+                          <button 
+                              key={idx} 
+                              onClick={() => setActiveImage(idx)}
+                              className={`relative w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden border-2 transition-all ${
+                                  activeImage === idx 
+                                  ? 'border-white scale-110 shadow-lg' 
+                                  : 'border-transparent opacity-40 hover:opacity-100 hover:border-white/50'
+                              }`}
+                          >
+                              <img src={img} className="w-full h-full object-cover" alt={`Thumbnail ${idx + 1}`} />
+                          </button>
+                       ))}
+                  </div>
+              </div>
+          </div>
+      )}
     </div>
   );
 };
