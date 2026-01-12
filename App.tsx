@@ -7,7 +7,7 @@ import Shop from './pages/Shop';
 import ProductDetail from './pages/ProductDetail';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import { UserRole } from './types';
-import { CreditCard, Truck, Banknote, ShieldCheck, Lock, CheckCircle, AlertCircle, ShoppingCart } from 'lucide-react';
+import { CreditCard, Truck, Banknote, ShieldCheck, Lock, CheckCircle, AlertCircle, ShoppingCart, ExternalLink } from 'lucide-react';
 
 // Login / Sign Up Component
 const Login = ({ onLogin }: { onLogin: () => void }) => {
@@ -171,12 +171,7 @@ const Checkout = ({ onNavigate }: { onNavigate: (page: string) => void }) => {
     const [loading, setLoading] = useState(false);
     const [paymentMethod, setPaymentMethod] = useState<'online' | 'cod'>('online');
     const [orderSuccess, setOrderSuccess] = useState(false);
-    const [cardDetails, setCardDetails] = useState({
-        number: '',
-        name: '',
-        expiry: '',
-        cvc: ''
-    });
+    const [showPaymentConfirm, setShowPaymentConfirm] = useState(false);
 
     const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const shipping = subtotal > 500 ? 0 : 50; // Free shipping over 500
@@ -184,8 +179,7 @@ const Checkout = ({ onNavigate }: { onNavigate: (page: string) => void }) => {
 
     const handlePlaceOrder = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        setLoading(true);
-
+        
         const formData = new FormData(e.currentTarget);
         const orderDetails = {
             firstName: formData.get('first-name'),
@@ -197,7 +191,7 @@ const Checkout = ({ onNavigate }: { onNavigate: (page: string) => void }) => {
         };
 
         const processOrderSuccess = (paymentId: string) => {
-             // Log order to Google Sheets (Fire and forget)
+             // Log order to Google Sheets
              const sheetData = {
                 "First Name": orderDetails.firstName,
                 "Last Name": orderDetails.lastName,
@@ -209,7 +203,7 @@ const Checkout = ({ onNavigate }: { onNavigate: (page: string) => void }) => {
                 "Total Amount": total.toFixed(2),
                 "Order Date": new Date().toLocaleString(),
                 "Payment ID": paymentId,
-                "Method": paymentMethod === 'cod' ? 'COD' : 'Online'
+                "Method": paymentMethod === 'cod' ? 'COD' : 'Razorpay Online'
             };
             
             fetch('https://script.google.com/macros/s/AKfycbyfjw6EEDpNk0za4YWldI7ul0Nd4qZVkNL3pS4lotwBlm4N-pyIi_ZIGmu4-Nt7GAwv0w/exec', {
@@ -223,21 +217,61 @@ const Checkout = ({ onNavigate }: { onNavigate: (page: string) => void }) => {
             setLoading(false);
             setOrderSuccess(true);
             
-            // Redirect after showing success message
             setTimeout(() => {
                 setOrderSuccess(false);
                 onNavigate('home');
             }, 3500);
         };
 
-        // Simulate payment processing delay for both methods
-        setTimeout(() => {
-             const paymentId = paymentMethod === 'cod' 
-                ? 'COD-' + Math.random().toString(36).substr(2, 9).toUpperCase()
-                : 'CARD-' + Math.random().toString(36).substr(2, 9).toUpperCase();
-             processOrderSuccess(paymentId);
-        }, 2000);
+        if (paymentMethod === 'cod') {
+            setLoading(true);
+            setTimeout(() => {
+                 processOrderSuccess('COD-' + Math.random().toString(36).substr(2, 9).toUpperCase());
+            }, 1500);
+        } else {
+            // Open the Razorpay link
+            window.open('https://razorpay.me/@wonderimggen?amount=EPec5evqGoRk2C8icWNJlQ%3D%3D', '_blank');
+            setShowPaymentConfirm(true);
+        }
     }
+
+    const confirmOnlinePayment = () => {
+        setLoading(true);
+        setShowPaymentConfirm(false);
+        // Simulate verification
+        setTimeout(() => {
+            const paymentId = 'RZP-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+            // In a real app, you'd verify the payment status via API here
+            const formData = new FormData(document.querySelector('form') as HTMLFormElement);
+            const address = formData.get('address') as string;
+            
+            // Re-trigger the success logic
+            const sheetData = {
+                "First Name": formData.get('first-name'),
+                "Last Name": formData.get('last-name'),
+                "Email": formData.get('email-address'),
+                "Address": address,
+                "City": formData.get('city'),
+                "Zip": formData.get('postal-code'),
+                "Product Name": cart.map(item => `${item.name} (x${item.quantity})`).join(', '),
+                "Total Amount": total.toFixed(2),
+                "Order Date": new Date().toLocaleString(),
+                "Payment ID": paymentId,
+                "Method": 'Razorpay Online'
+            };
+            
+            fetch('https://script.google.com/macros/s/AKfycbyfjw6EEDpNk0za4YWldI7ul0Nd4qZVkNL3pS4lotwBlm4N-pyIi_ZIGmu4-Nt7GAwv0w/exec', {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify(sheetData)
+            }).catch(console.error);
+
+            placeOrder({ address });
+            setLoading(false);
+            setOrderSuccess(true);
+            setTimeout(() => onNavigate('home'), 3500);
+        }, 2000);
+    };
 
     if(cart.length === 0) return (
         <div className="flex flex-col items-center justify-center min-h-[60vh] bg-white">
@@ -276,7 +310,6 @@ const Checkout = ({ onNavigate }: { onNavigate: (page: string) => void }) => {
                 <form className="lg:grid lg:grid-cols-12 lg:gap-x-12 xl:gap-x-16" onSubmit={handlePlaceOrder}>
                     {/* Left Column: Details */}
                     <div className="lg:col-span-7 space-y-8">
-                        {/* Contact & Shipping */}
                         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                              <div className="flex items-center mb-6 border-b border-gray-100 pb-4">
                                 <Truck className="w-5 h-5 text-primary-600 mr-2" />
@@ -311,7 +344,6 @@ const Checkout = ({ onNavigate }: { onNavigate: (page: string) => void }) => {
                             </div>
                         </div>
 
-                         {/* Payment Method */}
                         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                             <div className="flex items-center mb-6 border-b border-gray-100 pb-4">
                                 <CreditCard className="w-5 h-5 text-primary-600 mr-2" />
@@ -319,101 +351,40 @@ const Checkout = ({ onNavigate }: { onNavigate: (page: string) => void }) => {
                              </div>
 
                              <div className="space-y-4">
-                                <div className={`relative border rounded-lg transition-all ${paymentMethod === 'online' ? 'border-primary-500 ring-1 ring-primary-500 bg-primary-50/50' : 'border-gray-200 hover:border-gray-300'}`}>
-                                    <label className="flex items-center p-4 cursor-pointer">
-                                        <input 
-                                            type="radio" 
-                                            name="payment-method" 
-                                            className="h-4 w-4 text-primary-600 border-gray-300 focus:ring-primary-500"
-                                            checked={paymentMethod === 'online'}
-                                            onChange={() => setPaymentMethod('online')}
-                                        />
-                                        <div className="ml-3 flex items-center justify-between w-full">
-                                            <div className="flex items-center">
-                                                <span className="block text-sm font-medium text-gray-900">Credit / Debit Card</span>
-                                                <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                                                    <ShieldCheck className="w-3 h-3 mr-1" /> Secure
-                                                </span>
-                                            </div>
-                                            <div className="flex space-x-2 text-gray-400">
-                                                <CreditCard className="w-5 h-5" />
-                                            </div>
+                                <label className={`relative flex items-center p-4 border rounded-lg cursor-pointer transition-all ${paymentMethod === 'online' ? 'border-primary-500 ring-1 ring-primary-500 bg-primary-50' : 'border-gray-200 hover:border-gray-300'}`}>
+                                    <input 
+                                        type="radio" 
+                                        name="payment-method" 
+                                        className="h-4 w-4 text-primary-600 border-gray-300 focus:ring-primary-500"
+                                        checked={paymentMethod === 'online'}
+                                        onChange={() => setPaymentMethod('online')}
+                                    />
+                                    <div className="ml-3 flex items-center justify-between w-full">
+                                        <div className="flex items-center">
+                                            <span className="block text-sm font-medium text-gray-900">Pay via Razorpay</span>
+                                            <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                                                <ShieldCheck className="w-3 h-3 mr-1" /> Verified Link
+                                            </span>
                                         </div>
-                                    </label>
-                                    
-                                    {paymentMethod === 'online' && (
-                                        <div className="px-4 pb-4 animate-in fade-in slide-in-from-top-2 duration-300 border-t border-primary-100 pt-4 mt-2">
-                                            <div className="grid grid-cols-2 gap-4">
-                                                <div className="col-span-2">
-                                                    <label className="block text-xs font-medium text-gray-700 mb-1">Card Number</label>
-                                                    <div className="relative">
-                                                        <input 
-                                                            type="text" 
-                                                            placeholder="0000 0000 0000 0000" 
-                                                            className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm p-2 pl-9 border"
-                                                            value={cardDetails.number}
-                                                            onChange={(e) => setCardDetails({...cardDetails, number: e.target.value.replace(/\D/g,'').slice(0, 16)})}
-                                                            required={paymentMethod === 'online'}
-                                                        />
-                                                        <CreditCard className="w-4 h-4 text-gray-400 absolute left-3 top-2.5" />
-                                                    </div>
-                                                </div>
-                                                <div className="col-span-2">
-                                                    <label className="block text-xs font-medium text-gray-700 mb-1">Name on Card</label>
-                                                    <input 
-                                                        type="text" 
-                                                        placeholder="John Doe" 
-                                                        className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm p-2 border"
-                                                        value={cardDetails.name}
-                                                        onChange={(e) => setCardDetails({...cardDetails, name: e.target.value})}
-                                                        required={paymentMethod === 'online'}
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <label className="block text-xs font-medium text-gray-700 mb-1">Expiry (MM/YY)</label>
-                                                    <input 
-                                                        type="text" 
-                                                        placeholder="MM/YY" 
-                                                        className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm p-2 border"
-                                                        value={cardDetails.expiry}
-                                                        onChange={(e) => setCardDetails({...cardDetails, expiry: e.target.value})}
-                                                        required={paymentMethod === 'online'}
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <label className="block text-xs font-medium text-gray-700 mb-1">CVC</label>
-                                                    <input 
-                                                        type="text" 
-                                                        placeholder="123" 
-                                                        className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm p-2 border"
-                                                        value={cardDetails.cvc}
-                                                        onChange={(e) => setCardDetails({...cardDetails, cvc: e.target.value.slice(0, 4)})}
-                                                        required={paymentMethod === 'online'}
-                                                    />
-                                                </div>
-                                            </div>
+                                        <div className="flex space-x-2 text-gray-400">
+                                             <CreditCard className="w-5 h-5" />
                                         </div>
-                                    )}
-                                </div>
+                                    </div>
+                                </label>
 
-                                <div className={`relative border rounded-lg transition-all ${paymentMethod === 'cod' ? 'border-primary-500 ring-1 ring-primary-500 bg-primary-50' : 'border-gray-200 hover:border-gray-300'}`}>
-                                    <label className="flex items-center p-4 cursor-pointer">
-                                        <input 
-                                            type="radio" 
-                                            name="payment-method" 
-                                            className="h-4 w-4 text-primary-600 border-gray-300 focus:ring-primary-500"
-                                            checked={paymentMethod === 'cod'}
-                                            onChange={() => setPaymentMethod('cod')}
-                                        />
-                                        <div className="ml-3 flex items-center w-full">
-                                            <div className="flex flex-col">
-                                                <span className="block text-sm font-medium text-gray-900">Cash on Delivery</span>
-                                                <span className="text-xs text-gray-500">Pay cash when your order arrives at your doorstep.</span>
-                                            </div>
-                                            <Banknote className="ml-auto w-5 h-5 text-gray-400" />
-                                        </div>
-                                    </label>
-                                </div>
+                                <label className={`relative flex items-center p-4 border rounded-lg cursor-pointer transition-all ${paymentMethod === 'cod' ? 'border-primary-500 ring-1 ring-primary-500 bg-primary-50' : 'border-gray-200 hover:border-gray-300'}`}>
+                                    <input 
+                                        type="radio" 
+                                        name="payment-method" 
+                                        className="h-4 w-4 text-primary-600 border-gray-300 focus:ring-primary-500"
+                                        checked={paymentMethod === 'cod'}
+                                        onChange={() => setPaymentMethod('cod')}
+                                    />
+                                    <div className="ml-3 flex items-center">
+                                        <span className="block text-sm font-medium text-gray-900">Cash on Delivery</span>
+                                        <Banknote className="ml-auto w-5 h-5 text-gray-400" />
+                                    </div>
+                                </label>
                              </div>
                         </div>
                     </div>
@@ -438,7 +409,6 @@ const Checkout = ({ onNavigate }: { onNavigate: (page: string) => void }) => {
                                                         <h3 className="line-clamp-1 mr-2">{product.name}</h3>
                                                         <p className="whitespace-nowrap">₹{(product.price * product.quantity).toFixed(2)}</p>
                                                     </div>
-                                                    <p className="mt-1 text-sm text-gray-500">{product.category}</p>
                                                 </div>
                                                 <div className="flex flex-1 items-end justify-between text-sm">
                                                     <p className="text-gray-500">Qty {product.quantity}</p>
@@ -480,19 +450,51 @@ const Checkout = ({ onNavigate }: { onNavigate: (page: string) => void }) => {
                                         <span className="flex items-center">
                                             <Lock className="w-4 h-4 mr-2" />
                                             {paymentMethod === 'cod' ? 'Place COD Order' : 'Pay & Place Order'}
+                                            {paymentMethod === 'online' && <ExternalLink className="w-4 h-4 ml-2" />}
                                         </span>
                                     )}
                                 </button>
                                 
-                                <div className="mt-4 flex items-center justify-center text-xs text-gray-500 space-x-2">
-                                     <ShieldCheck className="w-4 h-4 text-green-500" />
-                                     <span>Payments are secure and encrypted.</span>
+                                <div className="mt-4 flex flex-col items-center justify-center space-y-2">
+                                     <div className="flex items-center text-xs text-gray-500 space-x-2">
+                                         <ShieldCheck className="w-4 h-4 text-green-500" />
+                                         <span>Payments are secure and encrypted via Razorpay.</span>
+                                     </div>
+                                     <img src="https://admin.razorpay.com/p/payment-badges/badge-dark.png" alt="Razorpay Trusted" className="h-6 opacity-70" />
                                 </div>
                             </div>
                         </div>
                     </div>
                 </form>
             </div>
+
+            {/* Payment Confirmation Modal */}
+            {showPaymentConfirm && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+                    <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 text-center animate-in zoom-in duration-300">
+                        <div className="bg-primary-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <CreditCard className="w-10 h-10 text-primary-600" />
+                        </div>
+                        <h3 className="text-2xl font-bold text-gray-900 mb-2 font-heading">Complete Your Payment</h3>
+                        <p className="text-gray-600 mb-8">We've opened your payment page in a new window. Once you've completed the transaction, click the button below to confirm and place your order.</p>
+                        <div className="space-y-3">
+                            <button 
+                                onClick={confirmOnlinePayment}
+                                className="w-full bg-primary-600 text-white py-3 px-6 rounded-xl font-bold hover:bg-primary-700 shadow-lg shadow-primary-500/25 transition-all"
+                            >
+                                I've Completed the Payment
+                            </button>
+                            <button 
+                                onClick={() => setShowPaymentConfirm(false)}
+                                className="w-full bg-white text-gray-500 py-3 px-6 rounded-xl font-medium hover:bg-gray-50 transition-all border border-gray-200"
+                            >
+                                Cancel Order
+                            </button>
+                        </div>
+                        <p className="mt-6 text-xs text-gray-400">Order ID: #{Math.random().toString(36).substr(2, 6).toUpperCase()}</p>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
