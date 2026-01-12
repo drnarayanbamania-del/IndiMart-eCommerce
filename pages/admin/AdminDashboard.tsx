@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { useStore } from '../../contexts/StoreContext';
 import { UserRole, Product } from '../../types';
 import { generateProductDescription } from '../../services/geminiService';
+import { GoogleGenAI } from "@google/genai";
 import {
-  LayoutDashboard, ShoppingBag, Users, Settings, Plus, Trash, Edit, Bot, TrendingUp, RefreshCcw
+  LayoutDashboard, ShoppingBag, Users, Settings, Plus, Trash, Edit, Bot, TrendingUp, RefreshCcw, Image as ImageIcon, Sparkles
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
@@ -14,6 +15,7 @@ const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'overview' | 'products' | 'orders'>('overview');
   const [showAddModal, setShowAddModal] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
 
   // New product form state
   const [newProduct, setNewProduct] = useState<Partial<Product>>({
@@ -44,6 +46,36 @@ const AdminDashboard: React.FC = () => {
     const desc = await generateProductDescription(newProduct.name, newProduct.category);
     setNewProduct({ ...newProduct, description: desc });
     setIsGenerating(false);
+  };
+
+  const handleGenerateImage = async () => {
+    if (!newProduct.name || !newProduct.category) {
+      alert("Please enter a product name and category first.");
+      return;
+    }
+    setIsGeneratingImage(true);
+    try {
+      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      const prompt = `A high-quality, professional e-commerce studio photograph of a ${newProduct.name} in the ${newProduct.category} category. Clean white background, soft cinematic lighting, 8k resolution, realistic textures, commercial product photography style.`;
+      
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash-image',
+        contents: { parts: [{ text: prompt }] },
+      });
+
+      for (const part of response.candidates[0].content.parts) {
+        if (part.inlineData) {
+          const base64Data = `data:image/png;base64,${part.inlineData.data}`;
+          setNewProduct({ ...newProduct, image: base64Data });
+          break;
+        }
+      }
+    } catch (error) {
+      console.error("Image Generation Error:", error);
+      alert("Failed to generate image. Please check your API key or try again.");
+    } finally {
+      setIsGeneratingImage(false);
+    }
   };
 
   const handleAddProduct = (e: React.FormEvent) => {
@@ -282,42 +314,93 @@ const AdminDashboard: React.FC = () => {
       {/* Add Product Modal */}
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-lg w-full p-6 animate-in zoom-in duration-200">
+          <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full p-6 animate-in zoom-in duration-200 max-h-[90vh] overflow-y-auto">
             <h3 className="text-xl font-bold text-gray-900 mb-4">Add New Product</h3>
             <form onSubmit={handleAddProduct} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Product Name</label>
-                <input
-                  required
-                  type="text"
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                  value={newProduct.name}
-                  onChange={e => setNewProduct({ ...newProduct, name: e.target.value })}
-                  placeholder="e.g. Wireless Headphones"
-                />
-              </div>
-              <div className="flex gap-4">
-                <div className="flex-1">
-                  <label className="block text-sm font-medium text-gray-700">Category</label>
-                  <select
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                    value={newProduct.category}
-                    onChange={e => setNewProduct({ ...newProduct, category: e.target.value })}
-                  >
-                    {categories.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
-                  </select>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Product Name</label>
+                    <input
+                      required
+                      type="text"
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                      value={newProduct.name}
+                      onChange={e => setNewProduct({ ...newProduct, name: e.target.value })}
+                      placeholder="e.g. Wireless Headphones"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Category</label>
+                    <select
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                      value={newProduct.category}
+                      onChange={e => setNewProduct({ ...newProduct, category: e.target.value })}
+                    >
+                      {categories.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Price (₹)</label>
+                    <input
+                      required
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                      value={newProduct.price}
+                      onChange={e => setNewProduct({ ...newProduct, price: Number(e.target.value) })}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Stock</label>
+                    <input
+                      required
+                      type="number"
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                      value={newProduct.stock}
+                      onChange={e => setNewProduct({ ...newProduct, stock: Number(e.target.value) })}
+                    />
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <label className="block text-sm font-medium text-gray-700">Price (₹)</label>
-                  <input
-                    required
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                    value={newProduct.price}
-                    onChange={e => setNewProduct({ ...newProduct, price: Number(e.target.value) })}
-                  />
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Product Image</label>
+                    <div className="relative aspect-square w-full bg-gray-100 rounded-lg overflow-hidden border-2 border-dashed border-gray-300 flex items-center justify-center">
+                      {newProduct.image ? (
+                        <img src={newProduct.image} alt="Preview" className="w-full h-full object-cover" />
+                      ) : (
+                        <ImageIcon className="w-12 h-12 text-gray-300" />
+                      )}
+                      {isGeneratingImage && (
+                        <div className="absolute inset-0 bg-white/60 flex items-center justify-center backdrop-blur-sm">
+                           <div className="flex flex-col items-center">
+                             <RefreshCcw className="w-8 h-8 text-primary-600 animate-spin mb-2" />
+                             <span className="text-xs font-semibold text-primary-700">AI Rendering...</span>
+                           </div>
+                        </div>
+                      )}
+                    </div>
+                    <div className="mt-2 flex gap-2">
+                      <input
+                        type="text"
+                        placeholder="Image URL or generate with AI"
+                        className="flex-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                        value={newProduct.image}
+                        onChange={e => setNewProduct({ ...newProduct, image: e.target.value })}
+                      />
+                      <button
+                        type="button"
+                        onClick={handleGenerateImage}
+                        disabled={isGeneratingImage || !newProduct.name}
+                        className="flex items-center bg-primary-50 text-primary-700 px-3 py-2 rounded-md hover:bg-primary-100 transition-colors border border-primary-200 disabled:opacity-50"
+                        title="Generate realistic photo with AI"
+                      >
+                        <Sparkles className="w-4 h-4 mr-1" /> AI Photo
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -338,35 +421,12 @@ const AdminDashboard: React.FC = () => {
                     className="absolute bottom-2 right-2 flex items-center text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-md hover:bg-purple-200 transition-colors"
                   >
                     <Bot className="w-3 h-3 mr-1" />
-                    {isGenerating ? 'Generating...' : 'AI Generate'}
+                    {isGenerating ? 'Generating...' : 'AI Generate Text'}
                   </button>
                 </div>
-                <p className="text-xs text-gray-500 mt-1">Use AI to generate a description based on name and category.</p>
               </div>
 
-              <div className="flex gap-4">
-                 <div className="flex-1">
-                    <label className="block text-sm font-medium text-gray-700">Stock</label>
-                    <input
-                      required
-                      type="number"
-                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                      value={newProduct.stock}
-                      onChange={e => setNewProduct({ ...newProduct, stock: Number(e.target.value) })}
-                    />
-                 </div>
-                 <div className="flex-1">
-                    <label className="block text-sm font-medium text-gray-700">Image URL</label>
-                     <input
-                      type="text"
-                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                      value={newProduct.image}
-                      onChange={e => setNewProduct({ ...newProduct, image: e.target.value })}
-                    />
-                 </div>
-              </div>
-
-              <div className="flex justify-end gap-3 mt-6">
+              <div className="flex justify-end gap-3 mt-6 border-t pt-4">
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
@@ -376,7 +436,7 @@ const AdminDashboard: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-primary-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-primary-700"
+                  className="px-4 py-2 bg-primary-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-primary-700 shadow-md shadow-primary-500/20"
                 >
                   Save Product
                 </button>
