@@ -121,7 +121,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
 
   const handleAddToCart = () => {
     if (isAdded) return;
-    for(let i=0; i<quantity; i++) addToCart(product, false);
+    addToCart(product, quantity, false);
     setIsAdded(true);
     setTimeout(() => setIsAdded(false), 2000);
   };

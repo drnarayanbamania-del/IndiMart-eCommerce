@@ -29,7 +29,7 @@ interface StoreContextType {
   addProduct: (product: Product) => void;
   deleteProduct: (id: string) => void;
   cart: CartItem[];
-  addToCart: (product: Product, openDrawer?: boolean) => void;
+  addToCart: (product: Product, quantity?: number, openDrawer?: boolean) => void;
   removeFromCart: (id: string) => void;
   updateCartQuantity: (id: string, qty: number) => void;
   clearCart: () => void;
@@ -123,13 +123,13 @@ export const StoreProvider = ({ children }: { children?: ReactNode }) => {
     setProducts(INITIAL_PRODUCTS);
   }
 
-  const addToCart = (product: Product, openDrawer: boolean = true) => {
+  const addToCart = (product: Product, quantity: number = 1, openDrawer: boolean = true) => {
     setCart(prev => {
       const existing = prev.find(item => item.id === product.id);
       if (existing) {
-        return prev.map(item => item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item);
+        return prev.map(item => item.id === product.id ? { ...item, quantity: item.quantity + quantity } : item);
       }
-      return [...prev, { ...product, quantity: 1 }];
+      return [...prev, { ...product, quantity: quantity }];
     });
     if (openDrawer) {
       setIsCartOpen(true);

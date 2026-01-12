@@ -11,7 +11,7 @@ interface NavbarProps {
 
 // Professional Geometric Abstract Logo
 const ApnaStoreLogo = () => (
-  <svg width="36" height="36" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-3 transform hover:rotate-6 transition-transform duration-300">
+  <svg width="48" height="48" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-3 transform hover:rotate-6 transition-transform duration-300">
     <defs>
       <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
         <stop offset="0%" stopColor="#2563eb" />
@@ -69,7 +69,7 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPage }) => {
           <div className="flex items-center cursor-pointer group" onClick={() => handleNav('home')}>
              <ApnaStoreLogo />
              <div className="flex flex-col">
-                <span className="text-xl font-black text-gray-900 leading-none tracking-tighter uppercase font-heading group-hover:text-primary-600 transition-colors">
+                <span className="text-2xl font-black text-gray-900 leading-none tracking-tighter uppercase font-heading group-hover:text-primary-600 transition-colors">
                   Apna<span className="text-primary-600 group-hover:text-orange-600 transition-colors">Store</span>
                 </span>
                 <span className="text-[10px] font-bold text-gray-400 tracking-[0.2em] uppercase mt-0.5">Curated Excellence</span>
