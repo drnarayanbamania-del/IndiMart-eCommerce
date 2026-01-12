@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useStore } from '../contexts/StoreContext';
-import { Star, ShoppingCart, ArrowLeft, Heart, ChevronLeft, ChevronRight, Facebook, Twitter, Linkedin, MessageCircle, Check, ShieldCheck, Filter, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Star, ShoppingCart, ArrowLeft, Heart, ChevronLeft, ChevronRight, Facebook, Twitter, MessageCircle, Check, ShieldCheck, Filter, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 interface ProductDetailProps {
   productId: string;
@@ -124,7 +124,8 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
   };
 
   const shareUrl = window.location.href;
-  const shareText = `Check out ${product.name} (₹${product.price}) on Apna Store!`;
+  const shareText = `Check out this amazing ${product.name} (₹${product.price}) on Apna Store!`;
+  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText + " " + shareUrl)}`;
 
   return (
     <div className="bg-white min-h-screen pb-12 font-sans">
@@ -204,13 +205,13 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
                     
                     <div className="h-6 w-px bg-gray-300 mx-1"></div>
 
-                    <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener noreferrer" className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors">
+                    <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener noreferrer" className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors" title="Share on Facebook">
                         <Facebook className="w-5 h-5" />
                     </a>
-                    <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener noreferrer" className="p-2 text-gray-400 hover:text-sky-500 hover:bg-sky-50 rounded-full transition-colors">
+                    <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener noreferrer" className="p-2 text-gray-400 hover:text-sky-500 hover:bg-sky-50 rounded-full transition-colors" title="Share on Twitter">
                         <Twitter className="w-5 h-5" />
                     </a>
-                    <a href={`https://wa.me/?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`} target="_blank" rel="noopener noreferrer" className="p-2 text-gray-400 hover:text-green-500 hover:bg-green-50 rounded-full transition-colors">
+                    <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="p-2 text-gray-400 hover:text-green-500 hover:bg-green-50 rounded-full transition-colors" title="Share on WhatsApp">
                         <MessageCircle className="w-5 h-5" />
                     </a>
                 </div>
