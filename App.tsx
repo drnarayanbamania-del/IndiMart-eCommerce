@@ -11,7 +11,7 @@ import { UserRole } from './types';
 import { CreditCard, Truck, Banknote, ShieldCheck, Lock, CheckCircle, AlertCircle, ShoppingCart, ExternalLink, Instagram, Facebook, Twitter } from 'lucide-react';
 
 // Login / Sign Up Component
-const Login = ({ onLogin }: { onLogin: () => void }) => {
+const Login = ({ onLogin, targetPage }: { onLogin: () => void, targetPage?: string }) => {
   const { login, signup } = useStore();
   const [isLogin, setIsLogin] = useState(true);
   
@@ -25,10 +25,16 @@ const Login = ({ onLogin }: { onLogin: () => void }) => {
     e.preventDefault();
     setError(null);
 
+    // Strict 6-character password validation
+    if (password.length < 6) {
+        setError("Password must be at least 6 characters long.");
+        return;
+    }
+
     if (isLogin) {
       const success = login(email, password, role);
       if (!success) {
-        setError("Unauthorized: Only drnarayanbamania@gmail.com can login as Admin.");
+        setError("Unauthorized: Invalid credentials or incorrect role.");
         return;
       }
     } else {
@@ -41,16 +47,21 @@ const Login = ({ onLogin }: { onLogin: () => void }) => {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-lg">
         <div>
+          <div className="mx-auto h-12 w-12 bg-primary-100 rounded-full flex items-center justify-center">
+             <Lock className="h-6 w-6 text-primary-600" />
+          </div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            {isLogin ? 'Sign in to your account' : 'Create new account'}
+            {isLogin ? 'Sign in to Shop' : 'Create Account'}
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            {isLogin ? "Welcome back! Please enter your details." : "Join us today to start shopping."}
+            {targetPage 
+                ? `You must be logged in to access ${targetPage.replace('_', ' ')}.` 
+                : (isLogin ? "Welcome back! Please enter your details." : "Join us today to start shopping.")}
           </p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm flex items-center">
+            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm flex items-center animate-pulse">
               <AlertCircle className="w-4 h-4 mr-2" /> {error}
             </div>
           )}
@@ -90,8 +101,9 @@ const Login = ({ onLogin }: { onLogin: () => void }) => {
                 name="password"
                 type="password"
                 required
+                minLength={6}
                 className={`appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm ${isLogin ? 'rounded-b-md' : (!isLogin ? '' : 'rounded-b-md')}`}
-                placeholder="Password"
+                placeholder="Password (min 6 chars)"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
@@ -114,9 +126,12 @@ const Login = ({ onLogin }: { onLogin: () => void }) => {
           <div>
             <button
               type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all"
             >
-              {isLogin ? 'Sign in' : 'Sign Up'}
+              <span className="absolute left-0 inset-y-0 flex items-center pl-3">
+                <Lock className="h-5 w-5 text-primary-500 group-hover:text-primary-400" aria-hidden="true" />
+              </span>
+              {isLogin ? 'Secure Sign in' : 'Create Secure Account'}
             </button>
           </div>
 
@@ -203,7 +218,6 @@ const Checkout = ({ onNavigate }: { onNavigate: (page: string) => void }) => {
         };
 
         const processOrderSuccess = (paymentId: string) => {
-             // Log order to Google Sheets
              const sheetData = {
                 "First Name": orderDetails.firstName,
                 "Last Name": orderDetails.lastName,
@@ -253,11 +267,9 @@ const Checkout = ({ onNavigate }: { onNavigate: (page: string) => void }) => {
         // Simulate verification
         setTimeout(() => {
             const paymentId = 'RZP-' + Math.random().toString(36).substr(2, 9).toUpperCase();
-            // In a real app, you'd verify the payment status via API here
             const formData = new FormData(document.querySelector('form') as HTMLFormElement);
             const address = formData.get('address') as string;
             
-            // Re-trigger the success logic
             const sheetData = {
                 "First Name": formData.get('first-name'),
                 "Last Name": formData.get('last-name'),
@@ -320,7 +332,6 @@ const Checkout = ({ onNavigate }: { onNavigate: (page: string) => void }) => {
                 <h1 className="text-3xl font-extrabold text-gray-900 font-heading mb-8">Checkout</h1>
                 
                 <form className="lg:grid lg:grid-cols-12 lg:gap-x-12 xl:gap-x-16" onSubmit={handlePlaceOrder}>
-                    {/* Left Column: Details */}
                     <div className="lg:col-span-7 space-y-8">
                         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                              <div className="flex items-center mb-6 border-b border-gray-100 pb-4">
@@ -401,7 +412,6 @@ const Checkout = ({ onNavigate }: { onNavigate: (page: string) => void }) => {
                         </div>
                     </div>
 
-                    {/* Right Column: Order Summary */}
                     <div className="lg:col-span-5 mt-10 lg:mt-0">
                         <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden lg:sticky lg:top-24">
                             <div className="p-6 bg-gray-50 border-b border-gray-200">
@@ -512,6 +522,7 @@ const Checkout = ({ onNavigate }: { onNavigate: (page: string) => void }) => {
 };
 
 const AppContent = () => {
+  const { user } = useStore();
   const [currentPage, setCurrentPage] = useState('home');
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
 
@@ -522,14 +533,44 @@ const AppContent = () => {
   };
 
   const renderPage = () => {
+    // Auth Guard Wrapper
+    const RequireAuth = (page: React.ReactNode, target: string) => {
+        if (!user) {
+            return (
+                <div className="container mx-auto px-4 py-8 max-w-md animate-in fade-in slide-in-from-bottom-4 duration-500">
+                     <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 shadow-sm rounded-r-md">
+                        <div className="flex">
+                            <div className="flex-shrink-0">
+                                <Lock className="h-5 w-5 text-yellow-400" />
+                            </div>
+                            <div className="ml-3">
+                                <h3 className="text-sm font-medium text-yellow-800">Authentication Required</h3>
+                                <div className="mt-2 text-sm text-yellow-700">
+                                    <p>Strict Security Mode Enabled: You must log in to access the {target.replace(/_/g, ' ')} section.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <Login onLogin={() => setCurrentPage(target)} targetPage={target} />
+                </div>
+            );
+        }
+        return page;
+    }
+
     switch (currentPage) {
       case 'home': return <Home onNavigate={setCurrentPage} onViewProduct={navigateToProduct} />;
-      case 'shop': return <Shop onViewProduct={navigateToProduct} />;
-      case 'product_detail': return selectedProductId ? <ProductDetail productId={selectedProductId} onBack={() => setCurrentPage('shop')} onViewProduct={navigateToProduct} /> : <Shop onViewProduct={navigateToProduct} />;
-      case 'admin_dashboard': return <AdminDashboard />;
+      // Protected Routes
+      case 'shop': return RequireAuth(<Shop onViewProduct={navigateToProduct} />, 'shop');
+      case 'product_detail': return RequireAuth(
+          selectedProductId ? <ProductDetail productId={selectedProductId} onBack={() => setCurrentPage('shop')} onViewProduct={navigateToProduct} /> : <Shop onViewProduct={navigateToProduct} />,
+          'product_detail'
+      );
+      case 'user_dashboard': return RequireAuth(<UserDashboard />, 'user_dashboard');
+      case 'checkout': return RequireAuth(<Checkout onNavigate={setCurrentPage} />, 'checkout');
+      // Public Routes
+      case 'admin_dashboard': return <AdminDashboard />; // AdminDashboard handles its own check
       case 'login': return <Login onLogin={() => setCurrentPage('home')} />;
-      case 'user_dashboard': return <UserDashboard />;
-      case 'checkout': return <Checkout onNavigate={setCurrentPage} />;
       default: return <Home onNavigate={setCurrentPage} onViewProduct={navigateToProduct} />;
     }
   };
