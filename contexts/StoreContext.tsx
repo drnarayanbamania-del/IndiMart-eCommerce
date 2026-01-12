@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, Product, CartItem, Order, UserRole, Category } from '../types';
 
@@ -17,17 +18,11 @@ const INITIAL_CATEGORIES: Category[] = [
   { id: '3', name: 'Furniture', image: 'https://picsum.photos/300/200?random=12' },
 ];
 
-const INITIAL_USER: User = {
-  id: 'admin1',
-  name: 'Admin User',
-  email: 'admin@apnastore.com',
-  password: 'password',
-  role: UserRole.ADMIN
-};
+const ADMIN_EMAIL = 'drnarayanbamania@gmail.com';
 
 interface StoreContextType {
   user: User | null;
-  login: (email: string, password: string, role: UserRole) => void;
+  login: (email: string, password: string, role: UserRole) => boolean;
   signup: (name: string, email: string, password: string) => void;
   logout: () => void;
   products: Product[];
@@ -85,24 +80,28 @@ export const StoreProvider = ({ children }: { children?: ReactNode }) => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
 
-  const login = (email: string, password: string, role: UserRole) => {
-    // Simulated login
+  const login = (email: string, password: string, role: UserRole): boolean => {
+    // Check if trying to login as admin but email doesn't match
+    if (role === UserRole.ADMIN && email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
+      return false;
+    }
+
     setUser({
       id: Math.random().toString(36).substr(2, 9),
       name: email.split('@')[0],
       email,
-      role,
-      password // storing password just for mock consistency
+      role: email.toLowerCase() === ADMIN_EMAIL.toLowerCase() ? UserRole.ADMIN : role,
+      password
     });
+    return true;
   };
 
   const signup = (name: string, email: string, password: string) => {
-    // Simulated Signup
     setUser({
       id: Math.random().toString(36).substr(2, 9),
       name,
       email,
-      role: UserRole.USER, // Default to Customer
+      role: email.toLowerCase() === ADMIN_EMAIL.toLowerCase() ? UserRole.ADMIN : UserRole.USER,
       password
     });
   };

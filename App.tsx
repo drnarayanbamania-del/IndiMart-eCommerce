@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { StoreProvider, useStore } from './contexts/StoreContext';
 import Navbar from './components/Navbar';
@@ -7,7 +8,7 @@ import Shop from './pages/Shop';
 import ProductDetail from './pages/ProductDetail';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import { UserRole } from './types';
-import { CreditCard, Truck, Banknote, ShieldCheck, Lock, CheckCircle, AlertCircle, ShoppingCart, ExternalLink } from 'lucide-react';
+import { CreditCard, Truck, Banknote, ShieldCheck, Lock, CheckCircle, AlertCircle, ShoppingCart, ExternalLink, Instagram, Facebook, Twitter } from 'lucide-react';
 
 // Login / Sign Up Component
 const Login = ({ onLogin }: { onLogin: () => void }) => {
@@ -18,11 +19,18 @@ const Login = ({ onLogin }: { onLogin: () => void }) => {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [role, setRole] = useState<UserRole>(UserRole.USER);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+
     if (isLogin) {
-      login(email, password, role);
+      const success = login(email, password, role);
+      if (!success) {
+        setError("Unauthorized: Only drnarayanbamania@gmail.com can login as Admin.");
+        return;
+      }
     } else {
       signup(name, email, password);
     }
@@ -41,6 +49,11 @@ const Login = ({ onLogin }: { onLogin: () => void }) => {
           </p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm flex items-center">
+              <AlertCircle className="w-4 h-4 mr-2" /> {error}
+            </div>
+          )}
           <div className="rounded-md shadow-sm -space-y-px">
             {!isLogin && (
               <div>
@@ -89,12 +102,11 @@ const Login = ({ onLogin }: { onLogin: () => void }) => {
                    className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 text-gray-900 focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
                    value={role}
                    onChange={(e) => setRole(e.target.value as UserRole)}
-                   title="Select Role (Demo only)"
+                   title="Select Role"
                  >
                    <option value={UserRole.USER}>Login as User</option>
                    <option value={UserRole.ADMIN}>Login as Admin</option>
                  </select>
-                 <p className="text-xs text-gray-500 mt-1 px-1">Demo feature: Choose Admin to access Dashboard.</p>
               </div>
             )}
           </div>
@@ -111,7 +123,7 @@ const Login = ({ onLogin }: { onLogin: () => void }) => {
           <div className="flex items-center justify-center">
             <button
                 type="button"
-                onClick={() => { setIsLogin(!isLogin); setRole(UserRole.USER); }}
+                onClick={() => { setIsLogin(!isLogin); setRole(UserRole.USER); setError(null); }}
                 className="text-sm font-medium text-primary-600 hover:text-primary-500"
             >
                 {isLogin ? "Don't have an account? Sign Up" : "Already have an account? Login"}
@@ -529,10 +541,59 @@ const AppContent = () => {
       <main className="flex-grow">
         {renderPage()}
       </main>
-      <footer className="bg-gray-800 text-white py-8">
-        <div className="max-w-7xl mx-auto px-4 text-center">
-          <p className="mb-2 font-heading font-semibold">LuxeMart eCommerce</p>
-          <p className="text-gray-400 text-sm">&copy; {new Date().getFullYear()} LuxeMart. All rights reserved.</p>
+      <footer className="bg-gray-900 text-white py-16">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12 border-b border-gray-800 pb-12">
+            <div className="col-span-1 md:col-span-1">
+               <div className="flex items-center mb-6">
+                <span className="text-2xl font-black tracking-tighter uppercase font-heading">
+                  Apna<span className="text-primary-500">Store</span>
+                </span>
+               </div>
+               <p className="text-gray-400 text-sm italic mb-6">
+                 "Elevating your lifestyle, one choice at a time."
+               </p>
+               <div className="flex space-x-4">
+                  <a href="#" className="p-2 bg-gray-800 rounded-lg hover:bg-primary-600 transition-colors"><Instagram className="w-5 h-5" /></a>
+                  <a href="#" className="p-2 bg-gray-800 rounded-lg hover:bg-primary-600 transition-colors"><Facebook className="w-5 h-5" /></a>
+                  <a href="#" className="p-2 bg-gray-800 rounded-lg hover:bg-primary-600 transition-colors"><Twitter className="w-5 h-5" /></a>
+               </div>
+            </div>
+            <div>
+              <h4 className="text-xs font-black uppercase tracking-widest text-primary-500 mb-6">Curated Collections</h4>
+              <ul className="space-y-4 text-sm text-gray-400">
+                <li><a href="#" className="hover:text-white transition-colors">Electronics</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Accessories</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Home & Living</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">New Arrivals</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-xs font-black uppercase tracking-widest text-primary-500 mb-6">Customer Care</h4>
+              <ul className="space-y-4 text-sm text-gray-400">
+                <li><a href="#" className="hover:text-white transition-colors">Shipping Policy</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Returns & Refunds</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Secure Payments</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">FAQ</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-xs font-black uppercase tracking-widest text-primary-500 mb-6">Stay Connected</h4>
+              <p className="text-gray-400 text-sm mb-4">Join our inner circle for exclusive early access to curated collections.</p>
+              <div className="flex">
+                <input type="email" placeholder="Your email" className="bg-gray-800 border-none rounded-l-xl px-4 py-3 text-sm focus:ring-1 focus:ring-primary-500 w-full" />
+                <button className="bg-primary-600 px-4 py-3 rounded-r-xl font-black text-xs uppercase hover:bg-primary-700 transition-all">Join</button>
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-col md:flex-row justify-between items-center text-gray-500 text-xs font-bold uppercase tracking-widest">
+            <p>&copy; {new Date().getFullYear()} Apna Store. Curated Excellence.</p>
+            <div className="flex space-x-8 mt-4 md:mt-0">
+               <a href="#" className="hover:text-white">Privacy</a>
+               <a href="#" className="hover:text-white">Terms</a>
+               <a href="#" className="hover:text-white">Cookies</a>
+            </div>
+          </div>
         </div>
       </footer>
     </div>
