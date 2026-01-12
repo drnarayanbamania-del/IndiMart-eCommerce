@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useStore } from '../contexts/StoreContext';
-import { Star, ShoppingCart, ArrowLeft, Heart, ChevronLeft, ChevronRight, Facebook, Twitter, Linkedin, MessageCircle } from 'lucide-react';
+import { Star, ShoppingCart, ArrowLeft, Heart, ChevronLeft, ChevronRight, Facebook, Twitter, Linkedin, MessageCircle, Check } from 'lucide-react';
 import { Product } from '../types';
 
 interface ProductDetailProps {
@@ -22,6 +22,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
   const product = products.find(p => p.id === productId);
   const [activeImage, setActiveImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
+  const [isAdded, setIsAdded] = useState(false);
 
   // Review State
   const [reviews, setReviews] = useState<Review[]>([
@@ -50,6 +51,12 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
 
   const handleNextImage = () => setActiveImage((prev) => (prev + 1) % images.length);
   const handlePrevImage = () => setActiveImage((prev) => (prev - 1 + images.length) % images.length);
+
+  const handleAddToCart = () => {
+    for(let i=0; i<quantity; i++) addToCart(product);
+    setIsAdded(true);
+    setTimeout(() => setIsAdded(false), 2000);
+  };
 
   const handleReviewSubmit = (e: React.FormEvent) => {
       e.preventDefault();
@@ -232,13 +239,27 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
                       </div>
                   </div>
                   <button
-                    onClick={() => {
-                        for(let i=0; i<quantity; i++) addToCart(product);
-                    }}
-                    className="flex-1 bg-primary-600 border border-transparent rounded-md py-3 px-8 flex items-center justify-center text-base font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 shadow-lg shadow-primary-500/30 transition-all"
+                    onClick={handleAddToCart}
+                    disabled={isAdded || product.stock === 0}
+                    className={`flex-1 border border-transparent rounded-md py-3 px-8 flex items-center justify-center text-base font-medium text-white shadow-lg transition-all duration-300 transform ${
+                        isAdded 
+                        ? 'bg-green-600 hover:bg-green-700 scale-105 shadow-green-500/30' 
+                        : product.stock === 0 
+                            ? 'bg-gray-400 cursor-not-allowed'
+                            : 'bg-primary-600 hover:bg-primary-700 hover:-translate-y-0.5 shadow-primary-500/30 focus:ring-2 focus:ring-offset-2 focus:ring-primary-500'
+                    }`}
                   >
-                    <ShoppingCart className="w-5 h-5 mr-2" />
-                    Add to Cart
+                    {isAdded ? (
+                        <>
+                            <Check className="w-5 h-5 mr-2 animate-bounce" />
+                            Added to Cart
+                        </>
+                    ) : (
+                        <>
+                            <ShoppingCart className="w-5 h-5 mr-2" />
+                            {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+                        </>
+                    )}
                   </button>
               </div>
             </div>
