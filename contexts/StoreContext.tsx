@@ -20,7 +20,7 @@ const INITIAL_CATEGORIES: Category[] = [
 const INITIAL_USER: User = {
   id: 'admin1',
   name: 'Admin User',
-  email: 'admin@luxemart.com',
+  email: 'admin@apnastore.com',
   password: 'password',
   role: UserRole.ADMIN
 };
@@ -49,37 +49,37 @@ interface StoreContextType {
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
-export const StoreProvider = ({ children }: { children: ReactNode }) => {
+export const StoreProvider = ({ children }: { children?: ReactNode }) => {
   // Auth State
   const [user, setUser] = useState<User | null>(() => {
-    const saved = localStorage.getItem('luxemart_user');
+    const saved = localStorage.getItem('apnastore_user');
     return saved ? JSON.parse(saved) : null;
   });
 
   useEffect(() => {
-    if (user) localStorage.setItem('luxemart_user', JSON.stringify(user));
-    else localStorage.removeItem('luxemart_user');
+    if (user) localStorage.setItem('apnastore_user', JSON.stringify(user));
+    else localStorage.removeItem('apnastore_user');
   }, [user]);
 
   // Data State
   const [products, setProducts] = useState<Product[]>(() => {
-    const saved = localStorage.getItem('luxemart_products');
+    const saved = localStorage.getItem('apnastore_products');
     return saved ? JSON.parse(saved) : INITIAL_PRODUCTS;
   });
 
   useEffect(() => {
-    localStorage.setItem('luxemart_products', JSON.stringify(products));
+    localStorage.setItem('apnastore_products', JSON.stringify(products));
   }, [products]);
 
   const [categories, setCategories] = useState<Category[]>(INITIAL_CATEGORIES);
 
   const [cart, setCart] = useState<CartItem[]>(() => {
-    const saved = localStorage.getItem('luxemart_cart');
+    const saved = localStorage.getItem('apnastore_cart');
     return saved ? JSON.parse(saved) : [];
   });
 
   useEffect(() => {
-    localStorage.setItem('luxemart_cart', JSON.stringify(cart));
+    localStorage.setItem('apnastore_cart', JSON.stringify(cart));
   }, [cart]);
 
   const [orders, setOrders] = useState<Order[]>([]);

@@ -36,7 +36,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
   const handlePrevImage = () => setActiveImage((prev) => (prev - 1 + images.length) % images.length);
 
   const shareUrl = window.location.href;
-  const shareText = `Check out ${product.name} (₹${product.price}) on LuxeMart!`;
+  const shareText = `Check out ${product.name} (₹${product.price}) on ApnaStore!`;
 
   return (
     <div className="bg-white min-h-screen pb-12">
@@ -261,7 +261,11 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
                 <h2 className="text-2xl font-bold text-gray-900 font-heading mb-6">Related Products</h2>
                 <div className="grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
                     {relatedProducts.map((relProduct) => (
-                        <div key={relProduct.id} className="group relative bg-white p-4 rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer" onClick={() => onViewProduct(relProduct.id)}>
+                        <div 
+                          key={relProduct.id} 
+                          className="group relative bg-white p-4 rounded-lg shadow-sm hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer" 
+                          onClick={() => onViewProduct(relProduct.id)}
+                        >
                             <div className="w-full min-h-60 bg-gray-200 aspect-w-1 aspect-h-1 rounded-md overflow-hidden group-hover:opacity-75 lg:h-60 lg:aspect-none">
                                 <img src={relProduct.image} alt={relProduct.name} className="w-full h-full object-center object-cover lg:w-full lg:h-full" />
                             </div>

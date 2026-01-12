@@ -93,7 +93,11 @@ const Shop: React.FC<ShopProps> = ({ onViewProduct }) => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredProducts.map((product) => (
-                <div key={product.id} className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden flex flex-col cursor-pointer" onClick={() => onViewProduct(product.id)}>
+                <div 
+                  key={product.id} 
+                  className="bg-white rounded-lg shadow-sm hover:shadow-xl hover:scale-105 transition-all duration-300 overflow-hidden flex flex-col cursor-pointer" 
+                  onClick={() => onViewProduct(product.id)}
+                >
                   <div className="relative pb-[100%]">
                     <img src={product.image} alt={product.name} className="absolute inset-0 w-full h-full object-cover" />
                   </div>

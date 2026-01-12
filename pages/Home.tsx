@@ -80,7 +80,11 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onViewProduct }) => {
 
           <div className="mt-6 grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
             {featuredProducts.map((product) => (
-              <div key={product.id} className="group relative bg-white p-4 rounded-lg shadow-sm hover:shadow-lg transition-shadow duration-300 cursor-pointer" onClick={() => onViewProduct(product.id)}>
+              <div 
+                key={product.id} 
+                className="group relative bg-white p-4 rounded-lg shadow-sm hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer" 
+                onClick={() => onViewProduct(product.id)}
+              >
                 <div className="w-full min-h-60 bg-gray-200 aspect-w-1 aspect-h-1 rounded-md overflow-hidden group-hover:opacity-75 lg:h-60 lg:aspect-none">
                   <img src={product.image} alt={product.name} className="w-full h-full object-center object-cover lg:w-full lg:h-full" />
                 </div>
