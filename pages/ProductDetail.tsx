@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useStore } from '../contexts/StoreContext';
-import { GoogleGenAI } from "@google/genai";
+import { generateProductImage } from '../services/geminiService';
 import { Star, ShoppingCart, ArrowLeft, Heart, ChevronLeft, ChevronRight, Facebook, Twitter, MessageCircle, Check, ShieldCheck, Filter, AlertCircle, CheckCircle2, Maximize2, X, ExternalLink, Sparkles } from 'lucide-react';
 
 interface ProductDetailProps {
@@ -160,30 +160,16 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
     if (!product || isGeneratingImage) return;
     setIsGeneratingImage(true);
     try {
-        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-        const prompt = `Professional product photography of ${product.name} (${product.category}). ${product.description}. High resolution, studio lighting, white background, 8k, realistic texture, cinematic light.`;
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash-image',
-            contents: { parts: [{ text: prompt }] },
-        });
-
-        let foundImage = false;
-        if (response.candidates && response.candidates[0].content.parts) {
-            for (const part of response.candidates[0].content.parts) {
-                if (part.inlineData) {
-                    setGeneratedImage(`data:image/png;base64,${part.inlineData.data}`);
-                    setActiveImage(0);
-                    foundImage = true;
-                    break;
-                }
-            }
-        }
-        if (!foundImage) {
+        const base64Image = await generateProductImage(product.name, product.category, product.description);
+        if (base64Image) {
+            setGeneratedImage(base64Image);
+            setActiveImage(0);
+        } else {
             alert("AI could not generate an image at this time. Please try again.");
         }
     } catch (error) {
         console.error("AI Image Generation Failed:", error);
-        alert("Failed to generate image. Please check your API key.");
+        alert("Failed to generate image.");
     } finally {
         setIsGeneratingImage(false);
     }
@@ -259,7 +245,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
                 title="Generate a realistic product view using AI"
               >
                   <Sparkles className={`w-3 h-3 ${isGeneratingImage ? 'animate-spin' : ''}`} />
-                  {isGeneratingImage ? 'Enhancing...' : 'Visualize AI'}
+                  {isGeneratingImage ? 'Enhancing...' : (generatedImage ? 'Regenerate AI' : 'Visualize AI')}
               </button>
 
               {/* Stacked Images for Fade Transition */}

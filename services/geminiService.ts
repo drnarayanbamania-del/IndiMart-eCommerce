@@ -24,3 +24,26 @@ export const generateProductDescription = async (productName: string, category: 
     return "Failed to generate description. Please try again.";
   }
 };
+
+export const generateProductImage = async (productName: string, category: string, description: string): Promise<string | null> => {
+  const client = getClient();
+  if (!client) return null;
+
+  try {
+    const prompt = `Professional product photography of ${productName} (${category}). ${description}. High resolution, studio lighting, white background, 8k, realistic texture, cinematic light, centered composition for e-commerce listing.`;
+    const response = await client.models.generateContent({
+      model: 'gemini-2.5-flash-image',
+      contents: { parts: [{ text: prompt }] },
+    });
+
+    for (const part of response.candidates?.[0]?.content?.parts || []) {
+      if (part.inlineData) {
+        return `data:image/png;base64,${part.inlineData.data}`;
+      }
+    }
+    return null;
+  } catch (error) {
+    console.error("Gemini Image Gen Error:", error);
+    return null;
+  }
+};
