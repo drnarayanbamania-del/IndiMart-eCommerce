@@ -5,7 +5,7 @@ import { User, Product, CartItem, Order, UserRole, Category } from '../types';
 // Mock Data
 const INITIAL_PRODUCTS: Product[] = [
   { id: '1', name: 'Premium Leather Watch', description: 'Elegant minimalist design with genuine leather strap.', price: 1299, category: 'Accessories', image: 'https://picsum.photos/400/400?random=1', stock: 50, rating: 4.5, reviews: 12 },
-  { id: '2', name: 'Wireless Noise Cancelling Headphones', description: 'Immersive sound with 30-hour battery life.', price: 2999, category: 'Electronics', image: 'https://picsum.photos/400/400?random=2', stock: 25, rating: 4.8, reviews: 45 },
+  { id: '2', name: 'Wireless Noise Cancelling Headphones', description: 'Immersive sound with 30-hour battery life.', price: 2999, category: 'Electronics', image: 'https://picsum.photos/400/400?random=2', stock: 25, rating: 4.8, reviews: 45, affiliateLink: 'https://amazon.com' },
   { id: '3', name: 'Ergonomic Office Chair', description: 'Designed for comfort and productivity.', price: 1999, category: 'Furniture', image: 'https://picsum.photos/400/400?random=3', stock: 10, rating: 4.2, reviews: 8 },
   { id: '4', name: 'Smart Fitness Tracker', description: 'Track your health metrics in real-time.', price: 899, category: 'Electronics', image: 'https://picsum.photos/400/400?random=4', stock: 100, rating: 4.0, reviews: 30 },
   { id: '5', name: 'Designer Sunglasses', description: 'UV protection with a classic look.', price: 1500, category: 'Accessories', image: 'https://picsum.photos/400/400?random=5', stock: 15, rating: 4.7, reviews: 22 },

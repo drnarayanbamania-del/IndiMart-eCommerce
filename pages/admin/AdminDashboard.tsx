@@ -5,7 +5,7 @@ import { UserRole, Product } from '../../types';
 import { generateProductDescription } from '../../services/geminiService';
 import { GoogleGenAI } from "@google/genai";
 import {
-  LayoutDashboard, ShoppingBag, Users, Settings, Plus, Trash, Edit, Bot, TrendingUp, RefreshCcw, Image as ImageIcon, Sparkles
+  LayoutDashboard, ShoppingBag, Users, Settings, Plus, Trash, Edit, Bot, TrendingUp, RefreshCcw, Image as ImageIcon, Sparkles, Link
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
@@ -21,7 +21,7 @@ const AdminDashboard: React.FC = () => {
 
   // New product form state
   const [newProduct, setNewProduct] = useState<Partial<Product>>({
-    name: '', category: 'Electronics', price: 0, description: '', stock: 0, image: 'https://picsum.photos/400/400'
+    name: '', category: 'Electronics', price: 0, description: '', stock: 0, image: 'https://picsum.photos/400/400', affiliateLink: ''
   });
 
   if (user?.role !== UserRole.ADMIN) {
@@ -93,10 +93,11 @@ const AdminDashboard: React.FC = () => {
         stock: Number(newProduct.stock) || 0,
         image: newProduct.image || 'https://picsum.photos/400/400',
         rating: 0,
-        reviews: 0
+        reviews: 0,
+        affiliateLink: newProduct.affiliateLink
       } as Product);
       setShowAddModal(false);
-      setNewProduct({ name: '', category: 'Electronics', price: 0, description: '', stock: 0, image: 'https://picsum.photos/400/400' });
+      setNewProduct({ name: '', category: 'Electronics', price: 0, description: '', stock: 0, image: 'https://picsum.photos/400/400', affiliateLink: '' });
       setImagePreviewError(false);
     }
   };
@@ -417,6 +418,23 @@ const AdminDashboard: React.FC = () => {
                     </div>
                   </div>
                 </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Affiliate Link (Optional)</label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Link className="h-4 w-4 text-gray-400" />
+                  </div>
+                  <input
+                    type="url"
+                    className="block w-full border border-gray-300 rounded-md shadow-sm py-2 pl-10 pr-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                    value={newProduct.affiliateLink || ''}
+                    onChange={e => setNewProduct({ ...newProduct, affiliateLink: e.target.value })}
+                    placeholder="https://amazon.com/dp/..."
+                  />
+                </div>
+                <p className="mt-1 text-xs text-gray-500">If provided, the 'Add to Cart' button will be replaced with a 'Buy Now' link to this URL.</p>
               </div>
 
               <div>

@@ -1,7 +1,8 @@
 
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useStore } from '../contexts/StoreContext';
-import { Star, ShoppingCart, ArrowLeft, Heart, ChevronLeft, ChevronRight, Facebook, Twitter, MessageCircle, Check, ShieldCheck, Filter, AlertCircle, CheckCircle2, Maximize2, X } from 'lucide-react';
+import { GoogleGenAI } from "@google/genai";
+import { Star, ShoppingCart, ArrowLeft, Heart, ChevronLeft, ChevronRight, Facebook, Twitter, MessageCircle, Check, ShieldCheck, Filter, AlertCircle, CheckCircle2, Maximize2, X, ExternalLink, Sparkles } from 'lucide-react';
 
 interface ProductDetailProps {
   productId: string;
@@ -26,6 +27,10 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
   const [quantity, setQuantity] = useState(1);
   const [isAdded, setIsAdded] = useState(false);
   
+  // AI Image State
+  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  
   // Lightbox State
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
@@ -47,15 +52,22 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [sortBy, setSortBy] = useState<'newest' | 'highest' | 'lowest'>('newest');
 
+  // Reset generated image when product changes
+  useEffect(() => {
+    setGeneratedImage(null);
+    setActiveImage(0);
+  }, [productId]);
+
   const images = useMemo(() => {
     if(!product) return [];
-    return [
+    const baseImages = [
         product.image,
         `https://picsum.photos/800/800?random=${product.id}1`,
         `https://picsum.photos/800/800?random=${product.id}2`,
         `https://picsum.photos/800/800?random=${product.id}3`,
     ];
-  }, [product]);
+    return generatedImage ? [generatedImage, ...baseImages] : baseImages;
+  }, [product, generatedImage]);
 
   const handleMouseLeave = () => {
     setZoomPos(prev => ({ ...prev, opacity: 0 }));
@@ -144,6 +156,39 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
     setTimeout(() => setIsAdded(false), 2000);
   };
 
+  const handleGenerateAIImage = async () => {
+    if (!product || isGeneratingImage) return;
+    setIsGeneratingImage(true);
+    try {
+        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+        const prompt = `Professional product photography of ${product.name} (${product.category}). ${product.description}. High resolution, studio lighting, white background, 8k, realistic texture, cinematic light.`;
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash-image',
+            contents: { parts: [{ text: prompt }] },
+        });
+
+        let foundImage = false;
+        if (response.candidates && response.candidates[0].content.parts) {
+            for (const part of response.candidates[0].content.parts) {
+                if (part.inlineData) {
+                    setGeneratedImage(`data:image/png;base64,${part.inlineData.data}`);
+                    setActiveImage(0);
+                    foundImage = true;
+                    break;
+                }
+            }
+        }
+        if (!foundImage) {
+            alert("AI could not generate an image at this time. Please try again.");
+        }
+    } catch (error) {
+        console.error("AI Image Generation Failed:", error);
+        alert("Failed to generate image. Please check your API key.");
+    } finally {
+        setIsGeneratingImage(false);
+    }
+  };
+
   const handleReviewSubmit = (e: React.FormEvent) => {
       e.preventDefault();
       if (!isFormValid) {
@@ -174,6 +219,12 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
   const shareText = `Check out this ${product.name} at Apna Store! Only ₹${product.price}`;
   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText + " " + shareUrl)}`;
 
+  // Determine button text and styling based on link
+  const isMeesho = product.affiliateLink?.toLowerCase().includes('meesho');
+  const affiliateButtonText = isMeesho ? 'Buy Now on Meesho' : 'Buy Now';
+  const affiliateButtonClass = "w-full flex items-center justify-center py-5 rounded-2xl text-white text-lg font-black uppercase tracking-widest shadow-xl transition-all hover:scale-[1.02] bg-[#7b2cbf] hover:bg-[#6a25a5] shadow-[#7b2cbf]/30";
+
+
   return (
     <div className="bg-white min-h-screen pb-12 font-sans animate-in fade-in duration-500">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -183,6 +234,15 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        {/* Global Disclosure */}
+        <div className="bg-primary-50 border border-primary-100 rounded-xl p-4 mb-8 flex items-start animate-in slide-in-from-top-2">
+            <AlertCircle className="w-5 h-5 text-primary-600 mr-3 mt-0.5 flex-shrink-0" />
+            <p className="text-sm text-primary-900 font-medium">
+                <strong>Disclosure:</strong> This post contains affiliate links. If you purchase through them, we may earn a commission at no extra cost to you.
+            </p>
+        </div>
+
         <div className="lg:grid lg:grid-cols-2 lg:gap-x-12 xl:gap-x-16">
           <div className="product-images">
             <div 
@@ -191,6 +251,17 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
               onMouseLeave={handleMouseLeave}
               className="relative aspect-square bg-slate-50 rounded-[2.5rem] overflow-hidden mb-6 group shadow-2xl border border-slate-100 cursor-crosshair ring-1 ring-slate-900/5 bg-white"
             >
+              {/* AI Generation Button Overlay */}
+              <button 
+                onClick={(e) => { e.stopPropagation(); handleGenerateAIImage(); }}
+                disabled={isGeneratingImage}
+                className="absolute top-4 right-4 z-50 bg-white/90 backdrop-blur-md text-indigo-600 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg hover:bg-white hover:scale-105 transition-all flex items-center gap-2 border border-white/50"
+                title="Generate a realistic product view using AI"
+              >
+                  <Sparkles className={`w-3 h-3 ${isGeneratingImage ? 'animate-spin' : ''}`} />
+                  {isGeneratingImage ? 'Enhancing...' : 'Visualize AI'}
+              </button>
+
               {/* Stacked Images for Fade Transition */}
               {images.map((img, idx) => (
                 <div 
@@ -328,54 +399,70 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
                  </span>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-5">
-                  <div className="flex items-center bg-white border-2 border-slate-100 rounded-2xl p-1 shadow-inner">
-                      <button 
-                        onClick={() => setQuantity(Math.max(1, quantity - 1))} 
-                        aria-label="Decrease quantity"
-                        className="w-12 h-12 flex items-center justify-center text-slate-400 hover:text-indigo-600 transition-colors"
-                      >
-                        -
-                      </button>
-                      <input 
-                        type="number" 
-                        aria-label="Product quantity"
-                        className="w-10 text-center text-slate-900 font-black bg-transparent border-none focus:ring-0" 
-                        value={quantity} 
-                        readOnly 
-                      />
-                      <button 
-                        onClick={() => setQuantity(quantity + 1)} 
-                        aria-label="Increase quantity"
-                        className="w-12 h-12 flex items-center justify-center text-slate-400 hover:text-indigo-600 transition-colors"
-                      >
-                        +
-                      </button>
+              {product.affiliateLink ? (
+                  <div className="mt-2 flex flex-col items-center w-full">
+                     <p className="text-sm text-gray-500 mb-3 font-medium">
+                       (Affiliate link – no extra cost to you)
+                     </p>
+                     <a
+                        href={product.affiliateLink}
+                        target="_blank"
+                        rel="nofollow sponsored"
+                        className={affiliateButtonClass}
+                     >
+                        {affiliateButtonText} <ExternalLink className="ml-2 w-5 h-5" />
+                     </a>
                   </div>
-                  <button
-                    onClick={handleAddToCart}
-                    disabled={isAdded || product.stock === 0}
-                    className={`flex-1 rounded-2xl py-5 px-10 flex items-center justify-center text-lg font-black text-white transition-all duration-300 shadow-2xl ${
-                        isAdded 
-                        ? 'bg-green-600 shadow-green-500/20' 
-                        : product.stock === 0 
-                            ? 'bg-slate-400 cursor-not-allowed'
-                            : 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-500/30'
-                    }`}
-                  >
-                    {isAdded ? (
-                        <>
-                            <Check className="w-6 h-6 mr-3" />
-                            Added!
-                        </>
-                    ) : (
-                        <>
-                            <ShoppingCart className="w-6 h-6 mr-3" />
-                            {product.stock === 0 ? 'Out of Stock' : 'Add to Collection'}
-                        </>
-                    )}
-                  </button>
-              </div>
+              ) : (
+                <div className="flex flex-col sm:flex-row gap-5">
+                    <div className="flex items-center bg-white border-2 border-slate-100 rounded-2xl p-1 shadow-inner">
+                        <button 
+                            onClick={() => setQuantity(Math.max(1, quantity - 1))} 
+                            aria-label="Decrease quantity"
+                            className="w-12 h-12 flex items-center justify-center text-slate-400 hover:text-indigo-600 transition-colors"
+                        >
+                            -
+                        </button>
+                        <input 
+                            type="number" 
+                            aria-label="Product quantity"
+                            className="w-10 text-center text-slate-900 font-black bg-transparent border-none focus:ring-0" 
+                            value={quantity} 
+                            readOnly 
+                        />
+                        <button 
+                            onClick={() => setQuantity(quantity + 1)} 
+                            aria-label="Increase quantity"
+                            className="w-12 h-12 flex items-center justify-center text-slate-400 hover:text-indigo-600 transition-colors"
+                        >
+                            +
+                        </button>
+                    </div>
+                    <button
+                        onClick={handleAddToCart}
+                        disabled={isAdded || product.stock === 0}
+                        className={`flex-1 rounded-2xl py-5 px-10 flex items-center justify-center text-lg font-black text-white transition-all duration-300 shadow-2xl ${
+                            isAdded 
+                            ? 'bg-green-600 shadow-green-500/20' 
+                            : product.stock === 0 
+                                ? 'bg-slate-400 cursor-not-allowed'
+                                : 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-500/30'
+                        }`}
+                    >
+                        {isAdded ? (
+                            <>
+                                <Check className="w-6 h-6 mr-3" />
+                                Added!
+                            </>
+                        ) : (
+                            <>
+                                <ShoppingCart className="w-6 h-6 mr-3" />
+                                {product.stock === 0 ? 'Out of Stock' : 'Add to Collection'}
+                            </>
+                        )}
+                    </button>
+                </div>
+              )}
             </div>
             
             <div className="mt-8 pt-8 border-t border-slate-100 flex items-center space-x-6">

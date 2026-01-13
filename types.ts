@@ -1,3 +1,4 @@
+
 export enum UserRole {
   USER = 'user',
   ADMIN = 'admin'
@@ -21,6 +22,7 @@ export interface Product {
   stock: number;
   rating: number;
   reviews: number;
+  affiliateLink?: string;
 }
 
 export interface CartItem extends Product {
