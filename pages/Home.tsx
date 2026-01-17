@@ -72,7 +72,7 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onViewProduct }) => {
   return (
     <div className="bg-white">
       {/* Hero Slider Section */}
-      <div className="relative h-[600px] w-full overflow-hidden bg-slate-900 group">
+      <div className="relative h-[400px] md:h-[500px] w-full overflow-hidden bg-slate-900 group">
         {/* Slides */}
         {HERO_SLIDES.map((slide, index) => (
             <div
@@ -104,18 +104,18 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onViewProduct }) => {
                             </span>
                         </div>
                         <h1 
-                          className={`text-5xl md:text-7xl font-extrabold text-white font-heading leading-tight mb-6 tracking-tight drop-shadow-lg transition-all duration-700 delay-200 transform ${index === currentSlide ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
+                          className={`text-4xl md:text-6xl font-extrabold text-white font-heading leading-tight mb-4 tracking-tight drop-shadow-lg transition-all duration-700 delay-200 transform ${index === currentSlide ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
                         >
                             {slide.title} <span className={`block ${slide.accentColor}`}>{slide.highlight}</span>
                         </h1>
                         <p 
-                          className={`text-xl text-slate-300 font-light italic mb-8 max-w-lg leading-relaxed drop-shadow-md transition-all duration-700 delay-300 transform ${index === currentSlide ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
+                          className={`text-lg text-slate-300 font-light italic mb-6 max-w-lg leading-relaxed drop-shadow-md transition-all duration-700 delay-300 transform ${index === currentSlide ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
                         >
                             {slide.description}
                         </p>
                         <button
                             onClick={() => handleCtaClick(slide)}
-                            className={`px-10 py-4 ${slide.buttonClass} text-white rounded-2xl text-lg font-black tracking-wide transition-all duration-700 delay-400 transform hover:scale-105 hover:shadow-lg flex items-center group ${index === currentSlide ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
+                            className={`px-8 py-3 ${slide.buttonClass} text-white rounded-2xl text-base font-black tracking-wide transition-all duration-700 delay-400 transform hover:scale-105 hover:shadow-lg flex items-center group ${index === currentSlide ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
                         >
                             {slide.cta} <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                         </button>
