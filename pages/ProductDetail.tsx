@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useStore } from '../contexts/StoreContext';
-import { generateProductImage } from '../services/geminiService';
+import { GoogleGenAI } from "@google/genai";
 import { Star, ShoppingCart, ArrowLeft, Heart, ChevronLeft, ChevronRight, Facebook, Twitter, MessageCircle, Check, ShieldCheck, Filter, AlertCircle, CheckCircle2, Maximize2, X, ExternalLink, Sparkles, Upload, Plus } from 'lucide-react';
 
 interface ProductDetailProps {
@@ -209,16 +209,39 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
     if (!product || isGeneratingImage) return;
     setIsGeneratingImage(true);
     try {
-        const base64Image = await generateProductImage(product.name, product.category, product.description);
-        if (base64Image) {
-            setGeneratedImage(base64Image);
-            setActiveImage(0);
-        } else {
+        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+        
+        const prompt = `Professional e-commerce product photography of ${product.name} (${product.category}). ${product.description}.
+        
+        Specifications for Commercial Appeal:
+        - Lighting: Soft, diffused studio lighting with gentle rim light to accentuate edges and texture. Avoid harsh shadows.
+        - Composition: Perfectly centered subject, front-facing view, filling approximately 80% of the frame.
+        - Camera: 50mm to 85mm lens equivalent (portrait focal length) to minimize distortion and provide a natural, flattering perspective. Aperture f/8 for sharp focus across the entire product.
+        - Background: Clean, solid white (#FFFFFF) or extremely light neutral grey background to ensure focus remains on the product.
+        - Style: High-end, minimalist, clean, photorealistic, 8k resolution. No text, no watermarks, no distracting elements.`;
+
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash-image',
+            contents: { parts: [{ text: prompt }] },
+        });
+
+        let foundImage = false;
+        for (const part of response.candidates?.[0]?.content?.parts || []) {
+            if (part.inlineData) {
+                const base64Image = `data:image/png;base64,${part.inlineData.data}`;
+                setGeneratedImage(base64Image);
+                setActiveImage(0);
+                foundImage = true;
+                break;
+            }
+        }
+        
+        if (!foundImage) {
             alert("AI could not generate an image at this time. Please try again.");
         }
     } catch (error) {
         console.error("AI Image Generation Failed:", error);
-        alert("Failed to generate image.");
+        alert("Failed to generate image. Please ensure your API key is configured.");
     } finally {
         setIsGeneratingImage(false);
     }
