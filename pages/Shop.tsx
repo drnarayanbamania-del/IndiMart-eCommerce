@@ -78,41 +78,86 @@ const Shop: React.FC<ShopProps> = ({ onViewProduct }) => {
   };
 
   const processVoiceCommand = (command: string) => {
-    let newCategory = selectedCategory;
-    let newSort = sortBy;
-    let newQuery = command;
     const lowerCmd = command.toLowerCase();
+    
+    let detectedCategory = selectedCategory;
+    let detectedSort = sortBy;
+    let detectedQuery = '';
 
-    // Detect Categories
-    if (lowerCmd.includes('electronics')) newCategory = 'Electronics';
-    else if (lowerCmd.includes('furniture')) newCategory = 'Furniture';
-    else if (lowerCmd.includes('accessories')) newCategory = 'Accessories';
-    else if (lowerCmd.includes('all') || lowerCmd.includes('everything')) newCategory = 'All';
+    // 1. Enhanced Category Detection with Regex for Word Boundaries
+    // Define mappings based on common terms for our shop categories
+    const categoryMap: Record<string, string[]> = {
+        'Electronics': ['electronics', 'gadget', 'phone', 'mobile', 'laptop', 'computer', 'monitor', 'headphone', 'earphone', 'camera', 'tech', 'device'],
+        'Furniture': ['furniture', 'sofa', 'chair', 'table', 'desk', 'couch', 'bed', 'shelf', 'decor', 'living room'],
+        'Accessories': ['accessories', 'bag', 'purse', 'wallet', 'sunglass', 'glasses', 'jewelry', 'necklace', 'ring', 'bracelet', 'belt', 'watch']
+    };
 
-    // Detect Sorting
-    if (lowerCmd.includes('cheap') || lowerCmd.includes('low price') || lowerCmd.includes('lowest')) {
-      newSort = 'price-asc';
-    } else if (lowerCmd.includes('expensive') || lowerCmd.includes('high price') || lowerCmd.includes('highest')) {
-      newSort = 'price-desc';
-    } else if (lowerCmd.includes('best') || lowerCmd.includes('rating') || lowerCmd.includes('top')) {
-      newSort = 'rating-desc';
+    // Check for explicit "All" intent
+    if (/\b(all|everything)\b/.test(lowerCmd)) {
+        detectedCategory = 'All';
+    } else {
+        // Iterate through categories to find matches
+        for (const [cat, keywords] of Object.entries(categoryMap)) {
+            // Check for singular or plural forms (basic check)
+            if (keywords.some(k => new RegExp(`\\b${k}\\b|\\b${k}s\\b`).test(lowerCmd))) {
+                detectedCategory = cat;
+                // If we found a category, we might want to switch to it. 
+                // We don't break immediately if we want to support multi-category logic, 
+                // but for this single-select UI, priority to the first match or specific logic applies.
+                break; 
+            }
+        }
     }
 
-    // Clean up query: remove command words to improve search relevance
-    const stopWords = ['show me', 'i want', 'search for', 'find', 'products', 'items', 'list', 'sort by', 'category'];
-    stopWords.forEach(word => {
-        const regex = new RegExp(`\\b${word}\\b`, 'gi');
-        newQuery = newQuery.replace(regex, '');
+    // 2. Enhanced Sort Detection
+    if (/\b(cheap|lowest|low price|budget|economical|inexpensive)\b/.test(lowerCmd)) {
+        detectedSort = 'price-asc';
+    } else if (/\b(expensive|highest|high price|premium|luxury|costly)\b/.test(lowerCmd)) {
+        detectedSort = 'price-desc';
+    } else if (/\b(best|top|rated|popular|trending|favorite|good)\b/.test(lowerCmd)) {
+        detectedSort = 'rating-desc';
+    }
+
+    // 3. Smart Query Extraction
+    // Start with the full command
+    let tempQuery = lowerCmd;
+    
+    // Remove explicit category names from the query to avoid redundant searching
+    ['electronics', 'furniture', 'accessories'].forEach(c => {
+         tempQuery = tempQuery.replace(new RegExp(`\\b${c}\\b`, 'g'), '');
     });
 
-    // If the query was just a category name (e.g., "Electronics"), clear the query so we see all electronics
-    if (newQuery.trim().toLowerCase() === newCategory.toLowerCase()) {
-        newQuery = '';
-    }
+    // Remove sorting keywords to clean up the query
+    const sortWords = [
+        'cheap', 'cheapest', 'lowest', 'low', 'price', 'budget', 'economical',
+        'expensive', 'highest', 'high', 'premium', 'luxury', 'costly',
+        'best', 'top', 'rated', 'popular', 'trending', 'sort', 'by', 'order'
+    ];
+    sortWords.forEach(w => {
+        tempQuery = tempQuery.replace(new RegExp(`\\b${w}\\b`, 'g'), '');
+    });
 
-    setSelectedCategory(newCategory);
-    setSortBy(newSort);
-    setSearchQuery(newQuery.trim());
+    // Remove common conversational filler phrases
+    const fillers = [
+        'show me', 'i want', 'search for', 'find', 'looking for', 'list', 
+        'products', 'items', 'stuff', 'things', 
+        ' in ', ' with ', ' a ', ' an ', ' the '
+    ];
+    fillers.forEach(f => {
+        tempQuery = tempQuery.replace(new RegExp(f, 'g'), ' ');
+    });
+
+    // Clean up whitespace
+    detectedQuery = tempQuery.replace(/\s+/g, ' ').trim();
+
+    // Edge Case: If the query is now empty but we detected a category, 
+    // it means the user likely just said "Show me Electronics" or "Cheap Furniture".
+    // In this case, we rely on the category filter and sort, with no text search.
+
+    // Apply the updated state
+    setSelectedCategory(detectedCategory);
+    setSortBy(detectedSort);
+    setSearchQuery(detectedQuery);
   };
 
   const filteredProducts = products
