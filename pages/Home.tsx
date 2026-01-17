@@ -72,7 +72,7 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onViewProduct }) => {
   return (
     <div className="bg-white">
       {/* Hero Slider Section */}
-      <div className="relative h-[400px] md:h-[500px] w-full overflow-hidden bg-slate-900 group">
+      <div className="relative h-[300px] md:h-[400px] w-full overflow-hidden bg-slate-900 group">
         {/* Slides */}
         {HERO_SLIDES.map((slide, index) => (
             <div
@@ -96,28 +96,28 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onViewProduct }) => {
                 <div className="relative h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center z-20">
                     <div className="max-w-2xl">
                         <div 
-                          className={`flex items-center space-x-2 mb-4 transition-all duration-700 delay-100 transform ${index === currentSlide ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
+                          className={`flex items-center space-x-2 mb-2 transition-all duration-700 delay-100 transform ${index === currentSlide ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
                         >
-                            <Sparkles className={`w-5 h-5 ${slide.accentColor}`} />
-                            <span className={`${slide.accentColor} text-sm font-black uppercase tracking-[0.3em]`}>
+                            <Sparkles className={`w-4 h-4 md:w-5 md:h-5 ${slide.accentColor}`} />
+                            <span className={`${slide.accentColor} text-xs md:text-sm font-black uppercase tracking-[0.3em]`}>
                                 {slide.subtitle}
                             </span>
                         </div>
                         <h1 
-                          className={`text-4xl md:text-6xl font-extrabold text-white font-heading leading-tight mb-4 tracking-tight drop-shadow-lg transition-all duration-700 delay-200 transform ${index === currentSlide ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
+                          className={`text-3xl md:text-5xl font-extrabold text-white font-heading leading-tight mb-2 tracking-tight drop-shadow-lg transition-all duration-700 delay-200 transform ${index === currentSlide ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
                         >
                             {slide.title} <span className={`block ${slide.accentColor}`}>{slide.highlight}</span>
                         </h1>
                         <p 
-                          className={`text-lg text-slate-300 font-light italic mb-6 max-w-lg leading-relaxed drop-shadow-md transition-all duration-700 delay-300 transform ${index === currentSlide ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
+                          className={`text-sm md:text-lg text-slate-300 font-light italic mb-4 max-w-lg leading-relaxed drop-shadow-md transition-all duration-700 delay-300 transform ${index === currentSlide ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
                         >
                             {slide.description}
                         </p>
                         <button
                             onClick={() => handleCtaClick(slide)}
-                            className={`px-8 py-3 ${slide.buttonClass} text-white rounded-2xl text-base font-black tracking-wide transition-all duration-700 delay-400 transform hover:scale-105 hover:shadow-lg flex items-center group ${index === currentSlide ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
+                            className={`px-6 py-2.5 md:px-8 md:py-3 ${slide.buttonClass} text-white rounded-2xl text-sm md:text-base font-black tracking-wide transition-all duration-700 delay-400 transform hover:scale-105 hover:shadow-lg flex items-center group ${index === currentSlide ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
                         >
-                            {slide.cta} <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                            {slide.cta} <ArrowRight className="ml-2 w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-1 transition-transform" />
                         </button>
                     </div>
                 </div>
@@ -125,23 +125,23 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onViewProduct }) => {
         ))}
 
         {/* Controls */}
-        <div className="absolute bottom-8 right-8 z-30 flex space-x-4">
-             <button onClick={prevSlide} className="p-3 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm transition-all border border-white/20 active:scale-95">
-                 <ChevronLeft className="w-6 h-6" />
+        <div className="absolute bottom-6 right-6 z-30 flex space-x-3 md:space-x-4">
+             <button onClick={prevSlide} className="p-2 md:p-3 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm transition-all border border-white/20 active:scale-95">
+                 <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
              </button>
-             <button onClick={nextSlide} className="p-3 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm transition-all border border-white/20 active:scale-95">
-                 <ChevronRight className="w-6 h-6" />
+             <button onClick={nextSlide} className="p-2 md:p-3 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm transition-all border border-white/20 active:scale-95">
+                 <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
              </button>
         </div>
 
         {/* Indicators */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 flex space-x-2">
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 flex space-x-2">
             {HERO_SLIDES.map((_, idx) => (
                 <button
                     key={idx}
                     onClick={() => setCurrentSlide(idx)}
                     className={`h-1.5 rounded-full transition-all duration-500 ${
-                        idx === currentSlide ? 'w-8 bg-white' : 'w-2 bg-white/40 hover:bg-white/60'
+                        idx === currentSlide ? 'w-6 md:w-8 bg-white' : 'w-1.5 md:w-2 bg-white/40 hover:bg-white/60'
                     }`}
                 />
             ))}
