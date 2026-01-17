@@ -1,8 +1,7 @@
-
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useStore } from '../contexts/StoreContext';
 import { generateProductImage } from '../services/geminiService';
-import { Star, ShoppingCart, ArrowLeft, Heart, ChevronLeft, ChevronRight, Facebook, Twitter, MessageCircle, Check, ShieldCheck, Filter, AlertCircle, CheckCircle2, Maximize2, X, ExternalLink, Sparkles } from 'lucide-react';
+import { Star, ShoppingCart, ArrowLeft, Heart, ChevronLeft, ChevronRight, Facebook, Twitter, MessageCircle, Check, ShieldCheck, Filter, AlertCircle, CheckCircle2, Maximize2, X, ExternalLink, Sparkles, Upload } from 'lucide-react';
 
 interface ProductDetailProps {
   productId: string;
@@ -31,6 +30,9 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   
+  // Uploaded Images State
+  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+
   // Lightbox State
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
@@ -52,9 +54,10 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [sortBy, setSortBy] = useState<'newest' | 'highest' | 'lowest'>('newest');
 
-  // Reset generated image when product changes
+  // Reset generated image and uploads when product changes
   useEffect(() => {
     setGeneratedImage(null);
+    setUploadedImages([]);
     setActiveImage(0);
   }, [productId]);
 
@@ -66,8 +69,21 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
         `https://picsum.photos/800/800?random=${product.id}2`,
         `https://picsum.photos/800/800?random=${product.id}3`,
     ];
-    return generatedImage ? [generatedImage, ...baseImages] : baseImages;
-  }, [product, generatedImage]);
+    
+    let combined = [...baseImages];
+    
+    // Add uploaded images
+    if (uploadedImages.length > 0) {
+        combined = [...uploadedImages, ...combined];
+    }
+    
+    // Add generated image (highest priority if exists)
+    if (generatedImage) {
+        combined = [generatedImage, ...combined];
+    }
+    
+    return combined;
+  }, [product, generatedImage, uploadedImages]);
 
   const handleMouseLeave = () => {
     setZoomPos(prev => ({ ...prev, opacity: 0 }));
@@ -81,6 +97,28 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
   const handlePrevImage = () => {
     handleMouseLeave();
     setActiveImage((prev) => (prev - 1 + images.length) % images.length);
+  };
+
+  // Handle multiple file uploads
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+        const newFiles = Array.from(e.target.files);
+        const readers = newFiles.map(file => {
+            return new Promise<string>((resolve) => {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    if (typeof reader.result === 'string') resolve(reader.result);
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+
+        Promise.all(readers).then(results => {
+            setUploadedImages(prev => [...results, ...prev]);
+            // If there's a generated image, the new upload is at index 1, otherwise 0
+            setActiveImage(generatedImage ? 1 : 0);
+        });
+    }
   };
 
   // Keyboard Navigation for Lightbox
@@ -237,6 +275,19 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
               onMouseLeave={handleMouseLeave}
               className="relative aspect-square bg-slate-50 rounded-[2.5rem] overflow-hidden mb-6 group shadow-2xl border border-slate-100 cursor-crosshair ring-1 ring-slate-900/5 bg-white"
             >
+              {/* Upload Button (Top Left) */}
+              <label className="absolute top-4 left-4 z-50 bg-white/90 backdrop-blur-md text-slate-700 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg hover:bg-white hover:scale-105 transition-all flex items-center gap-2 border border-white/50 cursor-pointer">
+                  <Upload className="w-3 h-3" />
+                  <span>Upload Photo</span>
+                  <input 
+                      type="file" 
+                      multiple 
+                      accept="image/*" 
+                      className="hidden" 
+                      onChange={handleFileUpload}
+                  />
+              </label>
+
               {/* AI Generation Button Overlay */}
               <button 
                 onClick={(e) => { e.stopPropagation(); handleGenerateAIImage(); }}
