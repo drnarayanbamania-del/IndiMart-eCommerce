@@ -10,6 +10,8 @@ const INITIAL_PRODUCTS: Product[] = [
   { id: '5', name: 'Designer Sunglasses', description: 'UV protection with a classic look.', price: 1500, category: 'Accessories', image: 'https://picsum.photos/400/400?random=5', stock: 15, rating: 4.7, reviews: 22 },
   { id: '6', name: 'Ultra-Slim Laptop Pro', description: 'High performance meets portability. 16GB RAM, 512GB SSD.', price: 54999, category: 'Computers', image: 'https://picsum.photos/400/400?random=6', stock: 8, rating: 4.9, reviews: 15 },
   { id: '7', name: 'Smart Inverter Refrigerator', description: 'Energy efficient cooling with auto-defrost technology.', price: 22499, category: 'Home Appliances', image: 'https://picsum.photos/400/400?random=7', stock: 12, rating: 4.6, reviews: 34 },
+  { id: '8', name: 'Banarasi Silk Saree', description: 'Authentic Banarasi silk with zari work. Perfect for weddings.', price: 1499, category: 'Meesho Finds', image: 'https://images.meesho.com/images/products/42345678/abcde_512.jpg', stock: 20, rating: 4.3, reviews: 56, affiliateLink: 'https://www.meesho.com/sarees/p/abcde' },
+  { id: '9', name: 'Rayon Printed Kurti', description: 'Comfortable daily wear printed kurti set.', price: 499, category: 'Meesho Finds', image: 'https://images.meesho.com/images/products/87654321/vwxyz_512.jpg', stock: 50, rating: 4.1, reviews: 89, affiliateLink: 'https://www.meesho.com/kurtis/p/vwxyz' },
   { id: 'test-1', name: 'Test Payment Item', description: 'Product for testing payment gateway integration (1 INR).', price: 1, category: 'Test', image: 'https://placehold.co/400x400?text=Test+Item', stock: 999, rating: 5.0, reviews: 0 },
 ];
 
@@ -19,6 +21,7 @@ const INITIAL_CATEGORIES: Category[] = [
   { id: '3', name: 'Furniture', image: 'https://picsum.photos/300/200?random=12' },
   { id: '4', name: 'Computers', image: 'https://picsum.photos/300/200?random=13' },
   { id: '5', name: 'Home Appliances', image: 'https://picsum.photos/300/200?random=14' },
+  { id: '6', name: 'Meesho Finds', image: 'https://images.unsplash.com/photo-1583394838336-acd977736f90?q=80&w=600&auto=format&fit=crop' },
 ];
 
 const ADMIN_EMAIL = 'drnarayanbamania@gmail.com';

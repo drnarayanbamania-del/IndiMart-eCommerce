@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useStore } from '../contexts/StoreContext';
-import { ArrowRight, Star, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowRight, Star, Sparkles, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
 
 interface HomeProps {
   onNavigate: (page: string) => void;
@@ -66,6 +66,11 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onViewProduct }) => {
       if (slide.category !== 'All') {
           setVoiceRequest({ query: '', category: slide.category, sortBy: 'default', timestamp: Date.now() });
       }
+      onNavigate('shop');
+  };
+
+  const handleCategoryClick = (categoryName: string) => {
+      setVoiceRequest({ query: '', category: categoryName, sortBy: 'default', timestamp: Date.now() });
       onNavigate('shop');
   };
 
@@ -156,7 +161,7 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onViewProduct }) => {
         </div>
         <div className="mt-6 grid grid-cols-1 gap-y-10 gap-x-8 sm:grid-cols-2 lg:grid-cols-3 xl:gap-x-12">
           {categories.map((category) => (
-            <div key={category.id} className="group relative cursor-pointer overflow-hidden rounded-[2rem] shadow-lg border border-slate-100" onClick={() => onNavigate('shop')}>
+            <div key={category.id} className="group relative cursor-pointer overflow-hidden rounded-[2rem] shadow-lg border border-slate-100" onClick={() => handleCategoryClick(category.name)}>
               <div className="w-full min-h-80 bg-slate-200 aspect-w-1 aspect-h-1 group-hover:opacity-75 lg:h-80 lg:aspect-none transition-all duration-700">
                 <img src={category.image} alt={`${category.name} category collection`} className="w-full h-full object-center object-cover lg:w-full lg:h-full group-hover:scale-110 transition-transform duration-700" />
               </div>
@@ -173,6 +178,54 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onViewProduct }) => {
             </div>
           ))}
         </div>
+
+        {/* Affiliate Partner Holder / Meesho Section */}
+        <div className="mt-16 bg-gradient-to-br from-[#7b2cbf] to-[#9d4edd] rounded-[2.5rem] p-8 md:p-12 relative overflow-hidden shadow-2xl group cursor-pointer transition-transform hover:scale-[1.01]" onClick={() => handleCategoryClick('Meesho Finds')}>
+            {/* Background Decor */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+            <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
+            
+            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
+                <div className="flex-1 text-white text-center md:text-left">
+                    <div className="inline-flex items-center px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-xs font-bold uppercase tracking-widest mb-4">
+                        <Sparkles className="w-3 h-3 mr-2 text-yellow-300" /> Partner Spotlight
+                    </div>
+                    <h3 className="text-4xl md:text-5xl font-black font-heading tracking-tight mb-4 drop-shadow-md">
+                        Meesho Super Saver
+                    </h3>
+                    <p className="text-purple-100 font-medium text-lg md:text-xl mb-8 max-w-xl">
+                        Unlock unbeatable factory prices on trending fashion, home decor, and accessories. Curated just for you.
+                    </p>
+                    <div className="flex flex-wrap gap-4 justify-center md:justify-start">
+                         <button 
+                            onClick={(e) => { e.stopPropagation(); handleCategoryClick('Meesho Finds'); }}
+                            className="bg-white text-[#7b2cbf] px-8 py-4 rounded-xl font-black uppercase tracking-widest shadow-lg hover:bg-purple-50 transition-colors flex items-center"
+                         >
+                             Shop Meesho Deals <ExternalLink className="ml-2 w-4 h-4" />
+                         </button>
+                         <button 
+                             onClick={(e) => { e.stopPropagation(); window.open('https://www.meesho.com', '_blank'); }}
+                             className="px-8 py-4 rounded-xl font-bold uppercase tracking-widest border-2 border-white/30 hover:bg-white/10 transition-colors text-white"
+                         >
+                             Visit Site
+                         </button>
+                    </div>
+                </div>
+                <div className="w-full md:w-1/3 max-w-sm relative">
+                   <div className="absolute inset-0 bg-gradient-to-t from-[#7b2cbf] to-transparent z-10 opacity-50 rounded-2xl"></div>
+                   <img 
+                       src="https://images.unsplash.com/photo-1596704017254-9b121068fb31?q=80&w=800&auto=format&fit=crop" 
+                       alt="Fashion Collection" 
+                       className="w-full rounded-2xl shadow-2xl transform rotate-3 group-hover:rotate-0 transition-transform duration-500 border-4 border-white/20" 
+                   />
+                   <div className="absolute -bottom-6 -right-6 bg-white text-[#7b2cbf] p-4 rounded-xl shadow-xl font-black text-center transform -rotate-6 group-hover:rotate-0 transition-transform z-20">
+                       <span className="block text-xs uppercase tracking-wider text-slate-500">Starting at</span>
+                       <span className="text-3xl">₹99</span>
+                   </div>
+                </div>
+            </div>
+        </div>
+
       </div>
 
       {/* Trending Products */}
