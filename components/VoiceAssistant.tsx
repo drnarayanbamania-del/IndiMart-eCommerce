@@ -8,9 +8,9 @@ interface VoiceAssistantProps {
 }
 
 const QA_DATABASE = [
-    { keys: ["namaste", "hello", "hi", "hey"], answer: "Namaste! Welcome to Apna Store. Main aapki kaise madad kar sakta hoon?" },
+    { keys: ["namaste", "hello", "hi", "hey"], answer: "Namaste! Welcome to Bharat E Mart. Main aapki kaise madad kar sakta hoon?" },
     { keys: ["kaise ho", "how are you", "kya haal"], answer: "Main ek AI hoon, hamesha badhiya! Bataiye kya khareedna hai aaj?" },
-    { keys: ["tum kaun ho", "who are you"], answer: "Main Apna Store ka digital assistant hoon. Hinglish samajhta hoon." },
+    { keys: ["tum kaun ho", "who are you"], answer: "Main Bharat E Mart ka digital assistant hoon. Hinglish samajhta hoon." },
     { keys: ["return policy", "wapas", "refund"], answer: "Hamari 7 days easy return policy hai. No questions asked." },
     { keys: ["delivery", "shipping", "kab aayega"], answer: "Delivery usually 2 se 4 din mein ho jaati hai." },
     { keys: ["payment", "pay", "cash"], answer: "Aap UPI, Card ya Cash on Delivery se payment kar sakte hain." },

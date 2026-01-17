@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { StoreProvider, useStore } from './contexts/StoreContext';
 import Navbar from './components/Navbar';
@@ -625,7 +624,7 @@ const AppContent = () => {
             <div className="col-span-1 md:col-span-1">
                <div className="flex items-center mb-6">
                 <span className="text-2xl font-black tracking-tighter uppercase font-heading">
-                  Apna<span className="text-primary-500">Store</span>
+                  Bharat<span className="text-primary-500">EMart</span>
                 </span>
                </div>
                <p className="text-gray-400 text-sm italic mb-6">
@@ -665,7 +664,7 @@ const AppContent = () => {
             </div>
           </div>
           <div className="flex flex-col md:flex-row justify-between items-center text-gray-500 text-xs font-bold uppercase tracking-widest">
-            <p>&copy; {new Date().getFullYear()} Apna Store. Curated Excellence.</p>
+            <p>&copy; {new Date().getFullYear()} Bharat E Mart. Curated Excellence.</p>
             <div className="flex space-x-8 mt-4 md:mt-0">
                <a href="#" className="hover:text-white">Privacy</a>
                <a href="#" className="hover:text-white">Terms</a>

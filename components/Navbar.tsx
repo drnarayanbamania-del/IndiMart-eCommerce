@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useStore } from '../contexts/StoreContext';
 import { UserRole } from '../types';
@@ -9,43 +8,54 @@ interface NavbarProps {
   currentPage: string;
 }
 
-// Professional Geometric Abstract Logo with 3D Drop Shadow
-const ApnaStoreLogo = () => (
-  <svg width="48" height="48" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-3 transform hover:rotate-6 transition-transform duration-300 drop-shadow-lg">
-    <defs>
-      <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#2563eb" />
-        <stop offset="100%" stopColor="#1d4ed8" />
-      </linearGradient>
-      <linearGradient id="accentGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#EA580C" />
-        <stop offset="100%" stopColor="#C2410C" />
-      </linearGradient>
-      <filter id="inset-shadow" x="-50%" y="-50%" width="200%" height="200%">
-        <feComponentTransfer in="SourceAlpha">
-          <feFuncA type="table" tableValues="1 0" />
-        </feComponentTransfer>
-        <feGaussianBlur stdDeviation="3" />
-        <feOffset dx="3" dy="3" result="offsetblur" />
-        <feFlood flood-color="rgb(0, 0, 0)" flood-opacity="0.2" />
-        <feComposite in2="offsetblur" operator="in" />
-        <feComposite in2="SourceAlpha" operator="in" />
-        <feMerge>
-          <feMergeNode in="SourceGraphic" />
-          <feMergeNode />
-        </feMerge>
-      </filter>
-    </defs>
-    {/* Background Base with shadow */}
-    <rect width="40" height="40" rx="10" fill="#f8fafc" stroke="#e2e8f0" strokeWidth="1" />
+// Custom Illustrated Logo matching 'Apna Store / Bharat E Store' style
+const BharatEMartLogo = () => (
+  <svg width="64" height="64" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-1 hover:scale-105 transition-transform duration-300 drop-shadow-md">
+    {/* Blue Shopping Cart (Left Side) */}
+    <path d="M10 38H18L22 62H52" stroke="#3b82f6" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M22 62L19 72" stroke="#3b82f6" strokeWidth="4" strokeLinecap="round" />
+    <path d="M20 45H55" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" opacity="0.4"/>
+    <path d="M21 53H52" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" opacity="0.4"/>
+    <circle cx="24" cy="74" r="3.5" fill="#3b82f6" />
+    <circle cx="48" cy="74" r="3.5" fill="#3b82f6" />
     
-    {/* Abstract Geometric "A" structure with gradients */}
-    <path d="M20 6L32 30H26L20 18L14 30H8L20 6Z" fill="url(#logoGradient)" style={{filter: 'drop-shadow(2px 4px 6px rgba(37, 99, 235, 0.3))'}} />
-    <path d="M20 18L24 26H16L20 18Z" fill="url(#accentGradient)" style={{filter: 'drop-shadow(0px 2px 4px rgba(234, 88, 12, 0.3))'}} />
+    {/* Shopping Bag (Main Character) */}
+    {/* Blue Handles */}
+    <path d="M45 30V20C45 12 65 12 65 20V30" stroke="#0284c7" strokeWidth="5" strokeLinecap="round" fill="none"/>
     
-    {/* Shine effect for 3D glass look */}
-    <path d="M12 10L15 13" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeOpacity="0.6" />
-    <path d="M20 6L8 30H10L20 8V6Z" fill="white" fillOpacity="0.1" />
+    {/* Bag Body - Top (Orange/Saffron) */}
+    <path d="M35 30H75L78 52H32L35 30Z" fill="#f97316" stroke="#c2410c" strokeWidth="1"/>
+    
+    {/* Bag Body - Bottom (Green) */}
+    <path d="M32 52H78L80 78C80 85 75 85 75 85H35C35 85 30 85 30 78L32 52Z" fill="#22c55e" stroke="#15803d" strokeWidth="1"/>
+    
+    {/* White Curved Separator (Smile shape on bag body) */}
+    <path d="M32 52Q55 62 78 52" stroke="white" strokeWidth="4" fill="none" />
+
+    {/* Face Eyes */}
+    <ellipse cx="48" cy="44" rx="4.5" ry="5.5" fill="white"/>
+    <circle cx="48" cy="44" r="2.5" fill="#1e293b"/>
+    <ellipse cx="62" cy="44" rx="4.5" ry="5.5" fill="white"/>
+    <circle cx="62" cy="44" r="2.5" fill="#1e293b"/>
+
+    {/* Face Mouth (Open Smile) */}
+    <path d="M48 58Q55 68 62 58Z" fill="#7f1d1d"/>
+    <path d="M52 64Q55 66 58 64" stroke="#fca5a5" strokeWidth="2" strokeLinecap="round" />
+
+    {/* Hanging Tags (Right Side) */}
+    <g transform="translate(73, 28) rotate(15)">
+       <rect x="0" y="0" width="12" height="18" rx="2" fill="#ef4444" stroke="white" strokeWidth="1" />
+       <circle cx="6" cy="3" r="1.5" fill="white" />
+    </g>
+    <g transform="translate(76, 25) rotate(35)">
+       <rect x="0" y="0" width="12" height="18" rx="2" fill="#facc15" stroke="white" strokeWidth="1" />
+       <circle cx="6" cy="3" r="1.5" fill="white" />
+       <path d="M3 15L9 15" stroke="#ca8a04" strokeWidth="1" />
+    </g>
+    
+    {/* Sparkles */}
+    <path d="M25 15L27 10L29 15L34 17L29 19L27 24L25 19L20 17L25 15Z" fill="#fbbf24"/>
+    <path d="M85 18L87 15L89 18L92 19L89 20L87 23L85 20L82 19L85 18Z" fill="#38bdf8"/>
   </svg>
 );
 
@@ -89,12 +99,12 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPage }) => {
         <div className="flex justify-between items-center">
           {/* Logo Section */}
           <div className="flex items-center cursor-pointer group" onClick={() => handleNav('home')}>
-             <ApnaStoreLogo />
+             <BharatEMartLogo />
              <div className="flex flex-col drop-shadow-sm">
                 <span className="text-2xl font-black text-slate-900 leading-none tracking-tighter uppercase font-heading group-hover:text-primary-700 transition-colors" style={{ textShadow: '1px 2px 2px rgba(0,0,0,0.05)' }}>
-                  Apna<span className="text-indigo-700 group-hover:text-indigo-900 transition-colors">Store</span>
+                  Bharat<span className="text-indigo-700 group-hover:text-indigo-900 transition-colors">EMart</span>
                 </span>
-                <span className="text-[10px] font-bold text-slate-400 tracking-[0.2em] uppercase mt-0.5">Curated Excellence</span>
+                <span className="text-[10px] font-bold text-slate-400 tracking-[0.2em] uppercase mt-0.5">Shop Smarter, Live Better</span>
              </div>
           </div>
 

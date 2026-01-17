@@ -10,7 +10,7 @@ interface HomeProps {
 const HERO_SLIDES = [
   {
     id: 1,
-    image: "https://images.unsplash.com/photo-1558126319-c9feecbf57ee?q=80&w=1950&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1546868871-7041f2a55e12?q=80&w=1950&auto=format&fit=crop",
     subtitle: "Bharat E Mart",
     title: "Apple Watch",
     highlight: "Series 8",
@@ -22,11 +22,11 @@ const HERO_SLIDES = [
   },
   {
     id: 2,
-    image: "https://images.unsplash.com/photo-1625244585145-66795a94784a?q=80&w=1950&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1616348436168-de43ad0db179?q=80&w=1950&auto=format&fit=crop",
     subtitle: "Bharat E Mart",
     title: "Apple Accessories",
-    highlight: "Starting ₹1,599",
-    description: "Power up with genuine adapters, cables, and cases.",
+    highlight: "Starting from ₹1,599",
+    description: "Genuine adapters, cables, and cases. Power up your Apple ecosystem.",
     cta: "View Accessories",
     category: "Accessories",
     accentColor: "text-blue-400",

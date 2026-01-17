@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, Product, CartItem, Order, UserRole, Category } from '../types';
 
@@ -63,34 +62,34 @@ const StoreContext = createContext<StoreContextType | undefined>(undefined);
 export const StoreProvider = ({ children }: { children?: ReactNode }) => {
   // Auth State
   const [user, setUser] = useState<User | null>(() => {
-    const saved = localStorage.getItem('apnastore_user');
+    const saved = localStorage.getItem('bharatemart_user');
     return saved ? JSON.parse(saved) : null;
   });
 
   useEffect(() => {
-    if (user) localStorage.setItem('apnastore_user', JSON.stringify(user));
-    else localStorage.removeItem('apnastore_user');
+    if (user) localStorage.setItem('bharatemart_user', JSON.stringify(user));
+    else localStorage.removeItem('bharatemart_user');
   }, [user]);
 
   // Data State
   const [products, setProducts] = useState<Product[]>(() => {
-    const saved = localStorage.getItem('apnastore_products');
+    const saved = localStorage.getItem('bharatemart_products');
     return saved ? JSON.parse(saved) : INITIAL_PRODUCTS;
   });
 
   useEffect(() => {
-    localStorage.setItem('apnastore_products', JSON.stringify(products));
+    localStorage.setItem('bharatemart_products', JSON.stringify(products));
   }, [products]);
 
   const [categories, setCategories] = useState<Category[]>(INITIAL_CATEGORIES);
 
   const [cart, setCart] = useState<CartItem[]>(() => {
-    const saved = localStorage.getItem('apnastore_cart');
+    const saved = localStorage.getItem('bharatemart_cart');
     return saved ? JSON.parse(saved) : [];
   });
 
   useEffect(() => {
-    localStorage.setItem('apnastore_cart', JSON.stringify(cart));
+    localStorage.setItem('bharatemart_cart', JSON.stringify(cart));
   }, [cart]);
 
   const [orders, setOrders] = useState<Order[]>([]);
