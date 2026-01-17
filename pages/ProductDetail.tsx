@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useStore } from '../contexts/StoreContext';
 import { generateProductImage } from '../services/geminiService';
-import { Star, ShoppingCart, ArrowLeft, Heart, ChevronLeft, ChevronRight, Facebook, Twitter, MessageCircle, Check, ShieldCheck, Filter, AlertCircle, CheckCircle2, Maximize2, X, ExternalLink, Sparkles, Upload } from 'lucide-react';
+import { Star, ShoppingCart, ArrowLeft, Heart, ChevronLeft, ChevronRight, Facebook, Twitter, MessageCircle, Check, ShieldCheck, Filter, AlertCircle, CheckCircle2, Maximize2, X, ExternalLink, Sparkles, Upload, Plus } from 'lucide-react';
 
 interface ProductDetailProps {
   productId: string;
@@ -39,6 +39,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
   // Zoom State
   const [zoomPos, setZoomPos] = useState({ x: 0, y: 0, opacity: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
+  const thumbnailsRef = useRef<HTMLDivElement>(null);
 
   // Review State
   const [reviews, setReviews] = useState<Review[]>([
@@ -84,6 +85,16 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
     
     return combined;
   }, [product, generatedImage, uploadedImages]);
+
+  // Scroll thumbnail into view when active image changes
+  useEffect(() => {
+      if (thumbnailsRef.current) {
+          const activeThumb = thumbnailsRef.current.children[activeImage] as HTMLElement;
+          if (activeThumb) {
+              activeThumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+          }
+      }
+  }, [activeImage]);
 
   const handleMouseLeave = () => {
     setZoomPos(prev => ({ ...prev, opacity: 0 }));
@@ -275,7 +286,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
               onMouseLeave={handleMouseLeave}
               className="relative aspect-square bg-slate-50 rounded-[2.5rem] overflow-hidden mb-6 group shadow-2xl border border-slate-100 cursor-crosshair ring-1 ring-slate-900/5 bg-white"
             >
-              {/* Upload Button (Top Left) */}
+              {/* Main Upload Button (Top Left) */}
               <label className="absolute top-4 left-4 z-50 bg-white/90 backdrop-blur-md text-slate-700 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg hover:bg-white hover:scale-105 transition-all flex items-center gap-2 border border-white/50 cursor-pointer">
                   <Upload className="w-3 h-3" />
                   <span>Upload Photo</span>
@@ -365,23 +376,46 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
               </div>
             </div>
 
-            {/* Thumbnail Navigation */}
-            <div className="grid grid-cols-4 gap-4 px-2">
-              {images.map((img, idx) => (
-                <button 
-                  key={idx} 
-                  onClick={() => setActiveImage(idx)}
-                  aria-label={`Show ${product.name} view ${idx + 1}`}
-                  className={`relative rounded-2xl overflow-hidden aspect-square transition-all duration-300 transform group ${
-                    activeImage === idx 
-                      ? 'ring-2 ring-indigo-600 ring-offset-2 scale-95 shadow-md z-10' 
-                      : 'opacity-70 hover:opacity-100 hover:scale-105 hover:shadow-sm ring-1 ring-slate-200'
-                  }`}
+            {/* Thumbnail Carousel */}
+            <div className="relative group">
+                <div 
+                  ref={thumbnailsRef}
+                  className="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide snap-x px-1"
+                  style={{ scrollBehavior: 'smooth' }}
                 >
-                  <img src={img} alt={`${product.name} view ${idx + 1} thumbnail`} className="w-full h-full object-cover" />
-                  {activeImage !== idx && <div className="absolute inset-0 bg-slate-900/10 group-hover:bg-transparent transition-colors" />}
-                </button>
-              ))}
+                  {images.map((img, idx) => (
+                    <button 
+                      key={idx} 
+                      onClick={() => setActiveImage(idx)}
+                      aria-label={`Show ${product.name} view ${idx + 1}`}
+                      className={`relative flex-shrink-0 w-20 h-20 rounded-2xl overflow-hidden snap-center transition-all duration-300 ${
+                        activeImage === idx 
+                          ? 'ring-2 ring-indigo-600 ring-offset-2 scale-105 shadow-md z-10' 
+                          : 'opacity-70 hover:opacity-100 hover:scale-105 hover:shadow-sm ring-1 ring-slate-200'
+                      }`}
+                    >
+                      <img src={img} alt={`${product.name} view ${idx + 1} thumbnail`} className="w-full h-full object-cover" />
+                      {activeImage !== idx && <div className="absolute inset-0 bg-slate-900/10 group-hover:bg-transparent transition-colors" />}
+                    </button>
+                  ))}
+
+                  {/* Add Image Button in Carousel */}
+                  <label className="relative flex-shrink-0 w-20 h-20 rounded-2xl border-2 border-dashed border-slate-300 flex flex-col items-center justify-center text-slate-400 hover:text-indigo-600 hover:border-indigo-400 hover:bg-indigo-50 transition-all cursor-pointer snap-center">
+                      <Plus className="w-6 h-6 mb-1" />
+                      <span className="text-[9px] font-bold uppercase tracking-wider">Add</span>
+                      <input 
+                          type="file" 
+                          multiple 
+                          accept="image/*" 
+                          className="hidden" 
+                          onChange={handleFileUpload}
+                      />
+                  </label>
+                </div>
+                
+                {/* Carousel Fade Edges */}
+                <div className="absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-white to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <div className="absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-white to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity"></div>
             </div>
           </div>
 
