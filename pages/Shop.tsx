@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useStore } from '../contexts/StoreContext';
-import { Star, Filter, Search, ChevronDown, Mic, MicOff } from 'lucide-react';
+import { Star, Filter, Search, ChevronDown, Mic, MicOff, Eye, X, ShoppingCart, ArrowRight } from 'lucide-react';
 import { Product } from '../types';
 
 interface ShopProps {
@@ -18,6 +18,9 @@ const Shop: React.FC<ShopProps> = ({ onViewProduct }) => {
 
   // Pagination state
   const [visibleCount, setVisibleCount] = useState(12);
+
+  // Quick View State
+  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
 
   // Listen for global voice commands from the floating assistant
   useEffect(() => {
@@ -42,6 +45,15 @@ const Shop: React.FC<ShopProps> = ({ onViewProduct }) => {
   useEffect(() => {
     setVisibleCount(12);
   }, [selectedCategory, searchQuery, sortBy]);
+
+  // Close Quick View on Escape key
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') setQuickViewProduct(null);
+    };
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, []);
 
   // Local Voice Search Handler
   const handleVoiceSearch = () => {
@@ -76,6 +88,10 @@ const Shop: React.FC<ShopProps> = ({ onViewProduct }) => {
 
     recognition.start();
   };
+
+  const processCommand = (command: string) => {
+     processVoiceCommand(command);
+  }
 
   const processVoiceCommand = (command: string) => {
     const lowerCmd = command.toLowerCase();
@@ -257,11 +273,26 @@ const Shop: React.FC<ShopProps> = ({ onViewProduct }) => {
               {displayedProducts.map((product) => (
                 <div 
                   key={product.id} 
-                  className="bg-white rounded-lg shadow-sm hover:shadow-xl hover:scale-105 transition-all duration-300 overflow-hidden flex flex-col cursor-pointer" 
+                  className="group bg-white rounded-lg shadow-sm hover:shadow-xl hover:scale-105 transition-all duration-300 overflow-hidden flex flex-col cursor-pointer relative" 
                   onClick={() => onViewProduct(product.id)}
                 >
-                  <div className="relative pb-[100%]">
-                    <img src={product.image} alt={product.name} className="absolute inset-0 w-full h-full object-cover" />
+                  <div className="relative pb-[100%] overflow-hidden">
+                    <img src={product.image} alt={product.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                    
+                    {/* Quick View Button Overlay */}
+                    <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center pointer-events-none">
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setQuickViewProduct(product);
+                            }}
+                            className="pointer-events-auto bg-white/90 backdrop-blur-sm text-slate-800 p-3 rounded-full shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 hover:bg-white hover:text-indigo-600 hover:scale-110 active:scale-95 flex items-center gap-2 font-bold text-xs uppercase tracking-wider"
+                            title="Quick View"
+                        >
+                            <Eye className="w-4 h-4" />
+                            <span>Quick View</span>
+                        </button>
+                    </div>
                   </div>
                   <div className="p-4 flex-1 flex flex-col">
                     <div className="flex-1">
@@ -323,6 +354,91 @@ const Shop: React.FC<ShopProps> = ({ onViewProduct }) => {
           </div>
         </div>
       </div>
+
+      {/* Quick View Modal */}
+      {quickViewProduct && (
+        <div 
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+          onClick={() => setQuickViewProduct(null)}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div 
+            className="bg-white rounded-3xl shadow-2xl max-w-4xl w-full overflow-hidden animate-in zoom-in-95 duration-300 relative flex flex-col md:flex-row"
+            onClick={(e) => e.stopPropagation()}
+          >
+             <button 
+                onClick={() => setQuickViewProduct(null)}
+                className="absolute top-4 right-4 z-10 p-2 bg-white/50 hover:bg-white rounded-full text-slate-500 hover:text-slate-900 transition-all hover:rotate-90"
+             >
+                <X className="w-5 h-5" />
+             </button>
+
+             {/* Product Image */}
+             <div className="w-full md:w-1/2 bg-slate-100 relative">
+                <img 
+                    src={quickViewProduct.image} 
+                    alt={quickViewProduct.name} 
+                    className="w-full h-full object-cover object-center aspect-square md:aspect-auto"
+                />
+             </div>
+
+             {/* Product Details */}
+             <div className="w-full md:w-1/2 p-8 flex flex-col">
+                <div className="mb-4">
+                    <span className="inline-block px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-xs font-bold uppercase tracking-wide mb-3">
+                        {quickViewProduct.category}
+                    </span>
+                    <h2 className="text-3xl font-black text-slate-900 font-heading leading-tight mb-2">
+                        {quickViewProduct.name}
+                    </h2>
+                    <div className="flex items-center space-x-2">
+                         <div className="flex text-yellow-400">
+                             {[...Array(5)].map((_, i) => (
+                               <Star key={i} className={`w-4 h-4 ${i < Math.floor(quickViewProduct.rating) ? 'fill-current' : 'text-slate-200'}`} />
+                             ))}
+                         </div>
+                         <span className="text-sm font-medium text-slate-400">({quickViewProduct.reviews} reviews)</span>
+                    </div>
+                </div>
+
+                <div className="mb-6 flex-1">
+                    <p className="text-4xl font-black text-slate-900 mb-4">₹{quickViewProduct.price}</p>
+                    <div className="text-slate-600 leading-relaxed text-sm font-light overflow-y-auto max-h-32 pr-2 custom-scrollbar" dangerouslySetInnerHTML={{ __html: quickViewProduct.description }}>
+                    </div>
+                </div>
+
+                <div className="flex flex-col gap-3 mt-auto">
+                    <button
+                        onClick={() => {
+                            addToCart(quickViewProduct);
+                            setQuickViewProduct(null);
+                        }}
+                        disabled={quickViewProduct.stock === 0}
+                        className={`w-full py-4 rounded-xl flex items-center justify-center font-black uppercase tracking-widest text-white shadow-lg transition-all active:scale-95 ${
+                            quickViewProduct.stock > 0 
+                            ? 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-500/30' 
+                            : 'bg-slate-400 cursor-not-allowed'
+                        }`}
+                    >
+                         <ShoppingCart className="w-5 h-5 mr-2" />
+                         {quickViewProduct.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
+                    </button>
+                    
+                    <button
+                        onClick={() => {
+                            onViewProduct(quickViewProduct.id);
+                            setQuickViewProduct(null);
+                        }}
+                        className="w-full py-4 rounded-xl flex items-center justify-center font-bold uppercase tracking-widest text-slate-700 bg-slate-50 hover:bg-slate-100 hover:text-indigo-600 transition-colors border border-slate-100"
+                    >
+                        View Full Details <ArrowRight className="w-4 h-4 ml-2" />
+                    </button>
+                </div>
+             </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
