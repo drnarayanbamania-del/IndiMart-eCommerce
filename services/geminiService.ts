@@ -1,4 +1,4 @@
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, Modality } from "@google/genai";
 
 const getClient = () => {
   const apiKey = process.env.API_KEY;
@@ -44,6 +44,37 @@ export const generateProductImage = async (productName: string, category: string
     return null;
   } catch (error) {
     console.error("Gemini Image Gen Error:", error);
+    return null;
+  }
+};
+
+export const generateSpeech = async (text: string): Promise<string | null> => {
+  const client = getClient();
+  if (!client) return null;
+
+  try {
+    const response = await client.models.generateContent({
+      model: 'gemini-2.5-flash-preview-tts',
+      contents: {
+        parts: [{ text: text }],
+      },
+      config: {
+        responseModalities: [Modality.AUDIO],
+        speechConfig: {
+          voiceConfig: {
+            prebuiltVoiceConfig: { voiceName: 'Kore' },
+          },
+        },
+      },
+    });
+
+    const part = response.candidates?.[0]?.content?.parts?.[0];
+    if (part?.inlineData?.data) {
+      return part.inlineData.data;
+    }
+    return null;
+  } catch (error) {
+    console.error("Gemini TTS Error:", error);
     return null;
   }
 };

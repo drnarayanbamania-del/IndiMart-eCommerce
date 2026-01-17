@@ -1,56 +1,150 @@
-
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useStore } from '../contexts/StoreContext';
-import { ArrowRight, Star, Sparkles } from 'lucide-react';
+import { ArrowRight, Star, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface HomeProps {
   onNavigate: (page: string) => void;
   onViewProduct: (id: string) => void;
 }
 
+const HERO_SLIDES = [
+  {
+    id: 1,
+    image: "https://images.unsplash.com/photo-1558126319-c9feecbf57ee?q=80&w=1950&auto=format&fit=crop",
+    subtitle: "Bharat E Mart",
+    title: "Apple Watch",
+    highlight: "Series 8",
+    description: "Starting from ₹40,605*. The ultimate device for a healthy life.",
+    cta: "Shop Now",
+    category: "Electronics",
+    accentColor: "text-red-500",
+    buttonClass: "bg-red-600 hover:bg-red-700 shadow-red-500/30"
+  },
+  {
+    id: 2,
+    image: "https://images.unsplash.com/photo-1625244585145-66795a94784a?q=80&w=1950&auto=format&fit=crop",
+    subtitle: "Bharat E Mart",
+    title: "Apple Accessories",
+    highlight: "Starting ₹1,599",
+    description: "Power up with genuine adapters, cables, and cases.",
+    cta: "View Accessories",
+    category: "Accessories",
+    accentColor: "text-blue-400",
+    buttonClass: "bg-blue-600 hover:bg-blue-700 shadow-blue-500/30"
+  },
+  {
+    id: 3,
+    image: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80",
+    subtitle: "Curated Aesthetics",
+    title: "Modern Furniture",
+    highlight: "Comfort & Style",
+    description: "Transform your space with our exclusive furniture and home decor collection.",
+    cta: "View Furniture",
+    category: "Furniture",
+    accentColor: "text-emerald-400",
+    buttonClass: "bg-emerald-600 hover:bg-emerald-700 shadow-emerald-500/30"
+  }
+];
+
 const Home: React.FC<HomeProps> = ({ onNavigate, onViewProduct }) => {
-  const { products, categories, addToCart } = useStore();
+  const { products, categories, addToCart, setVoiceRequest } = useStore();
   const featuredProducts = products.slice(0, 4);
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  // Auto-play slider
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % HERO_SLIDES.length);
+    }, 6000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % HERO_SLIDES.length);
+  const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + HERO_SLIDES.length) % HERO_SLIDES.length);
+
+  const handleCtaClick = (slide: typeof HERO_SLIDES[0]) => {
+      if (slide.category !== 'All') {
+          setVoiceRequest({ query: '', category: slide.category, sortBy: 'default', timestamp: Date.now() });
+      }
+      onNavigate('shop');
+  };
 
   return (
     <div className="bg-white">
-      {/* Hero Section */}
-      <div className="relative bg-primary-900 overflow-hidden">
-        <div className="max-w-7xl mx-auto">
-          <div className="relative z-10 pb-8 bg-primary-900 sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32">
-            <main className="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
-              <div className="sm:text-center lg:text-left">
-                <div className="flex items-center sm:justify-center lg:justify-start space-x-2 mb-4 animate-in fade-in slide-in-from-left duration-700">
-                  <Sparkles className="w-5 h-5 text-indigo-300" />
-                  <span className="text-indigo-300 text-sm font-black uppercase tracking-[0.3em]">Elevate Your Lifestyle</span>
+      {/* Hero Slider Section */}
+      <div className="relative h-[600px] w-full overflow-hidden bg-slate-900 group">
+        {/* Slides */}
+        {HERO_SLIDES.map((slide, index) => (
+            <div
+                key={slide.id}
+                className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+                    index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'
+                }`}
+            >
+                {/* Background Image */}
+                <div className="absolute inset-0">
+                    <img
+                        src={slide.image}
+                        alt={slide.title}
+                        className="h-full w-full object-cover transition-transform duration-[6000ms] ease-out transform scale-100 group-hover:scale-105"
+                    />
+                    {/* Gradient Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/70 to-transparent"></div>
                 </div>
-                <h1 className="text-4xl tracking-tight font-extrabold text-white sm:text-5xl md:text-6xl font-heading leading-tight">
-                  <span className="block xl:inline">Premium Quality</span>{' '}
-                  <span className="block text-indigo-300 xl:inline">For Modern Life</span>
-                </h1>
-                <p className="mt-6 text-xl text-slate-300 sm:max-w-xl sm:mx-auto lg:mx-0 font-light italic leading-relaxed">
-                  "One choice at a time, we help you define the standard of your everyday living."
-                </p>
-                <p className="mt-4 text-base text-slate-400 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto lg:mx-0">
-                  Discover our curated collection of high-end accessories, electronics, and lifestyle products designed to elevate your everyday experience.
-                </p>
-                <div className="mt-8 sm:mt-10 sm:flex sm:justify-center lg:justify-start">
-                  <div className="rounded-2xl shadow-2xl">
-                    <button onClick={() => onNavigate('shop')} className="w-full flex items-center justify-center px-10 py-4 border border-transparent text-lg font-black rounded-2xl text-white bg-indigo-600 hover:bg-indigo-700 md:py-5 md:text-xl md:px-12 transition-all transform hover:scale-105 active:scale-95 shadow-indigo-500/25">
-                      Explore Collection
-                    </button>
-                  </div>
+
+                {/* Content */}
+                <div className="relative h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center z-20">
+                    <div className="max-w-2xl">
+                        <div 
+                          className={`flex items-center space-x-2 mb-4 transition-all duration-700 delay-100 transform ${index === currentSlide ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
+                        >
+                            <Sparkles className={`w-5 h-5 ${slide.accentColor}`} />
+                            <span className={`${slide.accentColor} text-sm font-black uppercase tracking-[0.3em]`}>
+                                {slide.subtitle}
+                            </span>
+                        </div>
+                        <h1 
+                          className={`text-5xl md:text-7xl font-extrabold text-white font-heading leading-tight mb-6 tracking-tight drop-shadow-lg transition-all duration-700 delay-200 transform ${index === currentSlide ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
+                        >
+                            {slide.title} <span className={`block ${slide.accentColor}`}>{slide.highlight}</span>
+                        </h1>
+                        <p 
+                          className={`text-xl text-slate-300 font-light italic mb-8 max-w-lg leading-relaxed drop-shadow-md transition-all duration-700 delay-300 transform ${index === currentSlide ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
+                        >
+                            {slide.description}
+                        </p>
+                        <button
+                            onClick={() => handleCtaClick(slide)}
+                            className={`px-10 py-4 ${slide.buttonClass} text-white rounded-2xl text-lg font-black tracking-wide transition-all duration-700 delay-400 transform hover:scale-105 hover:shadow-lg flex items-center group ${index === currentSlide ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
+                        >
+                            {slide.cta} <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                        </button>
+                    </div>
                 </div>
-              </div>
-            </main>
-          </div>
+            </div>
+        ))}
+
+        {/* Controls */}
+        <div className="absolute bottom-8 right-8 z-30 flex space-x-4">
+             <button onClick={prevSlide} className="p-3 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm transition-all border border-white/20 active:scale-95">
+                 <ChevronLeft className="w-6 h-6" />
+             </button>
+             <button onClick={nextSlide} className="p-3 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm transition-all border border-white/20 active:scale-95">
+                 <ChevronRight className="w-6 h-6" />
+             </button>
         </div>
-        <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2">
-          <img
-            className="h-56 w-full object-cover sm:h-72 md:h-96 lg:w-full lg:h-full brightness-75 lg:brightness-100"
-            src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
-            alt="Showroom background showing curated store collection"
-          />
+
+        {/* Indicators */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 flex space-x-2">
+            {HERO_SLIDES.map((_, idx) => (
+                <button
+                    key={idx}
+                    onClick={() => setCurrentSlide(idx)}
+                    className={`h-1.5 rounded-full transition-all duration-500 ${
+                        idx === currentSlide ? 'w-8 bg-white' : 'w-2 bg-white/40 hover:bg-white/60'
+                    }`}
+                />
+            ))}
         </div>
       </div>
 

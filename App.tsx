@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { StoreProvider, useStore } from './contexts/StoreContext';
 import Navbar from './components/Navbar';
 import CartDrawer from './components/CartDrawer';
+import VoiceAssistant from './components/VoiceAssistant';
 import Home from './pages/Home';
 import Shop from './pages/Shop';
 import ProductDetail from './pages/ProductDetail';
@@ -580,7 +581,7 @@ const AppContent = () => {
                             <div className="ml-3">
                                 <h3 className="text-sm font-medium text-yellow-800">Authentication Required</h3>
                                 <div className="mt-2 text-sm text-yellow-700">
-                                    <p>Strict Security Mode Enabled: You must log in to access the {target.replace(/_/g, ' ')} section.</p>
+                                    <p>Strict Security Mode Enabled: You must log in to access the {target.replace('_', ' ')} section.</p>
                                 </div>
                             </div>
                         </div>
@@ -614,6 +615,7 @@ const AppContent = () => {
       <Navbar onNavigate={setCurrentPage} currentPage={currentPage} />
       <NotificationToast />
       <CartDrawer onCheckout={() => setCurrentPage('checkout')} />
+      <VoiceAssistant onNavigate={setCurrentPage} />
       <main className="flex-grow">
         {renderPage()}
       </main>

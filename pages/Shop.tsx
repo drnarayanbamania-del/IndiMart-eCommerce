@@ -1,7 +1,6 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useStore } from '../contexts/StoreContext';
-import { Star, Filter, Search } from 'lucide-react';
+import { Star, Filter, Search, ChevronDown, Mic, MicOff } from 'lucide-react';
 import { Product } from '../types';
 
 interface ShopProps {
@@ -9,10 +8,112 @@ interface ShopProps {
 }
 
 const Shop: React.FC<ShopProps> = ({ onViewProduct }) => {
-  const { products, addToCart, categories } = useStore();
+  const { products, addToCart, categories, voiceRequest } = useStore();
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState<'default' | 'price-asc' | 'price-desc'>('default');
+  const [sortBy, setSortBy] = useState<'default' | 'price-asc' | 'price-desc' | 'rating-desc'>('default');
+  
+  // Voice Search State
+  const [isListening, setIsListening] = useState(false);
+
+  // Pagination state
+  const [visibleCount, setVisibleCount] = useState(12);
+
+  // Listen for global voice commands from the floating assistant
+  useEffect(() => {
+    if (voiceRequest) {
+      // Check if the request is recent (within 5 seconds) to prevent applying stale state on navigation back
+      const isRecent = Date.now() - voiceRequest.timestamp < 5000;
+      
+      if (isRecent) {
+        if (voiceRequest.category) {
+            setSelectedCategory(voiceRequest.category);
+        }
+        if (voiceRequest.sortBy) {
+            setSortBy(voiceRequest.sortBy);
+        }
+        // Always set the query, even if empty, to reset search when a new voice command is issued
+        setSearchQuery(voiceRequest.query);
+      }
+    }
+  }, [voiceRequest]);
+
+  // Reset pagination when filters change
+  useEffect(() => {
+    setVisibleCount(12);
+  }, [selectedCategory, searchQuery, sortBy]);
+
+  // Local Voice Search Handler
+  const handleVoiceSearch = () => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    
+    if (!SpeechRecognition) {
+      alert("Voice search is not supported in this browser.");
+      return;
+    }
+
+    if (isListening) {
+      setIsListening(false);
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'en-US';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = () => setIsListening(true);
+    recognition.onend = () => setIsListening(false);
+    recognition.onerror = (event: any) => {
+      console.error("Speech recognition error", event.error);
+      setIsListening(false);
+    };
+
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      processVoiceCommand(transcript);
+    };
+
+    recognition.start();
+  };
+
+  const processVoiceCommand = (command: string) => {
+    let newCategory = selectedCategory;
+    let newSort = sortBy;
+    let newQuery = command;
+    const lowerCmd = command.toLowerCase();
+
+    // Detect Categories
+    if (lowerCmd.includes('electronics')) newCategory = 'Electronics';
+    else if (lowerCmd.includes('furniture')) newCategory = 'Furniture';
+    else if (lowerCmd.includes('accessories')) newCategory = 'Accessories';
+    else if (lowerCmd.includes('all') || lowerCmd.includes('everything')) newCategory = 'All';
+
+    // Detect Sorting
+    if (lowerCmd.includes('cheap') || lowerCmd.includes('low price') || lowerCmd.includes('lowest')) {
+      newSort = 'price-asc';
+    } else if (lowerCmd.includes('expensive') || lowerCmd.includes('high price') || lowerCmd.includes('highest')) {
+      newSort = 'price-desc';
+    } else if (lowerCmd.includes('best') || lowerCmd.includes('rating') || lowerCmd.includes('top')) {
+      newSort = 'rating-desc';
+    }
+
+    // Clean up query: remove command words to improve search relevance
+    const stopWords = ['show me', 'i want', 'search for', 'find', 'products', 'items', 'list', 'sort by', 'category'];
+    stopWords.forEach(word => {
+        const regex = new RegExp(`\\b${word}\\b`, 'gi');
+        newQuery = newQuery.replace(regex, '');
+    });
+
+    // If the query was just a category name (e.g., "Electronics"), clear the query so we see all electronics
+    if (newQuery.trim().toLowerCase() === newCategory.toLowerCase()) {
+        newQuery = '';
+    }
+
+    setSelectedCategory(newCategory);
+    setSortBy(newSort);
+    setSearchQuery(newQuery.trim());
+  };
 
   const filteredProducts = products
     .filter(p => (selectedCategory === 'All' || p.category === selectedCategory))
@@ -20,8 +121,12 @@ const Shop: React.FC<ShopProps> = ({ onViewProduct }) => {
     .sort((a, b) => {
       if (sortBy === 'price-asc') return a.price - b.price;
       if (sortBy === 'price-desc') return b.price - a.price;
+      if (sortBy === 'rating-desc') return b.rating - a.rating;
       return 0;
     });
+
+  const displayedProducts = filteredProducts.slice(0, visibleCount);
+  const hasMore = visibleCount < filteredProducts.length;
 
   return (
     <div className="bg-slate-50 min-h-screen py-10">
@@ -37,24 +142,24 @@ const Shop: React.FC<ShopProps> = ({ onViewProduct }) => {
                   <Filter className="w-5 h-5 mr-2" /> Filters
                 </h3>
                 <div className="space-y-2">
-                  <label className="flex items-center">
+                  <label className="flex items-center cursor-pointer hover:bg-slate-50 p-1 rounded transition-colors">
                     <input
                       type="radio"
                       name="category"
                       checked={selectedCategory === 'All'}
                       onChange={() => setSelectedCategory('All')}
-                      className="text-indigo-600 focus:ring-indigo-500"
+                      className="text-indigo-600 focus:ring-indigo-500 cursor-pointer"
                     />
                     <span className="ml-2 text-slate-700">All Categories</span>
                   </label>
                   {categories.map(cat => (
-                    <label key={cat.id} className="flex items-center">
+                    <label key={cat.id} className="flex items-center cursor-pointer hover:bg-slate-50 p-1 rounded transition-colors">
                       <input
                         type="radio"
                         name="category"
                         checked={selectedCategory === cat.name}
                         onChange={() => setSelectedCategory(cat.name)}
-                        className="text-indigo-600 focus:ring-indigo-500"
+                        className="text-indigo-600 focus:ring-indigo-500 cursor-pointer"
                       />
                       <span className="ml-2 text-slate-700">{cat.name}</span>
                     </label>
@@ -75,10 +180,17 @@ const Shop: React.FC<ShopProps> = ({ onViewProduct }) => {
                 <input
                   type="text"
                   placeholder="Search products..."
-                  className="block w-full pl-10 pr-3 py-2 border border-slate-300 rounded-md leading-5 bg-white placeholder-slate-500 focus:outline-none focus:placeholder-slate-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="block w-full pl-10 pr-10 py-2 border border-slate-300 rounded-md leading-5 bg-white placeholder-slate-500 focus:outline-none focus:placeholder-slate-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-shadow"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
+                <button 
+                    onClick={handleVoiceSearch}
+                    className={`absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer transition-colors ${isListening ? 'text-red-500 animate-pulse' : 'text-slate-400 hover:text-indigo-600'}`}
+                    title="Search with Voice"
+                >
+                    {isListening ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
+                </button>
               </div>
 
               <select
@@ -89,11 +201,12 @@ const Shop: React.FC<ShopProps> = ({ onViewProduct }) => {
                 <option value="default">Sort by: Popularity</option>
                 <option value="price-asc">Price: Low to High</option>
                 <option value="price-desc">Price: High to Low</option>
+                <option value="rating-desc">Highest Rated</option>
               </select>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredProducts.map((product) => (
+              {displayedProducts.map((product) => (
                 <div 
                   key={product.id} 
                   className="bg-white rounded-lg shadow-sm hover:shadow-xl hover:scale-105 transition-all duration-300 overflow-hidden flex flex-col cursor-pointer" 
@@ -126,9 +239,39 @@ const Shop: React.FC<ShopProps> = ({ onViewProduct }) => {
               {filteredProducts.length === 0 && (
                 <div className="col-span-full text-center py-12">
                   <p className="text-slate-500 text-lg">No products found matching your criteria.</p>
+                  {searchQuery && (
+                      <button 
+                        onClick={() => { setSearchQuery(''); setSelectedCategory('All'); }}
+                        className="mt-4 text-indigo-600 font-medium hover:underline"
+                      >
+                          Clear filters
+                      </button>
+                  )}
                 </div>
               )}
             </div>
+
+            {/* Load More Button */}
+            {hasMore && (
+              <div className="mt-12 text-center animate-in fade-in slide-in-from-bottom-4">
+                <button
+                  onClick={() => setVisibleCount(prev => prev + 12)}
+                  className="group inline-flex items-center px-8 py-3 bg-white border border-slate-300 rounded-full text-slate-700 font-bold hover:bg-slate-50 hover:border-indigo-300 hover:text-indigo-600 transition-all shadow-sm hover:shadow-md active:scale-95"
+                >
+                  Load More Products
+                  <ChevronDown className="ml-2 w-4 h-4 group-hover:translate-y-1 transition-transform" />
+                </button>
+                <p className="mt-3 text-xs text-slate-400 font-medium">
+                    Showing {displayedProducts.length} of {filteredProducts.length} products
+                </p>
+                <div className="w-full max-w-xs mx-auto mt-2 bg-slate-200 h-1 rounded-full overflow-hidden">
+                    <div 
+                        className="bg-indigo-500 h-full rounded-full transition-all duration-500"
+                        style={{ width: `${(displayedProducts.length / filteredProducts.length) * 100}%` }}
+                    />
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

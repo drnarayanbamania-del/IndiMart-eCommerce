@@ -25,6 +25,13 @@ export interface Notification {
     type: 'success' | 'error' | 'info';
 }
 
+export interface VoiceRequest {
+    query: string;
+    category: string;
+    sortBy: 'default' | 'price-asc' | 'price-desc' | 'rating-desc';
+    timestamp: number;
+}
+
 interface StoreContextType {
   user: User | null;
   login: (email: string, password: string, role: UserRole) => boolean;
@@ -47,6 +54,8 @@ interface StoreContextType {
   resetProducts: () => void;
   notification: Notification | null;
   hideNotification: () => void;
+  voiceRequest: VoiceRequest | null;
+  setVoiceRequest: (req: VoiceRequest) => void;
 }
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
@@ -87,6 +96,7 @@ export const StoreProvider = ({ children }: { children?: ReactNode }) => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [notification, setNotification] = useState<Notification | null>(null);
+  const [voiceRequest, setVoiceRequest] = useState<VoiceRequest | null>(null);
 
   const showNotification = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
     setNotification({ message, type });
@@ -192,7 +202,8 @@ export const StoreProvider = ({ children }: { children?: ReactNode }) => {
       orders, placeOrder, updateOrderStatus,
       categories,
       isCartOpen, setIsCartOpen, resetProducts,
-      notification, hideNotification
+      notification, hideNotification,
+      voiceRequest, setVoiceRequest
     }}>
       {children}
     </StoreContext.Provider>

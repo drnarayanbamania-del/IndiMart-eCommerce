@@ -1,5 +1,7 @@
 {
   "name": "Apna Store eCommerce",
   "description": "A modern, full-featured eCommerce platform with user and admin dashboards, simulating a full stack experience with React and AI-powered product management.",
-  "requestFramePermissions": []
+  "requestFramePermissions": [
+    "microphone"
+  ]
 }
