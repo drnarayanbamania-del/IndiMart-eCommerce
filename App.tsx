@@ -7,6 +7,9 @@ import Home from './pages/Home';
 import Shop from './pages/Shop';
 import ProductDetail from './pages/ProductDetail';
 import AdminDashboard from './pages/admin/AdminDashboard';
+import Terms from './pages/Terms';
+import Privacy from './pages/Privacy';
+import Contact from './pages/Contact';
 import { UserRole } from './types';
 import { CreditCard, Truck, Banknote, ShieldCheck, Lock, CheckCircle, AlertCircle, ShoppingCart, ExternalLink, Instagram, Facebook, Twitter, X as XIcon } from 'lucide-react';
 
@@ -605,6 +608,9 @@ const AppContent = () => {
       // Public Routes
       case 'admin_dashboard': return <AdminDashboard />; // AdminDashboard handles its own check
       case 'login': return <Login onLogin={() => setCurrentPage('home')} />;
+      case 'terms': return <Terms />;
+      case 'privacy': return <Privacy />;
+      case 'contact': return <Contact />;
       default: return <Home onNavigate={setCurrentPage} onViewProduct={navigateToProduct} />;
     }
   };
@@ -639,19 +645,19 @@ const AppContent = () => {
             <div>
               <h4 className="text-xs font-black uppercase tracking-widest text-primary-500 mb-6">Curated Collections</h4>
               <ul className="space-y-4 text-sm text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">Electronics</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Accessories</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Home & Living</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">New Arrivals</a></li>
+                <li><button onClick={() => setCurrentPage('shop')} className="hover:text-white transition-colors">Electronics</button></li>
+                <li><button onClick={() => setCurrentPage('shop')} className="hover:text-white transition-colors">Accessories</button></li>
+                <li><button onClick={() => setCurrentPage('shop')} className="hover:text-white transition-colors">Home & Living</button></li>
+                <li><button onClick={() => setCurrentPage('shop')} className="hover:text-white transition-colors">New Arrivals</button></li>
               </ul>
             </div>
             <div>
               <h4 className="text-xs font-black uppercase tracking-widest text-primary-500 mb-6">Customer Care</h4>
               <ul className="space-y-4 text-sm text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">Shipping Policy</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Returns & Refunds</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Secure Payments</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">FAQ</a></li>
+                <li><button onClick={() => setCurrentPage('contact')} className="hover:text-white transition-colors">Contact Us</button></li>
+                <li><button onClick={() => setCurrentPage('terms')} className="hover:text-white transition-colors">Shipping Policy</button></li>
+                <li><button onClick={() => setCurrentPage('terms')} className="hover:text-white transition-colors">Returns & Refunds</button></li>
+                <li><button onClick={() => setCurrentPage('privacy')} className="hover:text-white transition-colors">Secure Payments</button></li>
               </ul>
             </div>
             <div>
@@ -666,9 +672,10 @@ const AppContent = () => {
           <div className="flex flex-col md:flex-row justify-between items-center text-gray-500 text-xs font-bold uppercase tracking-widest">
             <p>&copy; {new Date().getFullYear()} Bharat E Mart. Curated Excellence.</p>
             <div className="flex space-x-8 mt-4 md:mt-0">
-               <a href="#" className="hover:text-white">Privacy</a>
-               <a href="#" className="hover:text-white">Terms</a>
-               <a href="#" className="hover:text-white">Cookies</a>
+               <button onClick={() => setCurrentPage('privacy')} className="hover:text-white">Privacy</button>
+               <button onClick={() => setCurrentPage('terms')} className="hover:text-white">Terms</button>
+               <button onClick={() => setCurrentPage('privacy')} className="hover:text-white">Cookies</button>
+               <button onClick={() => setCurrentPage('terms')} className="hover:text-white">Affiliate Disclosure</button>
             </div>
           </div>
         </div>
