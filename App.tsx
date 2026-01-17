@@ -624,7 +624,7 @@ const AppContent = () => {
             <div className="col-span-1 md:col-span-1">
                <div className="flex items-center mb-6">
                 <span className="text-2xl font-black tracking-tighter uppercase font-heading">
-                  Bharat<span className="text-primary-500">EMart</span>
+                  Bharat <span className="text-primary-500">E</span> Mart
                 </span>
                </div>
                <p className="text-gray-400 text-sm italic mb-6">

@@ -10,16 +10,16 @@ interface NavbarProps {
 
 // Custom Illustrated Logo matching 'Apna Store / Bharat E Store' style
 const BharatEMartLogo = () => (
-  <svg width="64" height="64" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-1 hover:scale-105 transition-transform duration-300 drop-shadow-md">
-    {/* Blue Shopping Cart (Left Side) */}
-    <path d="M10 38H18L22 62H52" stroke="#3b82f6" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
-    <path d="M22 62L19 72" stroke="#3b82f6" strokeWidth="4" strokeLinecap="round" />
-    <path d="M20 45H55" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" opacity="0.4"/>
-    <path d="M21 53H52" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" opacity="0.4"/>
-    <circle cx="24" cy="74" r="3.5" fill="#3b82f6" />
-    <circle cx="48" cy="74" r="3.5" fill="#3b82f6" />
+  <svg width="56" height="56" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="transform hover:scale-110 transition-transform duration-500 drop-shadow-lg filter">
+    {/* Blue Shopping Cart (Left Side) - Adjusted positioning */}
+    <path d="M8 38H16L20 62H50" stroke="#3b82f6" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M20 62L17 72" stroke="#3b82f6" strokeWidth="4" strokeLinecap="round" />
+    <path d="M18 45H53" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" opacity="0.4"/>
+    <path d="M19 53H50" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" opacity="0.4"/>
+    <circle cx="22" cy="74" r="3.5" fill="#3b82f6" />
+    <circle cx="46" cy="74" r="3.5" fill="#3b82f6" />
     
-    {/* Shopping Bag (Main Character) */}
+    {/* Shopping Bag (Main Character) - Centered and vibrant */}
     {/* Blue Handles */}
     <path d="M45 30V20C45 12 65 12 65 20V30" stroke="#0284c7" strokeWidth="5" strokeLinecap="round" fill="none"/>
     
@@ -32,17 +32,17 @@ const BharatEMartLogo = () => (
     {/* White Curved Separator (Smile shape on bag body) */}
     <path d="M32 52Q55 62 78 52" stroke="white" strokeWidth="4" fill="none" />
 
-    {/* Face Eyes */}
-    <ellipse cx="48" cy="44" rx="4.5" ry="5.5" fill="white"/>
+    {/* Face Eyes - Larger and cuter */}
+    <ellipse cx="48" cy="44" rx="5" ry="6" fill="white"/>
     <circle cx="48" cy="44" r="2.5" fill="#1e293b"/>
-    <ellipse cx="62" cy="44" rx="4.5" ry="5.5" fill="white"/>
+    <ellipse cx="62" cy="44" rx="5" ry="6" fill="white"/>
     <circle cx="62" cy="44" r="2.5" fill="#1e293b"/>
 
     {/* Face Mouth (Open Smile) */}
     <path d="M48 58Q55 68 62 58Z" fill="#7f1d1d"/>
     <path d="M52 64Q55 66 58 64" stroke="#fca5a5" strokeWidth="2" strokeLinecap="round" />
 
-    {/* Hanging Tags (Right Side) */}
+    {/* Hanging Tags (Right Side) - More defined */}
     <g transform="translate(73, 28) rotate(15)">
        <rect x="0" y="0" width="12" height="18" rx="2" fill="#ef4444" stroke="white" strokeWidth="1" />
        <circle cx="6" cy="3" r="1.5" fill="white" />
@@ -53,9 +53,9 @@ const BharatEMartLogo = () => (
        <path d="M3 15L9 15" stroke="#ca8a04" strokeWidth="1" />
     </g>
     
-    {/* Sparkles */}
-    <path d="M25 15L27 10L29 15L34 17L29 19L27 24L25 19L20 17L25 15Z" fill="#fbbf24"/>
-    <path d="M85 18L87 15L89 18L92 19L89 20L87 23L85 20L82 19L85 18Z" fill="#38bdf8"/>
+    {/* Sparkles - Animated feel positions */}
+    <path d="M25 15L27 10L29 15L34 17L29 19L27 24L25 19L20 17L25 15Z" fill="#fbbf24" className="animate-pulse"/>
+    <path d="M85 18L87 15L89 18L92 19L89 20L87 23L85 20L82 19L85 18Z" fill="#38bdf8" className="animate-pulse delay-75"/>
   </svg>
 );
 
@@ -96,20 +96,25 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPage }) => {
       <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white to-transparent opacity-50"></div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center h-16">
           {/* Logo Section */}
-          <div className="flex items-center cursor-pointer group" onClick={() => handleNav('home')}>
-             <BharatEMartLogo />
-             <div className="flex flex-col drop-shadow-sm">
-                <span className="text-2xl font-black text-slate-900 leading-none tracking-tighter uppercase font-heading group-hover:text-primary-700 transition-colors" style={{ textShadow: '1px 2px 2px rgba(0,0,0,0.05)' }}>
-                  Bharat<span className="text-indigo-700 group-hover:text-indigo-900 transition-colors">EMart</span>
-                </span>
-                <span className="text-[10px] font-bold text-slate-400 tracking-[0.2em] uppercase mt-0.5">Shop Smarter, Live Better</span>
+          <div className="flex items-center cursor-pointer group select-none" onClick={() => handleNav('home')}>
+             <div className="relative z-10 p-1 bg-white/50 rounded-full backdrop-blur-sm shadow-sm border border-white/50 group-hover:bg-white/80 transition-all">
+                <BharatEMartLogo />
+             </div>
+             <div className="flex flex-col ml-3 justify-center">
+                <h1 className="text-2xl md:text-3xl font-black text-slate-900 leading-none tracking-tight uppercase font-heading group-hover:text-primary-900 transition-colors drop-shadow-sm flex items-baseline gap-1.5" style={{ textShadow: '1px 1px 0px rgba(255,255,255,0.5)' }}>
+                  Bharat <span className="text-transparent bg-clip-text bg-gradient-to-tr from-indigo-600 to-primary-500 relative -top-[1px] inline-block transform group-hover:scale-110 transition-transform duration-300">E</span> Mart
+                </h1>
+                <div className="flex items-center overflow-hidden h-4">
+                   <div className="h-[2px] w-0 bg-gradient-to-r from-indigo-500 to-primary-500 rounded-full mr-0 opacity-0 group-hover:w-6 group-hover:mr-2 group-hover:opacity-100 transition-all duration-500 ease-out"></div>
+                   <span className="text-[10px] font-bold text-slate-500 tracking-[0.25em] uppercase whitespace-nowrap group-hover:text-indigo-600 transition-colors">India's Choice</span>
+                </div>
              </div>
           </div>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex items-center space-x-6 bg-slate-100/50 p-1.5 rounded-2xl shadow-inner border border-white/50">
+          <div className="hidden md:flex items-center space-x-6 bg-slate-100/50 p-1.5 rounded-2xl shadow-inner border border-white/50 ml-8">
             <button onClick={() => handleNav('home')} className={navItemClass('home')}>
               HOME
             </button>
@@ -129,7 +134,7 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPage }) => {
           </div>
 
           {/* Actions */}
-          <div className="flex items-center space-x-2 md:space-x-5">
+          <div className="flex items-center space-x-2 md:space-x-5 ml-auto">
             <button className="p-2.5 text-slate-500 bg-white hover:text-primary-600 hover:bg-primary-50 rounded-full transition-all md:block hidden shadow-sm border border-slate-100 hover:shadow-md hover:-translate-y-0.5">
               <Search className="w-5 h-5" />
             </button>
@@ -137,7 +142,7 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPage }) => {
             <button onClick={() => setIsCartOpen(true)} className="relative p-2.5 text-slate-700 bg-white hover:text-primary-600 hover:bg-primary-50 rounded-full transition-all shadow-sm border border-slate-100 hover:shadow-md hover:-translate-y-0.5">
               <ShoppingCart className="w-5 h-5" />
               {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-r from-primary-600 to-indigo-600 text-[10px] font-black text-white ring-2 ring-white shadow-lg">
+                <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-r from-primary-600 to-indigo-600 text-[10px] font-black text-white ring-2 ring-white shadow-lg animate-in zoom-in">
                   {cartCount}
                 </span>
               )}
