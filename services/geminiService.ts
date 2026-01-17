@@ -16,7 +16,16 @@ export const generateProductDescription = async (productName: string, category: 
   try {
     const response = await client.models.generateContent({
       model: 'gemini-3-flash-preview',
-      contents: `Write a compelling, marketing-focused product description for a "${productName}" in the category "${category}". Keep it under 100 words. Highlight key benefits.`,
+      contents: `You are an expert e-commerce copywriter. Write a compelling, persuasive product description for a "${productName}" in the category "${category}". 
+      
+      Requirements:
+      - Focus on benefits and user experience.
+      - Keep it under 80 words.
+      - Use an enthusiastic but professional tone.
+      - Do not include hashtags or emojis.`,
+      config: {
+        temperature: 0.7,
+      }
     });
     return response.text || "No description generated.";
   } catch (error) {

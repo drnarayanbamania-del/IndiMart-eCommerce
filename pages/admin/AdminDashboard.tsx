@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useStore } from '../../contexts/StoreContext';
 import { UserRole, Product } from '../../types';
@@ -438,7 +437,27 @@ const AdminDashboard: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <div className="flex justify-between items-center mb-1">
+                    <label className="block text-sm font-medium text-gray-700">Description</label>
+                    <button
+                        type="button"
+                        onClick={handleGenerateDescription}
+                        disabled={isGenerating || !newProduct.name || !newProduct.category}
+                        className={`flex items-center text-xs px-2 py-1 rounded-md transition-colors ${
+                            isGenerating || !newProduct.name || !newProduct.category
+                            ? 'text-gray-400 bg-gray-100 cursor-not-allowed' 
+                            : 'text-purple-700 bg-purple-50 hover:bg-purple-100'
+                        }`}
+                        title="Generate description using AI based on name and category"
+                    >
+                        {isGenerating ? (
+                             <RefreshCcw className="w-3 h-3 mr-1 animate-spin" />
+                        ) : (
+                             <Sparkles className="w-3 h-3 mr-1" />
+                        )}
+                        {isGenerating ? 'Writing...' : 'Auto-Write with AI'}
+                    </button>
+                </div>
                 <div className="relative">
                   <textarea
                     rows={3}
@@ -447,15 +466,6 @@ const AdminDashboard: React.FC = () => {
                     onChange={e => setNewProduct({ ...newProduct, description: e.target.value })}
                     placeholder="Enter description..."
                   />
-                  <button
-                    type="button"
-                    onClick={handleGenerateDescription}
-                    disabled={isGenerating}
-                    className="absolute bottom-2 right-2 flex items-center text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-md hover:bg-purple-200 transition-colors"
-                  >
-                    <Bot className="w-3 h-3 mr-1" />
-                    {isGenerating ? 'Generating...' : 'AI Generate Text'}
-                  </button>
                 </div>
               </div>
 
