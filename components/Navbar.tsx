@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useStore } from '../contexts/StoreContext';
 import { UserRole } from '../types';
-import { ShoppingCart, User as UserIcon, Menu, X, LogOut, Search } from 'lucide-react';
+import { ShoppingCart, User as UserIcon, Menu, X, LogOut, Search, ArrowRight } from 'lucide-react';
 
 interface NavbarProps {
   onNavigate: (page: string) => void;
@@ -60,9 +60,14 @@ const BharatEMartLogo = () => (
 );
 
 const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPage }) => {
-  const { user, cart, setIsCartOpen, logout } = useStore();
+  const { user, cart, setIsCartOpen, logout, setVoiceRequest } = useStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  
+  // Search State
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
@@ -70,11 +75,35 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPage }) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Focus input when search opens
+  useEffect(() => {
+    if (isSearchOpen && searchInputRef.current) {
+        setTimeout(() => searchInputRef.current?.focus(), 100);
+    }
+  }, [isSearchOpen]);
+
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   const handleNav = (page: string) => {
     onNavigate(page);
     setMobileMenuOpen(false);
+    setIsSearchOpen(false);
+  };
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+        // Use setVoiceRequest to trigger the search in Shop.tsx
+        setVoiceRequest({
+            query: searchQuery,
+            category: 'All', // Default to searching all
+            sortBy: 'default',
+            timestamp: Date.now()
+        });
+        onNavigate('shop');
+        setIsSearchOpen(false);
+        setSearchQuery('');
+    }
   };
 
   const navItemClass = (page: string) => `
@@ -97,8 +126,9 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPage }) => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div className="flex justify-between items-center h-16">
+          
           {/* Logo Section */}
-          <div className="flex items-center cursor-pointer group select-none" onClick={() => handleNav('home')}>
+          <div className={`flex items-center cursor-pointer group select-none ${isSearchOpen ? 'opacity-0 pointer-events-none md:opacity-100 md:pointer-events-auto' : ''}`} onClick={() => handleNav('home')}>
              <div className="relative z-10 p-1 bg-white/50 rounded-full backdrop-blur-sm shadow-sm border border-white/50 group-hover:bg-white/80 transition-all">
                 <BharatEMartLogo />
              </div>
@@ -115,8 +145,8 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPage }) => {
              </div>
           </div>
 
-          {/* Desktop Menu */}
-          <div className="hidden md:flex items-center space-x-6 bg-slate-100/50 p-1.5 rounded-2xl shadow-inner border border-white/50 ml-8">
+          {/* Desktop Menu - Hidden when search is active on smaller screens */}
+          <div className={`hidden md:flex items-center space-x-6 bg-slate-100/50 p-1.5 rounded-2xl shadow-inner border border-white/50 ml-8 ${isSearchOpen ? 'lg:opacity-0 lg:pointer-events-none xl:opacity-100' : ''} transition-opacity duration-200`}>
             <button onClick={() => handleNav('home')} className={navItemClass('home')}>
               HOME
             </button>
@@ -135,9 +165,43 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPage }) => {
             )}
           </div>
 
-          {/* Actions */}
-          <div className="flex items-center space-x-2 md:space-x-5 ml-auto">
-            <button className="p-2.5 text-slate-500 bg-white hover:text-primary-600 hover:bg-primary-50 rounded-full transition-all md:block hidden shadow-sm border border-slate-100 hover:shadow-md hover:-translate-y-0.5">
+          {/* Search Bar Overlay */}
+          {isSearchOpen && (
+              <div className="absolute inset-x-0 top-0 h-16 bg-white z-50 flex items-center px-4 animate-in fade-in slide-in-from-top-2 rounded-xl shadow-lg border border-slate-100">
+                  <form onSubmit={handleSearchSubmit} className="w-full relative flex items-center">
+                      <Search className="absolute left-3 text-primary-500 w-5 h-5" />
+                      <input 
+                          ref={searchInputRef}
+                          type="text" 
+                          placeholder="Search products..." 
+                          className="w-full pl-10 pr-12 py-3 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-primary-500 text-slate-900 font-medium text-sm placeholder-slate-400"
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                      />
+                      <button 
+                          type="submit"
+                          className="absolute right-12 p-1.5 text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+                      >
+                          <ArrowRight className="w-5 h-5" />
+                      </button>
+                      <button 
+                          type="button" 
+                          onClick={() => setIsSearchOpen(false)}
+                          className="absolute right-2 p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                      >
+                          <X className="w-5 h-5" />
+                      </button>
+                  </form>
+              </div>
+          )}
+
+          {/* Actions - Hidden when search is active */}
+          <div className={`flex items-center space-x-2 md:space-x-5 ml-auto ${isSearchOpen ? 'hidden' : 'flex'}`}>
+            <button 
+                onClick={() => setIsSearchOpen(true)}
+                className="p-2.5 text-slate-500 bg-white hover:text-primary-600 hover:bg-primary-50 rounded-full transition-all shadow-sm border border-slate-100 hover:shadow-md hover:-translate-y-0.5"
+                title="Search"
+            >
               <Search className="w-5 h-5" />
             </button>
 
@@ -178,7 +242,7 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPage }) => {
       </div>
 
       {/* Mobile Menu */}
-      {mobileMenuOpen && (
+      {mobileMenuOpen && !isSearchOpen && (
         <div className="md:hidden bg-white/95 backdrop-blur-xl border-t border-slate-100 animate-in slide-in-from-top duration-300 shadow-2xl relative z-40">
           <div className="px-4 pt-4 pb-6 space-y-3">
              <button onClick={() => handleNav('home')} className="block w-full text-left px-4 py-3 rounded-xl text-sm font-black text-slate-700 hover:bg-primary-50 hover:text-primary-600 transition-all shadow-sm border border-slate-50">HOME</button>
@@ -189,8 +253,10 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPage }) => {
              {user?.role === UserRole.USER && (
                 <button onClick={() => handleNav('user_dashboard')} className="block w-full text-left px-4 py-3 rounded-xl text-sm font-black text-slate-700 hover:bg-primary-50 hover:text-primary-600 transition-all shadow-sm border border-slate-50">MY ACCOUNT</button>
              )}
-             {user && (
+             {user ? (
                <button onClick={() => { logout(); setMobileMenuOpen(false); }} className="block w-full text-left px-4 py-3 rounded-xl text-sm font-black text-red-500 hover:bg-red-50 transition-all shadow-sm border border-red-50">LOGOUT</button>
+             ) : (
+                <button onClick={() => handleNav('login')} className="block w-full text-left px-4 py-3 rounded-xl text-sm font-black text-slate-700 hover:bg-primary-50 hover:text-primary-600 transition-all shadow-sm border border-slate-50">LOGIN</button>
              )}
           </div>
         </div>
