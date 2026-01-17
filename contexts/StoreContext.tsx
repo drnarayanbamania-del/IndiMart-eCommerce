@@ -8,6 +8,8 @@ const INITIAL_PRODUCTS: Product[] = [
   { id: '3', name: 'Ergonomic Office Chair', description: 'Designed for comfort and productivity.', price: 1999, category: 'Furniture', image: 'https://picsum.photos/400/400?random=3', stock: 10, rating: 4.2, reviews: 8 },
   { id: '4', name: 'Smart Fitness Tracker', description: 'Track your health metrics in real-time.', price: 899, category: 'Electronics', image: 'https://picsum.photos/400/400?random=4', stock: 100, rating: 4.0, reviews: 30 },
   { id: '5', name: 'Designer Sunglasses', description: 'UV protection with a classic look.', price: 1500, category: 'Accessories', image: 'https://picsum.photos/400/400?random=5', stock: 15, rating: 4.7, reviews: 22 },
+  { id: '6', name: 'Ultra-Slim Laptop Pro', description: 'High performance meets portability. 16GB RAM, 512GB SSD.', price: 54999, category: 'Computers', image: 'https://picsum.photos/400/400?random=6', stock: 8, rating: 4.9, reviews: 15 },
+  { id: '7', name: 'Smart Inverter Refrigerator', description: 'Energy efficient cooling with auto-defrost technology.', price: 22499, category: 'Home Appliances', image: 'https://picsum.photos/400/400?random=7', stock: 12, rating: 4.6, reviews: 34 },
   { id: 'test-1', name: 'Test Payment Item', description: 'Product for testing payment gateway integration (1 INR).', price: 1, category: 'Test', image: 'https://placehold.co/400x400?text=Test+Item', stock: 999, rating: 5.0, reviews: 0 },
 ];
 
@@ -15,6 +17,8 @@ const INITIAL_CATEGORIES: Category[] = [
   { id: '1', name: 'Electronics', image: 'https://picsum.photos/300/200?random=10' },
   { id: '2', name: 'Accessories', image: 'https://picsum.photos/300/200?random=11' },
   { id: '3', name: 'Furniture', image: 'https://picsum.photos/300/200?random=12' },
+  { id: '4', name: 'Computers', image: 'https://picsum.photos/300/200?random=13' },
+  { id: '5', name: 'Home Appliances', image: 'https://picsum.photos/300/200?random=14' },
 ];
 
 const ADMIN_EMAIL = 'drnarayanbamania@gmail.com';

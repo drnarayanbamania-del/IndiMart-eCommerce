@@ -231,11 +231,16 @@ const VoiceAssistant: React.FC<VoiceAssistantProps> = ({ onNavigate }) => {
                 searchQuery = "phone";
                 response = "Ye rahe hamare behtareen electronics aur phones.";
                 shouldNavigate = true;
-            } else if (text.includes("laptop")) {
-                categoryFilter = "Electronics";
-                searchQuery = "laptop";
-                response = "Here are the laptops available.";
-                shouldNavigate = true;
+            } else if (text.includes("laptop") || text.includes("computer") || text.includes("pc")) {
+                 categoryFilter = "Computers";
+                 searchQuery = "";
+                 response = "Computers aur Laptops ka collection open kar diya hai.";
+                 shouldNavigate = true;
+            } else if (text.includes("fridge") || text.includes("washing machine") || text.includes("appliance")) {
+                 categoryFilter = "Home Appliances";
+                 searchQuery = "";
+                 response = "Home Appliances section dikha raha hoon.";
+                 shouldNavigate = true;
             } else if (text.includes("accessory") || text.includes("watch") || text.includes("sunglass")) {
                 categoryFilter = "Accessories";
                 response = "Accessories section open kar diya hai.";

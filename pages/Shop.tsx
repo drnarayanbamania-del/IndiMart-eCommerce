@@ -87,7 +87,9 @@ const Shop: React.FC<ShopProps> = ({ onViewProduct }) => {
     // 1. Enhanced Category Detection with Regex for Word Boundaries
     // Define mappings based on common terms for our shop categories
     const categoryMap: Record<string, string[]> = {
-        'Electronics': ['electronics', 'gadget', 'phone', 'mobile', 'laptop', 'computer', 'monitor', 'headphone', 'earphone', 'camera', 'tech', 'device'],
+        'Electronics': ['electronics', 'gadget', 'phone', 'mobile', 'camera', 'tech', 'device', 'headphone', 'earphone', 'speaker'],
+        'Computers': ['computer', 'laptop', 'desktop', 'pc', 'mac', 'macbook', 'monitor', 'keyboard', 'mouse', 'processor'],
+        'Home Appliances': ['appliance', 'fridge', 'refrigerator', 'washing machine', 'microwave', 'oven', 'ac', 'air conditioner', 'fan', 'heater', 'vacuum', 'mixer'],
         'Furniture': ['furniture', 'sofa', 'chair', 'table', 'desk', 'couch', 'bed', 'shelf', 'decor', 'living room'],
         'Accessories': ['accessories', 'bag', 'purse', 'wallet', 'sunglass', 'glasses', 'jewelry', 'necklace', 'ring', 'bracelet', 'belt', 'watch']
     };
@@ -123,8 +125,9 @@ const Shop: React.FC<ShopProps> = ({ onViewProduct }) => {
     let tempQuery = lowerCmd;
     
     // Remove explicit category names from the query to avoid redundant searching
-    ['electronics', 'furniture', 'accessories'].forEach(c => {
-         tempQuery = tempQuery.replace(new RegExp(`\\b${c}\\b`, 'g'), '');
+    Object.keys(categoryMap).forEach(cat => {
+        // Remove category name itself
+        tempQuery = tempQuery.replace(new RegExp(`\\b${cat.toLowerCase()}\\b`, 'g'), '');
     });
 
     // Remove sorting keywords to clean up the query
