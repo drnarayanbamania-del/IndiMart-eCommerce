@@ -103,12 +103,14 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPage }) => {
                 <BharatEMartLogo />
              </div>
              <div className="flex flex-col ml-3 justify-center">
-                <h1 className="text-2xl md:text-3xl font-black text-slate-900 leading-none tracking-tight uppercase font-heading group-hover:text-primary-900 transition-colors drop-shadow-sm flex items-baseline gap-1.5" style={{ textShadow: '1px 1px 0px rgba(255,255,255,0.5)' }}>
-                  Bharat <span className="text-transparent bg-clip-text bg-gradient-to-tr from-indigo-600 to-primary-500 relative -top-[1px] inline-block transform group-hover:scale-110 transition-transform duration-300">E</span> Mart
+                <h1 className="text-2xl md:text-3xl font-black leading-none tracking-tight uppercase font-heading drop-shadow-sm flex items-baseline gap-1.5" style={{ textShadow: '2px 2px 0px rgba(255,255,255,1)' }}>
+                  <span className="text-orange-600 drop-shadow-md">Bharat</span> 
+                  <span className="text-blue-600 text-3xl md:text-4xl relative -top-[2px] drop-shadow-md">E</span> 
+                  <span className="text-green-600 drop-shadow-md">Mart</span>
                 </h1>
                 <div className="flex items-center overflow-hidden h-4">
-                   <div className="h-[2px] w-0 bg-gradient-to-r from-indigo-500 to-primary-500 rounded-full mr-0 opacity-0 group-hover:w-6 group-hover:mr-2 group-hover:opacity-100 transition-all duration-500 ease-out"></div>
-                   <span className="text-[10px] font-bold text-slate-500 tracking-[0.25em] uppercase whitespace-nowrap group-hover:text-indigo-600 transition-colors">India's Choice</span>
+                   <div className="h-[2px] w-0 bg-gradient-to-r from-orange-400 via-blue-500 to-green-400 rounded-full mr-0 opacity-0 group-hover:w-full group-hover:mr-2 group-hover:opacity-100 transition-all duration-700 ease-out"></div>
+                   <span className="text-[10px] font-bold text-slate-500 tracking-[0.3em] uppercase whitespace-nowrap group-hover:text-blue-600 transition-colors">The Pride of India</span>
                 </div>
              </div>
           </div>
