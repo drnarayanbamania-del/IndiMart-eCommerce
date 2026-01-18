@@ -269,11 +269,12 @@ const Shop: React.FC<ShopProps> = ({ onViewProduct }) => {
               </select>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Changed to 4 columns on large screens for compact view */}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {displayedProducts.map((product) => (
                 <div 
                   key={product.id} 
-                  className="group bg-white rounded-lg shadow-sm hover:shadow-xl hover:scale-105 transition-all duration-300 overflow-hidden flex flex-col cursor-pointer relative" 
+                  className="group bg-white rounded-xl shadow-sm hover:shadow-xl hover:scale-[1.02] transition-all duration-300 overflow-hidden flex flex-col cursor-pointer relative border border-slate-100" 
                   onClick={() => onViewProduct(product.id)}
                 >
                   <div className="relative pb-[100%] overflow-hidden">
@@ -286,29 +287,28 @@ const Shop: React.FC<ShopProps> = ({ onViewProduct }) => {
                                 e.stopPropagation();
                                 setQuickViewProduct(product);
                             }}
-                            className="pointer-events-auto bg-white/90 backdrop-blur-sm text-slate-800 p-3 rounded-full shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 hover:bg-white hover:text-indigo-600 hover:scale-110 active:scale-95 flex items-center gap-2 font-bold text-xs uppercase tracking-wider"
+                            className="pointer-events-auto bg-white/90 backdrop-blur-sm text-slate-800 p-2 rounded-full shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 hover:bg-white hover:text-indigo-600 active:scale-95"
                             title="Quick View"
                         >
                             <Eye className="w-4 h-4" />
-                            <span>Quick View</span>
                         </button>
                     </div>
                   </div>
-                  <div className="p-4 flex-1 flex flex-col">
+                  <div className="p-3 flex-1 flex flex-col">
                     <div className="flex-1">
-                      <h3 className="text-lg font-medium text-slate-900">{product.name}</h3>
-                      <p className="mt-1 text-sm text-slate-500">{product.category}</p>
-                      <div className="flex items-center mt-2">
+                      <h3 className="text-sm font-bold text-slate-900 line-clamp-2 leading-snug">{product.name}</h3>
+                      <p className="mt-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">{product.category}</p>
+                      <div className="flex items-center mt-1">
                          {[...Array(5)].map((_, i) => (
-                           <Star key={i} className={`w-4 h-4 ${i < Math.floor(product.rating) ? 'text-yellow-400 fill-current' : 'text-slate-300'}`} />
+                           <Star key={i} className={`w-3 h-3 ${i < Math.floor(product.rating) ? 'text-yellow-400 fill-current' : 'text-slate-300'}`} />
                          ))}
-                         <span className="text-xs text-slate-500 ml-1">({product.reviews})</span>
+                         <span className="text-[10px] text-slate-500 ml-1">({product.reviews})</span>
                       </div>
-                      <p className="mt-2 text-xl font-bold text-slate-900">₹{product.price}</p>
+                      <p className="mt-2 text-lg font-black text-slate-900">₹{product.price}</p>
                     </div>
                     <button
                       onClick={(e) => { e.stopPropagation(); addToCart(product); }}
-                      className="mt-4 w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 transition-colors z-10 relative"
+                      className="mt-3 w-full bg-indigo-600 text-white py-2 px-3 rounded-lg hover:bg-indigo-700 transition-colors z-10 relative text-xs font-bold uppercase tracking-wide"
                     >
                       Add to Cart
                     </button>

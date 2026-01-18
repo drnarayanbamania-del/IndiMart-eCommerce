@@ -16,8 +16,8 @@ interface LogoProps {
 const BharatEMartLogo: React.FC<LogoProps> = ({ onClick }) => (
   <svg 
     onClick={onClick}
-    width="56" height="56" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" 
-    className={`transform hover:scale-110 transition-transform duration-500 drop-shadow-lg filter ${onClick ? 'cursor-pointer' : ''}`}
+    width="64" height="64" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" 
+    className={`transform hover:scale-110 transition-transform duration-500 drop-shadow-xl filter ${onClick ? 'cursor-pointer' : ''}`}
   >
     {/* Blue Shopping Cart (Left Side) - Adjusted positioning */}
     <path d="M8 38H16L20 62H50" stroke="#3b82f6" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
@@ -145,14 +145,14 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPage }) => {
                 <BharatEMartLogo onClick={() => handleNav('home')} />
              </div>
              <div className="flex flex-col ml-3 justify-center text-left">
-                <h1 className="text-2xl md:text-3xl font-black leading-none tracking-tight uppercase font-heading drop-shadow-sm flex items-baseline gap-1.5" style={{ textShadow: '2px 2px 0px rgba(255,255,255,1)' }}>
+                <h1 className="text-3xl md:text-4xl font-black leading-none tracking-tight uppercase font-heading drop-shadow-sm flex items-baseline gap-1.5" style={{ textShadow: '2px 2px 0px rgba(255,255,255,1)' }}>
                   <span className="text-orange-600 drop-shadow-md">Bharat</span> 
-                  <span className="text-blue-600 text-3xl md:text-4xl relative -top-[2px] drop-shadow-md">E</span> 
+                  <span className="text-blue-600 text-4xl md:text-5xl relative -top-[3px] drop-shadow-md">E</span> 
                   <span className="text-green-600 drop-shadow-md">Mart</span>
                 </h1>
-                <div className="flex items-center overflow-hidden h-4">
+                <div className="flex items-center overflow-hidden h-4 mt-0.5">
                    <div className="h-[2px] w-0 bg-gradient-to-r from-orange-400 via-blue-500 to-green-400 rounded-full mr-0 opacity-0 group-hover:w-full group-hover:mr-2 group-hover:opacity-100 transition-all duration-700 ease-out"></div>
-                   <span className="text-[10px] font-bold text-slate-500 tracking-[0.3em] uppercase whitespace-nowrap group-hover:text-blue-600 transition-colors">The Pride of India</span>
+                   <span className="text-[11px] font-bold text-slate-500 tracking-[0.3em] uppercase whitespace-nowrap group-hover:text-blue-600 transition-colors">The Pride of India</span>
                 </div>
              </div>
           </button>

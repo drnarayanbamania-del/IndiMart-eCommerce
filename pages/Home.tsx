@@ -146,7 +146,7 @@ const OccasionBadge = () => {
 
 const Home: React.FC<HomeProps> = ({ onNavigate, onViewProduct }) => {
   const { products, categories, addToCart, setVoiceRequest } = useStore();
-  const featuredProducts = products.slice(0, 4);
+  const featuredProducts = products.slice(0, 8); // Increased slice to fill 8 slots or more
   const [currentSlide, setCurrentSlide] = useState(0);
 
   // Auto-play slider
@@ -260,23 +260,25 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onViewProduct }) => {
       <AdBanner />
 
       {/* Featured Categories */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="flex flex-col items-center mb-16">
-          <h2 className="text-4xl font-black tracking-tight text-slate-900 font-heading uppercase">Shop by Category</h2>
-          <div className="h-1.5 w-24 bg-indigo-600 mt-4 rounded-full"></div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="flex flex-col items-center mb-10">
+          <h2 className="text-3xl font-black tracking-tight text-slate-900 font-heading uppercase">Shop by Category</h2>
+          <div className="h-1 w-16 bg-indigo-600 mt-2 rounded-full"></div>
         </div>
-        <div className="mt-6 grid grid-cols-1 gap-y-8 gap-x-6 sm:grid-cols-2 lg:grid-cols-3 xl:gap-x-10">
+        
+        {/* Compact Grid: 6 Columns on LG, significantly reducing tile size (approx 30% of original area) */}
+        <div className="mt-4 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
           {categories.map((category) => (
-            <div key={category.id} className="group relative cursor-pointer overflow-hidden rounded-[2rem] shadow-lg hover:shadow-2xl border border-slate-100 transition-all duration-500 hover:-translate-y-2" onClick={() => handleCategoryClick(category.name)}>
-              <div className="aspect-[3/4] w-full bg-slate-200 relative overflow-hidden">
+            <div key={category.id} className="group relative cursor-pointer overflow-hidden rounded-2xl shadow-md hover:shadow-xl border border-slate-100 transition-all duration-500 hover:-translate-y-1" onClick={() => handleCategoryClick(category.name)}>
+              <div className="aspect-[4/5] w-full bg-slate-200 relative overflow-hidden">
                 <img src={category.image} alt={`${category.name} category collection`} className="w-full h-full object-center object-cover group-hover:scale-110 transition-transform duration-1000" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-end p-8">
-                  <h3 className="text-3xl font-black text-white uppercase tracking-wider mb-2 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500 font-heading drop-shadow-md">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent flex flex-col justify-end p-4">
+                  <h3 className="text-lg font-black text-white uppercase tracking-wider mb-1 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500 font-heading drop-shadow-md">
                     {category.name}
                   </h3>
-                  <div className="h-0 group-hover:h-8 overflow-hidden transition-all duration-500 ease-out">
-                      <p className="text-white/90 text-sm font-bold flex items-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
-                        Explore Collection <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-2 transition-transform" />
+                  <div className="h-0 group-hover:h-6 overflow-hidden transition-all duration-500 ease-out">
+                      <p className="text-white/90 text-[10px] font-bold flex items-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100 tracking-wide uppercase">
+                        View <ArrowRight className="w-3 h-3 ml-1" />
                       </p>
                   </div>
                 </div>
@@ -286,41 +288,43 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onViewProduct }) => {
         </div>
 
         {/* Affiliate Partner Holder / Meesho Section */}
-        <div className="mt-20 bg-gradient-to-br from-[#7b2cbf] to-[#9d4edd] rounded-[3rem] p-8 md:p-16 relative overflow-hidden shadow-2xl group cursor-pointer transition-all hover:shadow-[#7b2cbf]/50 hover:-translate-y-1" onClick={() => handleCategoryClick('Meesho Finds')}>
+        <div className="mt-12 bg-gradient-to-br from-[#7b2cbf] to-[#9d4edd] rounded-[1.5rem] p-5 relative overflow-hidden shadow-lg group cursor-pointer transition-all hover:shadow-[#7b2cbf]/40 hover:-translate-y-1" onClick={() => handleCategoryClick('Meesho Finds')}>
             {/* Background Decor */}
-            <div className="absolute top-0 right-0 w-[30rem] h-[30rem] bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-            <div className="absolute bottom-0 left-0 w-[20rem] h-[20rem] bg-white/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
+            <div className="absolute top-0 right-0 w-[20rem] h-[20rem] bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+            <div className="absolute bottom-0 left-0 w-[15rem] h-[15rem] bg-white/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
             
-            <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-20">
-                <div className="flex-1 text-white text-center lg:text-left space-y-6">
-                    <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-sm font-bold uppercase tracking-widest shadow-sm">
-                        <Sparkles className="w-4 h-4 mr-2 text-yellow-300" /> Partner Spotlight
+            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-4">
+                <div className="flex-1 text-white text-center md:text-left space-y-3">
+                    <div className="inline-flex items-center px-3 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-[10px] font-bold uppercase tracking-widest shadow-sm">
+                        <Sparkles className="w-3 h-3 mr-1.5 text-yellow-300" /> Partner Spotlight
                     </div>
-                    <h3 className="text-5xl md:text-6xl lg:text-7xl font-black font-heading tracking-tight drop-shadow-lg leading-[0.9]">
+                    <h3 className="text-3xl md:text-4xl font-black font-heading tracking-tight drop-shadow-md leading-none">
                         Meesho Super Saver
                     </h3>
-                    <p className="text-purple-100 font-medium text-xl md:text-2xl max-w-2xl leading-relaxed">
-                        Unlock unbeatable factory prices on trending fashion, home decor, and accessories. Curated just for you.
+                    <p className="text-purple-100 font-medium text-xs md:text-sm max-w-lg leading-relaxed">
+                        Unlock unbeatable factory prices on trending fashion.
                     </p>
-                    <div className="flex flex-wrap gap-4 justify-center lg:justify-start pt-4">
+                    <div className="flex flex-wrap gap-3 justify-center md:justify-start pt-1">
                          <button 
                             onClick={(e) => { e.stopPropagation(); handleCategoryClick('Meesho Finds'); }}
-                            className="bg-white text-[#7b2cbf] px-10 py-4 rounded-2xl font-black uppercase tracking-widest shadow-xl hover:bg-purple-50 hover:scale-105 transition-all flex items-center text-lg"
+                            className="bg-white text-[#7b2cbf] px-5 py-2 rounded-xl font-black uppercase tracking-widest shadow-lg hover:bg-purple-50 hover:scale-105 transition-all flex items-center text-[10px]"
                          >
-                             Shop Deals <ExternalLink className="ml-2 w-5 h-5" />
+                             Shop Deals <ExternalLink className="ml-1.5 w-3 h-3" />
                          </button>
                     </div>
                 </div>
-                <div className="w-full lg:w-auto max-w-sm relative flex-shrink-0">
-                   <div className="absolute inset-0 bg-gradient-to-t from-[#7b2cbf] to-transparent z-10 opacity-50 rounded-3xl"></div>
+                
+                <div className="w-full md:w-auto max-w-[150px] relative flex-shrink-0 mx-auto md:mx-0 hidden sm:block">
+                   {/* Compact Image */}
+                   <div className="absolute inset-0 bg-gradient-to-t from-[#7b2cbf] to-transparent z-10 opacity-30 rounded-xl"></div>
                    <img 
-                       src="https://images.unsplash.com/photo-1596704017254-9b121068fb31?q=80&w=800&auto=format&fit=crop" 
+                       src="https://images.unsplash.com/photo-1596704017254-9b121068fb31?q=80&w=400&auto=format&fit=crop" 
                        alt="Fashion Collection" 
-                       className="w-full h-[400px] md:h-[500px] object-cover rounded-3xl shadow-2xl transform rotate-3 group-hover:rotate-0 group-hover:scale-105 transition-all duration-700 border-8 border-white/20" 
+                       className="w-full h-[120px] object-cover rounded-xl shadow-lg transform rotate-2 group-hover:rotate-0 group-hover:scale-105 transition-all duration-700 border-4 border-white/20" 
                    />
-                   <div className="absolute -bottom-8 -left-8 bg-white text-[#7b2cbf] p-6 rounded-2xl shadow-xl font-black text-center transform -rotate-6 group-hover:rotate-0 transition-transform z-20 duration-500">
-                       <span className="block text-sm uppercase tracking-wider text-slate-500 mb-1">Starting at</span>
-                       <span className="text-5xl">₹99</span>
+                   <div className="absolute -bottom-2 -left-2 bg-white text-[#7b2cbf] px-2 py-1 rounded-lg shadow-lg font-black text-center transform -rotate-3 group-hover:rotate-0 transition-transform z-20 duration-500">
+                       <span className="block text-[8px] uppercase tracking-wider text-slate-500">From</span>
+                       <span className="text-base">₹99</span>
                    </div>
                 </div>
             </div>
@@ -332,23 +336,24 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onViewProduct }) => {
       <NativeAdBanner />
 
       {/* Trending Products */}
-      <div className="bg-slate-50 py-24">
+      <div className="bg-slate-50 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-end mb-12">
+          <div className="flex justify-between items-end mb-8">
             <div>
-              <h2 className="text-4xl font-black tracking-tight text-slate-900 font-heading uppercase">Trending Now</h2>
-              <p className="text-slate-500 mt-2 font-medium text-lg">The most sought-after pieces of the season.</p>
+              <h2 className="text-3xl font-black tracking-tight text-slate-900 font-heading uppercase">Trending Now</h2>
+              <p className="text-slate-500 mt-1 font-medium text-sm">The most sought-after pieces of the season.</p>
             </div>
-            <button onClick={() => onNavigate('shop')} className="hidden sm:flex items-center text-indigo-600 hover:text-indigo-700 font-black uppercase tracking-widest text-sm transition-all group">
-              View All <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-2 transition-transform" />
+            <button onClick={() => onNavigate('shop')} className="hidden sm:flex items-center text-indigo-600 hover:text-indigo-700 font-black uppercase tracking-widest text-xs transition-all group">
+              View All <ArrowRight className="ml-2 w-3 h-3 group-hover:translate-x-1 transition-transform" />
             </button>
           </div>
 
-          <div className="mt-12 grid grid-cols-1 gap-y-12 gap-x-8 sm:grid-cols-2 lg:grid-cols-4">
+          {/* Compact Grid: 5 Columns on LG, reducing card size to ~30-40% of original large cards */}
+          <div className="mt-4 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
             {featuredProducts.map((product) => (
               <div 
                 key={product.id} 
-                className="group relative bg-white rounded-[2rem] shadow-sm hover:shadow-2xl transition-all duration-500 cursor-pointer border border-slate-100 hover:-translate-y-3 flex flex-col overflow-hidden" 
+                className="group relative bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all duration-500 cursor-pointer border border-slate-100 hover:-translate-y-2 flex flex-col overflow-hidden" 
                 onClick={() => onViewProduct(product.id)}
               >
                 <div className="w-full aspect-[4/5] bg-slate-100 relative overflow-hidden">
@@ -361,42 +366,42 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onViewProduct }) => {
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300" />
                   
                   {/* Category Badge */}
-                  <div className="absolute top-4 left-4">
-                      <span className="text-[10px] font-bold text-slate-900 uppercase tracking-wider bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full shadow-sm">{product.category}</span>
+                  <div className="absolute top-2 left-2">
+                      <span className="text-[8px] font-bold text-slate-900 uppercase tracking-wider bg-white/90 backdrop-blur-md px-2 py-1 rounded-full shadow-sm">{product.category}</span>
                   </div>
                 </div>
                 
-                <div className="flex flex-col flex-grow p-6">
-                    <div className="mb-3 flex items-center space-x-1">
-                        <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                        <span className="text-sm font-bold text-slate-700">{product.rating}</span>
-                        <span className="text-xs text-slate-400">({product.reviews})</span>
+                <div className="flex flex-col flex-grow p-4">
+                    <div className="mb-2 flex items-center space-x-1">
+                        <Star className="w-3 h-3 text-yellow-400 fill-current" />
+                        <span className="text-xs font-bold text-slate-700">{product.rating}</span>
+                        <span className="text-[10px] text-slate-400">({product.reviews})</span>
                     </div>
                     
-                    <h3 className="text-xl font-bold text-slate-900 line-clamp-2 mb-2 leading-tight group-hover:text-indigo-600 transition-colors">
+                    <h3 className="text-sm font-bold text-slate-900 line-clamp-2 mb-1 leading-tight group-hover:text-indigo-600 transition-colors">
                         {product.name}
                     </h3>
                     
-                    <div className="mt-auto pt-6 border-t border-slate-50 flex items-center justify-between">
+                    <div className="mt-auto pt-3 border-t border-slate-50 flex items-center justify-between">
                         <div className="flex flex-col">
-                           <span className="text-xs text-slate-400 font-medium line-through">₹{Math.round(product.price * 1.2)}</span>
-                           <span className="text-2xl font-black text-slate-900">₹{product.price}</span>
+                           <span className="text-[10px] text-slate-400 font-medium line-through">₹{Math.round(product.price * 1.2)}</span>
+                           <span className="text-lg font-black text-slate-900">₹{product.price}</span>
                         </div>
                         
                         <button
                             onClick={(e) => { e.stopPropagation(); addToCart(product); }}
                             aria-label={`Add ${product.name} to cart`}
-                            className="bg-slate-900 text-white p-3 rounded-full hover:bg-indigo-600 transition-colors shadow-lg active:scale-90"
+                            className="bg-slate-900 text-white p-2 rounded-full hover:bg-indigo-600 transition-colors shadow-md active:scale-90"
                         >
-                             <ShoppingCart className="w-5 h-5" />
+                             <ShoppingCart className="w-4 h-4" />
                         </button>
                     </div>
                 </div>
               </div>
             ))}
           </div>
-           <div className="mt-16 sm:hidden px-4">
-            <button onClick={() => onNavigate('shop')} className="w-full flex items-center justify-center bg-white border-2 border-indigo-600 text-indigo-600 py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-indigo-50 transition-colors">
+           <div className="mt-12 sm:hidden px-4">
+            <button onClick={() => onNavigate('shop')} className="w-full flex items-center justify-center bg-white border-2 border-indigo-600 text-indigo-600 py-3 rounded-xl font-black uppercase tracking-widest hover:bg-indigo-50 transition-colors text-sm">
               See All Products
             </button>
           </div>
