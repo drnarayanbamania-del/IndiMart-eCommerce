@@ -142,7 +142,7 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPage }) => {
             aria-label="Go to Home"
           >
              <div className="relative z-10 p-1 bg-white/50 rounded-full backdrop-blur-sm shadow-sm border border-white/50 group-hover:bg-white/80 transition-all">
-                <BharatEMartLogo />
+                <BharatEMartLogo onClick={() => handleNav('home')} />
              </div>
              <div className="flex flex-col ml-3 justify-center text-left">
                 <h1 className="text-2xl md:text-3xl font-black leading-none tracking-tight uppercase font-heading drop-shadow-sm flex items-baseline gap-1.5" style={{ textShadow: '2px 2px 0px rgba(255,255,255,1)' }}>
