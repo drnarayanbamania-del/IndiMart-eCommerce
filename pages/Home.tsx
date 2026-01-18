@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useStore } from '../contexts/StoreContext';
-import { ArrowRight, Star, Sparkles, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
+import { ArrowRight, Star, Sparkles, ChevronLeft, ChevronRight, ExternalLink, Flame, Moon, Flag, Sun } from 'lucide-react';
 import AdBanner from '../components/AdBanner';
 import NativeAdBanner from '../components/NativeAdBanner';
 
@@ -48,6 +48,102 @@ const HERO_SLIDES = [
   }
 ];
 
+// Occasion Badge Component
+const OccasionBadge = () => {
+    const [occasion, setOccasion] = useState('DEFAULT');
+
+    useEffect(() => {
+        const date = new Date();
+        const month = date.getMonth();
+        const day = date.getDate();
+        const hour = date.getHours();
+
+        if (month === 0 && day >= 20 && day <= 26) setOccasion('REPUBLIC');
+        else if (month === 7 && day >= 10 && day <= 15) setOccasion('INDEPENDENCE');
+        else if ((month === 9 && day > 20) || (month === 10 && day < 15)) setOccasion('DIWALI');
+        else if (month === 2 && day < 20) setOccasion('HOLI');
+        else if (hour >= 22 || hour < 4) setOccasion('MIDNIGHT');
+        else setOccasion('DEFAULT');
+    }, []);
+
+    const badges: any = {
+        DEFAULT: (
+            <div className="relative group/sticker cursor-pointer">
+                <div className="absolute inset-0 bg-yellow-400 rounded-full blur-md opacity-75 animate-pulse"></div>
+                <div className="relative w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-red-600 to-pink-600 rounded-full flex flex-col items-center justify-center text-white border-4 border-white shadow-2xl transform rotate-12 transition-transform hover:rotate-0 hover:scale-110">
+                    <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-yellow-200">Festival</span>
+                    <span className="text-xl md:text-2xl font-black font-heading leading-none">SALE</span>
+                    <span className="text-[10px] md:text-xs font-bold bg-white text-red-600 px-1 rounded mt-1">50% OFF</span>
+                </div>
+            </div>
+        ),
+        MIDNIGHT: (
+            <div className="relative group/sticker cursor-pointer">
+                <div className="absolute inset-0 bg-indigo-500 rounded-full blur-md opacity-75 animate-pulse"></div>
+                <div className="relative w-20 h-20 md:w-24 md:h-24 bg-gradient-to-b from-indigo-900 to-black rounded-full flex flex-col items-center justify-center text-white border-4 border-indigo-200 shadow-2xl transform rotate-12 transition-transform hover:rotate-0 hover:scale-110 overflow-hidden">
+                    <Moon className="w-4 h-4 text-yellow-300 absolute top-2 right-4 opacity-50" />
+                    <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-indigo-200">Midnight</span>
+                    <span className="text-xl md:text-2xl font-black font-heading leading-none text-yellow-400">LOOT</span>
+                    <span className="text-[10px] md:text-xs font-bold text-white mt-1">Ends 4AM</span>
+                </div>
+            </div>
+        ),
+        DIWALI: (
+            <div className="relative group/sticker cursor-pointer">
+                <div className="absolute inset-0 bg-orange-500 rounded-full blur-md opacity-75 animate-pulse"></div>
+                <div className="relative w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-red-800 to-orange-600 rounded-full flex flex-col items-center justify-center text-white border-4 border-yellow-400 shadow-2xl transform rotate-12 transition-transform hover:rotate-0 hover:scale-110">
+                    <Flame className="w-5 h-5 text-yellow-300 mb-0.5 animate-bounce" />
+                    <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-yellow-100">Diwali</span>
+                    <span className="text-xl md:text-2xl font-black font-heading leading-none text-yellow-300">SALE</span>
+                </div>
+            </div>
+        ),
+        INDEPENDENCE: (
+            <div className="relative group/sticker cursor-pointer">
+                 <div className="absolute inset-0 bg-white rounded-full blur-md opacity-75 animate-pulse"></div>
+                 <div className="relative w-20 h-20 md:w-24 md:h-24 bg-white rounded-full flex flex-col items-center justify-center text-slate-800 border-4 border-blue-800 shadow-2xl transform rotate-12 transition-transform hover:rotate-0 hover:scale-110 overflow-hidden">
+                    {/* Tricolor BG */}
+                    <div className="absolute top-0 w-full h-1/3 bg-[#FF9933]"></div>
+                    <div className="absolute bottom-0 w-full h-1/3 bg-[#138808]"></div>
+                    
+                    <div className="relative z-10 flex flex-col items-center">
+                         <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-blue-900 bg-white/80 px-1 rounded">Freedom</span>
+                         <span className="text-lg md:text-xl font-black font-heading leading-none text-slate-900 bg-white/80 px-1 rounded my-0.5">SALE</span>
+                         <span className="text-[10px] md:text-xs font-bold text-slate-900 bg-white/80 px-1 rounded">Jai Hind</span>
+                    </div>
+                </div>
+            </div>
+        ),
+        REPUBLIC: (
+            <div className="relative group/sticker cursor-pointer">
+                 <div className="absolute inset-0 bg-blue-400 rounded-full blur-md opacity-75 animate-pulse"></div>
+                 <div className="relative w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-blue-700 to-blue-900 rounded-full flex flex-col items-center justify-center text-white border-4 border-orange-400 shadow-2xl transform rotate-12 transition-transform hover:rotate-0 hover:scale-110">
+                    <Flag className="w-4 h-4 text-orange-400 mb-1" />
+                    <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-white">Republic</span>
+                    <span className="text-xl md:text-2xl font-black font-heading leading-none text-orange-400">DEALS</span>
+                </div>
+            </div>
+        ),
+        HOLI: (
+            <div className="relative group/sticker cursor-pointer">
+                 <div className="absolute inset-0 bg-pink-400 rounded-full blur-md opacity-75 animate-pulse"></div>
+                 <div className="relative w-20 h-20 md:w-24 md:h-24 bg-white rounded-full flex flex-col items-center justify-center border-4 border-purple-500 shadow-2xl transform rotate-12 transition-transform hover:rotate-0 hover:scale-110 overflow-hidden">
+                    {/* Splashes */}
+                    <div className="absolute top-0 left-0 w-8 h-8 bg-pink-500 rounded-full mix-blend-multiply filter blur-sm"></div>
+                    <div className="absolute bottom-0 right-0 w-10 h-10 bg-yellow-400 rounded-full mix-blend-multiply filter blur-sm"></div>
+                    <div className="absolute top-2 right-2 w-6 h-6 bg-blue-400 rounded-full mix-blend-multiply filter blur-sm"></div>
+                    
+                    <span className="relative z-10 text-[10px] md:text-xs font-bold uppercase tracking-widest text-slate-500">Holi</span>
+                    <span className="relative z-10 text-xl md:text-2xl font-black font-heading leading-none text-purple-600">SPLASH</span>
+                    <span className="relative z-10 text-[10px] md:text-xs font-bold bg-purple-600 text-white px-1 rounded mt-1">60% OFF</span>
+                </div>
+            </div>
+        )
+    };
+
+    return badges[occasion] || badges.DEFAULT;
+}
+
 const Home: React.FC<HomeProps> = ({ onNavigate, onViewProduct }) => {
   const { products, categories, addToCart, setVoiceRequest } = useStore();
   const featuredProducts = products.slice(0, 4);
@@ -81,16 +177,9 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onViewProduct }) => {
       {/* Hero Slider Section */}
       <div className="relative h-[300px] md:h-[400px] w-full overflow-hidden bg-slate-900 group">
         
-        {/* Animated Mega Sale Sticker */}
+        {/* Animated Occasion Badge (Dynamic) */}
         <div className="absolute top-4 right-4 md:right-10 md:top-10 z-40 animate-bounce">
-            <div className="relative group/sticker cursor-pointer">
-                <div className="absolute inset-0 bg-yellow-400 rounded-full blur-md opacity-75 animate-pulse"></div>
-                <div className="relative w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-red-600 to-pink-600 rounded-full flex flex-col items-center justify-center text-white border-4 border-white shadow-2xl transform rotate-12 transition-transform hover:rotate-0 hover:scale-110">
-                    <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-yellow-200">Festival</span>
-                    <span className="text-xl md:text-2xl font-black font-heading leading-none">SALE</span>
-                    <span className="text-[10px] md:text-xs font-bold bg-white text-red-600 px-1 rounded mt-1">50% OFF</span>
-                </div>
-            </div>
+            <OccasionBadge />
         </div>
 
         {/* Slides */}
