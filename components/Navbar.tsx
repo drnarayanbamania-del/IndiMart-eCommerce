@@ -9,8 +9,16 @@ interface NavbarProps {
 }
 
 // Custom Illustrated Logo matching 'Apna Store / Bharat E Store' style
-const BharatEMartLogo = () => (
-  <svg width="56" height="56" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="transform hover:scale-110 transition-transform duration-500 drop-shadow-lg filter">
+interface LogoProps {
+  onClick?: () => void;
+}
+
+const BharatEMartLogo: React.FC<LogoProps> = ({ onClick }) => (
+  <svg 
+    onClick={onClick}
+    width="56" height="56" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" 
+    className={`transform hover:scale-110 transition-transform duration-500 drop-shadow-lg filter ${onClick ? 'cursor-pointer' : ''}`}
+  >
     {/* Blue Shopping Cart (Left Side) - Adjusted positioning */}
     <path d="M8 38H16L20 62H50" stroke="#3b82f6" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
     <path d="M20 62L17 72" stroke="#3b82f6" strokeWidth="4" strokeLinecap="round" />
@@ -128,11 +136,15 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPage }) => {
         <div className="flex justify-between items-center h-16">
           
           {/* Logo Section */}
-          <div className={`flex items-center cursor-pointer group select-none ${isSearchOpen ? 'opacity-0 pointer-events-none md:opacity-100 md:pointer-events-auto' : ''}`} onClick={() => handleNav('home')}>
+          <button 
+            className={`flex items-center cursor-pointer group select-none bg-transparent border-none p-0 focus:outline-none ${isSearchOpen ? 'opacity-0 pointer-events-none md:opacity-100 md:pointer-events-auto' : ''}`} 
+            onClick={() => handleNav('home')}
+            aria-label="Go to Home"
+          >
              <div className="relative z-10 p-1 bg-white/50 rounded-full backdrop-blur-sm shadow-sm border border-white/50 group-hover:bg-white/80 transition-all">
                 <BharatEMartLogo />
              </div>
-             <div className="flex flex-col ml-3 justify-center">
+             <div className="flex flex-col ml-3 justify-center text-left">
                 <h1 className="text-2xl md:text-3xl font-black leading-none tracking-tight uppercase font-heading drop-shadow-sm flex items-baseline gap-1.5" style={{ textShadow: '2px 2px 0px rgba(255,255,255,1)' }}>
                   <span className="text-orange-600 drop-shadow-md">Bharat</span> 
                   <span className="text-blue-600 text-3xl md:text-4xl relative -top-[2px] drop-shadow-md">E</span> 
@@ -143,7 +155,7 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentPage }) => {
                    <span className="text-[10px] font-bold text-slate-500 tracking-[0.3em] uppercase whitespace-nowrap group-hover:text-blue-600 transition-colors">The Pride of India</span>
                 </div>
              </div>
-          </div>
+          </button>
 
           {/* Desktop Menu - Hidden when search is active on smaller screens */}
           <div className={`hidden md:flex items-center space-x-6 bg-slate-100/50 p-1.5 rounded-2xl shadow-inner border border-white/50 ml-8 ${isSearchOpen ? 'lg:opacity-0 lg:pointer-events-none xl:opacity-100' : ''} transition-opacity duration-200`}>
