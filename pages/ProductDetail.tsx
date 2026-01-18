@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useStore } from '../contexts/StoreContext';
 import { GoogleGenAI } from "@google/genai";
-import { Star, ShoppingCart, ArrowLeft, Heart, ChevronLeft, ChevronRight, Facebook, Twitter, MessageCircle, Check, ShieldCheck, Filter, AlertCircle, CheckCircle2, Maximize2, X, ExternalLink, Sparkles, Upload, Plus, ZoomIn, RefreshCcw, ArrowRight, ChevronDown } from 'lucide-react';
+import { Star, ShoppingCart, ArrowLeft, Heart, ChevronLeft, ChevronRight, Facebook, Twitter, MessageCircle, Check, ShieldCheck, Filter, AlertCircle, CheckCircle2, Maximize2, X, ExternalLink, Sparkles, Upload, Plus, ZoomIn, RefreshCcw, ArrowRight, ChevronDown, ImageIcon } from 'lucide-react';
 
 interface ProductDetailProps {
   productId: string;
@@ -126,8 +126,8 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
 
         Promise.all(readers).then(results => {
             setUploadedImages(prev => [...results, ...prev]);
-            // Switch to the newly uploaded image (it will be at index 1 after main image, or 2 if gen image exists)
-            setActiveImage(generatedImage ? 2 : 1);
+            // Switch to the newly uploaded image
+            setActiveImage(generatedImage ? 2 : 1); 
         });
     }
   };
@@ -413,55 +413,75 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
               </div>
             </div>
 
-            {/* Thumbnail Carousel */}
-            <div className="relative group">
-                <style>{`
-                     .scrollbar-hide::-webkit-scrollbar {
-                         display: none;
-                     }
-                     .scrollbar-hide {
-                         -ms-overflow-style: none;
-                         scrollbar-width: none;
-                     }
-                   `}</style>
-                <div 
-                  ref={thumbnailsRef}
-                  className="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide snap-x px-1"
-                  style={{ scrollBehavior: 'smooth' }}
-                >
-                  {images.map((img, idx) => (
-                    <button 
-                      key={idx} 
-                      onClick={() => setActiveImage(idx)}
-                      aria-label={`Show ${product.name} view ${idx + 1}`}
-                      className={`relative flex-shrink-0 w-20 h-20 rounded-2xl overflow-hidden snap-center transition-all duration-300 ${
-                        activeImage === idx 
-                          ? 'ring-2 ring-indigo-600 ring-offset-2 scale-105 shadow-md z-10' 
-                          : 'opacity-70 hover:opacity-100 hover:scale-105 hover:shadow-sm ring-1 ring-slate-200'
-                      }`}
-                    >
-                      <img src={img} alt={`${product.name} view ${idx + 1} thumbnail`} className="w-full h-full object-cover" />
-                      {activeImage !== idx && <div className="absolute inset-0 bg-slate-900/10 group-hover:bg-transparent transition-colors" />}
-                    </button>
-                  ))}
-
-                  {/* Add Image Button in Carousel */}
-                  <label className="relative flex-shrink-0 w-20 h-20 rounded-2xl border-2 border-dashed border-slate-300 flex flex-col items-center justify-center text-slate-400 hover:text-indigo-600 hover:border-indigo-400 hover:bg-indigo-50 transition-all cursor-pointer snap-center">
-                      <Plus className="w-6 h-6 mb-1" />
-                      <span className="text-[9px] font-bold uppercase tracking-wider">Add</span>
-                      <input 
-                          type="file" 
-                          multiple 
-                          accept="image/*" 
-                          className="hidden" 
-                          onChange={handleFileUpload}
-                      />
-                  </label>
+            {/* Thumbnail Carousel Section */}
+            <div className="mt-6">
+                <div className="flex items-center justify-between mb-4 px-1">
+                     <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest flex items-center gap-2">
+                        <span className="bg-indigo-600 w-2 h-2 rounded-full"></span>
+                        Gallery & Uploads
+                     </h3>
+                     <label className="cursor-pointer text-xs font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1 transition-colors">
+                        <Upload className="w-3 h-3" />
+                        <span>Upload Photo</span>
+                        <input 
+                            type="file" 
+                            multiple 
+                            accept="image/*" 
+                            className="hidden" 
+                            onChange={handleFileUpload}
+                        />
+                     </label>
                 </div>
-                
-                {/* Carousel Fade Edges */}
-                <div className="absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-white to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <div className="absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-white to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity"></div>
+
+                <div className="relative group">
+                    <style>{`
+                         .scrollbar-hide::-webkit-scrollbar {
+                             display: none;
+                         }
+                         .scrollbar-hide {
+                             -ms-overflow-style: none;
+                             scrollbar-width: none;
+                         }
+                       `}</style>
+                    <div 
+                      ref={thumbnailsRef}
+                      className="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide snap-x px-1"
+                      style={{ scrollBehavior: 'smooth' }}
+                    >
+                      {images.map((img, idx) => (
+                        <button 
+                          key={idx} 
+                          onClick={() => setActiveImage(idx)}
+                          aria-label={`Show ${product.name} view ${idx + 1}`}
+                          className={`relative flex-shrink-0 w-20 h-20 rounded-2xl overflow-hidden snap-center transition-all duration-300 ${
+                            activeImage === idx 
+                              ? 'ring-2 ring-indigo-600 ring-offset-2 scale-105 shadow-md z-10' 
+                              : 'opacity-70 hover:opacity-100 hover:scale-105 hover:shadow-sm ring-1 ring-slate-200'
+                          }`}
+                        >
+                          <img src={img} alt={`${product.name} view ${idx + 1} thumbnail`} className="w-full h-full object-cover" />
+                          {activeImage !== idx && <div className="absolute inset-0 bg-slate-900/10 group-hover:bg-transparent transition-colors" />}
+                        </button>
+                      ))}
+
+                      {/* Add Image Button in Carousel */}
+                      <label className="relative flex-shrink-0 w-20 h-20 rounded-2xl border-2 border-dashed border-slate-300 flex flex-col items-center justify-center text-slate-400 hover:text-indigo-600 hover:border-indigo-400 hover:bg-indigo-50 transition-all cursor-pointer snap-center bg-slate-50">
+                          <Plus className="w-6 h-6 mb-1" />
+                          <span className="text-[9px] font-bold uppercase tracking-wider">Add</span>
+                          <input 
+                              type="file" 
+                              multiple 
+                              accept="image/*" 
+                              className="hidden" 
+                              onChange={handleFileUpload}
+                          />
+                      </label>
+                    </div>
+                    
+                    {/* Carousel Fade Edges */}
+                    <div className="absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-white to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    <div className="absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-white to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                </div>
             </div>
           </div>
 

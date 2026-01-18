@@ -223,6 +223,7 @@ const UserDashboard = () => {
                                          <div className="mt-2 text-xs text-gray-400">
                                              <p>Shipping to: {order.shippingDetails.name}</p>
                                              <p>Phone: {order.shippingDetails.phone}</p>
+                                             <p>Address: {order.shippingDetails.address}</p>
                                          </div>
                                      )}
                                  </li>
@@ -243,6 +244,9 @@ const Checkout = ({ onNavigate }: { onNavigate: (page: string) => void }) => {
     const [paymentMethod, setPaymentMethod] = useState<'online' | 'cod'>('online');
     const [orderSuccess, setOrderSuccess] = useState(false);
     const [showPaymentConfirm, setShowPaymentConfirm] = useState(false);
+    
+    // State to hold form data temporarily for online payment flow
+    const [tempOrderDetails, setTempOrderDetails] = useState<any>(null);
 
     const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const shipping = subtotal > 500 ? 0 : 50; // Free shipping over 500
@@ -261,6 +265,9 @@ const Checkout = ({ onNavigate }: { onNavigate: (page: string) => void }) => {
             city: formData.get('city') as string,
             zip: formData.get('postal-code') as string,
         };
+        
+        // Save to state so it persists when modal opens
+        setTempOrderDetails(orderDetails);
 
         const processOrderSuccess = (paymentId: string) => {
              const sheetData = {
@@ -285,8 +292,11 @@ const Checkout = ({ onNavigate }: { onNavigate: (page: string) => void }) => {
                 body: JSON.stringify(sheetData)
             }).catch(console.error);
 
+            // Construct full address to ensure city and zip are saved
+            const fullAddress = `${orderDetails.address}, ${orderDetails.city} - ${orderDetails.zip}`;
+
             placeOrder({ 
-                address: orderDetails.address, 
+                address: fullAddress, 
                 phone: orderDetails.phone, 
                 name: `${orderDetails.firstName} ${orderDetails.lastName}` 
             });
@@ -314,23 +324,27 @@ const Checkout = ({ onNavigate }: { onNavigate: (page: string) => void }) => {
     const confirmOnlinePayment = () => {
         setLoading(true);
         setShowPaymentConfirm(false);
+        
+        // Use the saved state instead of trying to scrape the DOM again
+        if (!tempOrderDetails) {
+            setLoading(false);
+            return; 
+        }
+
         // Simulate verification
         setTimeout(() => {
             const paymentId = 'RZP-' + Math.random().toString(36).substr(2, 9).toUpperCase();
-            const formData = new FormData(document.querySelector('form') as HTMLFormElement);
-            const address = formData.get('address') as string;
-            const phone = formData.get('phone') as string;
-            const firstName = formData.get('first-name') as string;
-            const lastName = formData.get('last-name') as string;
+            
+            const { firstName, lastName, email, phone, address, city, zip } = tempOrderDetails;
             
             const sheetData = {
                 "First Name": firstName,
                 "Last Name": lastName,
-                "Email": formData.get('email-address'),
+                "Email": email,
                 "Mobile Number": phone,
                 "Street Address": address,
-                "City": formData.get('city'),
-                "Zip": formData.get('postal-code'),
+                "City": city,
+                "Zip": zip,
                 "Product Name": cart.map(item => `${item.name} (x${item.quantity})`).join(', '),
                 "Total Amount": total.toFixed(2),
                 "Order Date": new Date().toLocaleString(),
@@ -344,8 +358,11 @@ const Checkout = ({ onNavigate }: { onNavigate: (page: string) => void }) => {
                 body: JSON.stringify(sheetData)
             }).catch(console.error);
 
+            // Construct full address including City and Zip
+            const fullAddress = `${address}, ${city} - ${zip}`;
+
             placeOrder({ 
-                address: address, 
+                address: fullAddress, 
                 phone: phone, 
                 name: `${firstName} ${lastName}`
             });
