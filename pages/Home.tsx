@@ -80,6 +80,19 @@ const Home: React.FC<HomeProps> = ({ onNavigate, onViewProduct }) => {
     <div className="bg-white">
       {/* Hero Slider Section */}
       <div className="relative h-[300px] md:h-[400px] w-full overflow-hidden bg-slate-900 group">
+        
+        {/* Animated Mega Sale Sticker */}
+        <div className="absolute top-4 right-4 md:right-10 md:top-10 z-40 animate-bounce">
+            <div className="relative group/sticker cursor-pointer">
+                <div className="absolute inset-0 bg-yellow-400 rounded-full blur-md opacity-75 animate-pulse"></div>
+                <div className="relative w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-red-600 to-pink-600 rounded-full flex flex-col items-center justify-center text-white border-4 border-white shadow-2xl transform rotate-12 transition-transform hover:rotate-0 hover:scale-110">
+                    <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-yellow-200">Festival</span>
+                    <span className="text-xl md:text-2xl font-black font-heading leading-none">SALE</span>
+                    <span className="text-[10px] md:text-xs font-bold bg-white text-red-600 px-1 rounded mt-1">50% OFF</span>
+                </div>
+            </div>
+        </div>
+
         {/* Slides */}
         {HERO_SLIDES.map((slide, index) => (
             <div

@@ -4,6 +4,7 @@ import Navbar from './components/Navbar';
 import CartDrawer from './components/CartDrawer';
 import VoiceAssistant from './components/VoiceAssistant';
 import AdBanner from './components/AdBanner';
+import SaleBanner from './components/SaleBanner';
 import Home from './pages/Home';
 import Shop from './pages/Shop';
 import ProductDetail from './pages/ProductDetail';
@@ -675,6 +676,7 @@ const AppContent = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <SaleBanner />
       <Navbar onNavigate={setCurrentPage} currentPage={currentPage} />
       <NotificationToast />
       <CartDrawer onCheckout={() => setCurrentPage('checkout')} />
