@@ -12,7 +12,7 @@ import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
 import Contact from './pages/Contact';
 import { UserRole } from './types';
-import { CreditCard, Truck, Banknote, ShieldCheck, Lock, CheckCircle, AlertCircle, ShoppingCart, ExternalLink, Instagram, Facebook, Twitter, X as XIcon } from 'lucide-react';
+import { CreditCard, Truck, Banknote, ShieldCheck, Lock, CheckCircle, AlertCircle, ShoppingCart, ExternalLink, Instagram, Facebook, Twitter, X as XIcon, Phone } from 'lucide-react';
 
 // Toast Notification Component
 const NotificationToast = () => {
@@ -219,6 +219,12 @@ const UserDashboard = () => {
                                              <p>Placed on {new Date(order.date).toLocaleDateString()}</p>
                                          </div>
                                      </div>
+                                     {order.shippingDetails && (
+                                         <div className="mt-2 text-xs text-gray-400">
+                                             <p>Shipping to: {order.shippingDetails.name}</p>
+                                             <p>Phone: {order.shippingDetails.phone}</p>
+                                         </div>
+                                     )}
                                  </li>
                              ))}
                          </ul>
@@ -247,13 +253,13 @@ const Checkout = ({ onNavigate }: { onNavigate: (page: string) => void }) => {
         
         const formData = new FormData(e.currentTarget);
         const orderDetails = {
-            firstName: formData.get('first-name'),
-            lastName: formData.get('last-name'),
-            email: formData.get('email-address'),
-            phone: formData.get('phone'),
-            address: formData.get('address'),
-            city: formData.get('city'),
-            zip: formData.get('postal-code'),
+            firstName: formData.get('first-name') as string,
+            lastName: formData.get('last-name') as string,
+            email: formData.get('email-address') as string,
+            phone: formData.get('phone') as string,
+            address: formData.get('address') as string,
+            city: formData.get('city') as string,
+            zip: formData.get('postal-code') as string,
         };
 
         const processOrderSuccess = (paymentId: string) => {
@@ -279,7 +285,11 @@ const Checkout = ({ onNavigate }: { onNavigate: (page: string) => void }) => {
                 body: JSON.stringify(sheetData)
             }).catch(console.error);
 
-            placeOrder({ address: orderDetails.address as string });
+            placeOrder({ 
+                address: orderDetails.address, 
+                phone: orderDetails.phone, 
+                name: `${orderDetails.firstName} ${orderDetails.lastName}` 
+            });
             setLoading(false);
             setOrderSuccess(true);
             
@@ -310,10 +320,12 @@ const Checkout = ({ onNavigate }: { onNavigate: (page: string) => void }) => {
             const formData = new FormData(document.querySelector('form') as HTMLFormElement);
             const address = formData.get('address') as string;
             const phone = formData.get('phone') as string;
+            const firstName = formData.get('first-name') as string;
+            const lastName = formData.get('last-name') as string;
             
             const sheetData = {
-                "First Name": formData.get('first-name'),
-                "Last Name": formData.get('last-name'),
+                "First Name": firstName,
+                "Last Name": lastName,
                 "Email": formData.get('email-address'),
                 "Mobile Number": phone,
                 "Street Address": address,
@@ -332,7 +344,11 @@ const Checkout = ({ onNavigate }: { onNavigate: (page: string) => void }) => {
                 body: JSON.stringify(sheetData)
             }).catch(console.error);
 
-            placeOrder({ address });
+            placeOrder({ 
+                address: address, 
+                phone: phone, 
+                name: `${firstName} ${lastName}`
+            });
             setLoading(false);
             setOrderSuccess(true);
             setTimeout(() => onNavigate('home'), 3500);
@@ -396,7 +412,23 @@ const Checkout = ({ onNavigate }: { onNavigate: (page: string) => void }) => {
                                 </div>
                                 <div className="sm:col-span-2">
                                     <label htmlFor="phone" className="block text-sm font-medium text-gray-700">Mobile Number</label>
-                                    <input type="tel" id="phone" name="phone" autoComplete="tel" className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm p-2.5 border" required />
+                                    <div className="mt-1 relative rounded-md shadow-sm">
+                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <span className="text-gray-500 sm:text-sm">+91</span>
+                                        </div>
+                                        <input 
+                                            type="tel" 
+                                            id="phone" 
+                                            name="phone" 
+                                            autoComplete="tel" 
+                                            pattern="[6-9][0-9]{9}" 
+                                            maxLength={10} 
+                                            placeholder="10 digit mobile number"
+                                            title="Please enter a valid 10-digit Indian mobile number"
+                                            className="block w-full pl-12 border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500 sm:text-sm p-2.5 border" 
+                                            required 
+                                        />
+                                    </div>
                                 </div>
                                 <div className="sm:col-span-2">
                                     <label htmlFor="address" className="block text-sm font-medium text-gray-700">Street address</label>

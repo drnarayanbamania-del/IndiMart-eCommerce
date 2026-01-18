@@ -36,6 +36,11 @@ export interface Order {
   total: number;
   status: 'pending' | 'shipped' | 'delivered';
   date: string;
+  shippingDetails?: {
+    name: string;
+    address: string;
+    phone: string;
+  };
 }
 
 export interface Category {

@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useStore } from '../contexts/StoreContext';
 import { GoogleGenAI } from "@google/genai";
-import { Star, ShoppingCart, ArrowLeft, Heart, ChevronLeft, ChevronRight, Facebook, Twitter, MessageCircle, Check, ShieldCheck, Filter, AlertCircle, CheckCircle2, Maximize2, X, ExternalLink, Sparkles, Upload, Plus, ZoomIn } from 'lucide-react';
+import { Star, ShoppingCart, ArrowLeft, Heart, ChevronLeft, ChevronRight, Facebook, Twitter, MessageCircle, Check, ShieldCheck, Filter, AlertCircle, CheckCircle2, Maximize2, X, ExternalLink, Sparkles, Upload, Plus, ZoomIn, RefreshCcw, ArrowRight, ChevronDown } from 'lucide-react';
 
 interface ProductDetailProps {
   productId: string;
@@ -61,6 +61,9 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
     setGeneratedImage(null);
     setUploadedImages([]);
     setActiveImage(0);
+    setQuantity(1);
+    setIsAdded(false);
+    window.scrollTo(0, 0);
   }, [productId]);
 
   const images = useMemo(() => {
@@ -177,6 +180,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
     setZoomPos({ x, y, opacity: 1 });
   };
 
+  // Filter related products: Same category, exclude current product, limit to 4
   const relatedProducts = products
     .filter(p => p.category === product.category && p.id !== product.id)
     .slice(0, 4);
@@ -590,11 +594,11 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
           </div>
         </div>
 
-        {/* Related Products Section - Moved Below Description */}
+        {/* Related Products Section */}
         {relatedProducts.length > 0 && (
             <div className="mt-24 border-t border-slate-100 pt-16">
                 <div className="flex items-center justify-between mb-8">
-                  <h2 className="text-2xl md:text-3xl font-black text-slate-900 font-heading">Complete the Mood</h2>
+                  <h2 className="text-2xl md:text-3xl font-black text-slate-900 font-heading">Related Products</h2>
                   <div className="flex space-x-2">
                       <button 
                         onClick={() => scrollRelated('left')}
@@ -897,17 +901,5 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
     </div>
   );
 };
-
-const RefreshCcw = ({ className }: { className?: string }) => (
-    <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
-);
-
-const ArrowRight = ({ className }: { className?: string }) => (
-    <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-);
-
-const ChevronDown = ({ className }: { className?: string }) => (
-    <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-);
 
 export default ProductDetail;

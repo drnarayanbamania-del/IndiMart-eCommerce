@@ -52,7 +52,7 @@ interface StoreContextType {
   updateCartQuantity: (id: string, qty: number) => void;
   clearCart: () => void;
   orders: Order[];
-  placeOrder: (details: { address: string }) => void;
+  placeOrder: (details: { address: string, phone: string, name: string }) => void;
   updateOrderStatus: (id: string, status: Order['status']) => void;
   categories: Category[];
   isCartOpen: boolean;
@@ -99,7 +99,15 @@ export const StoreProvider = ({ children }: { children?: ReactNode }) => {
     localStorage.setItem('bharatemart_cart', JSON.stringify(cart));
   }, [cart]);
 
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [orders, setOrders] = useState<Order[]>(() => {
+    const saved = localStorage.getItem('bharatemart_orders');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('bharatemart_orders', JSON.stringify(orders));
+  }, [orders]);
+
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [notification, setNotification] = useState<Notification | null>(null);
   const [voiceRequest, setVoiceRequest] = useState<VoiceRequest | null>(null);
@@ -112,7 +120,6 @@ export const StoreProvider = ({ children }: { children?: ReactNode }) => {
   const hideNotification = () => setNotification(null);
 
   const login = (email: string, password: string, role: UserRole): boolean => {
-    // Check if trying to login as admin but email doesn't match
     if (role === UserRole.ADMIN && email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
       return false;
     }
@@ -181,7 +188,7 @@ export const StoreProvider = ({ children }: { children?: ReactNode }) => {
 
   const clearCart = () => setCart([]);
 
-  const placeOrder = (details: { address: string }) => {
+  const placeOrder = (details: { address: string, phone: string, name: string }) => {
     if (!user) return;
     const newOrder: Order = {
       id: Math.random().toString(36).substr(2, 9),
@@ -189,10 +196,15 @@ export const StoreProvider = ({ children }: { children?: ReactNode }) => {
       items: [...cart],
       total: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
       status: 'pending',
-      date: new Date().toISOString()
+      date: new Date().toISOString(),
+      shippingDetails: {
+          address: details.address,
+          phone: details.phone,
+          name: details.name
+      }
     };
     setOrders([newOrder, ...orders]);
-    // clearCart(); // Removed to persist items until user manually deletes them
+    // clearCart(); 
     showNotification("Order placed successfully!");
   };
 

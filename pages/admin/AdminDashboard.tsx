@@ -312,12 +312,14 @@ const AdminDashboard: React.FC = () => {
            <div>
               <h1 className="text-2xl font-bold text-gray-800 mb-6">Recent Orders</h1>
               <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <div className="p-6 text-center text-gray-500">
+                <div className="p-0 overflow-x-auto">
                   {orders.length > 0 ? (
                      <table className="min-w-full divide-y divide-gray-200">
                      <thead className="bg-gray-50">
                        <tr>
                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
+                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Address</th>
                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
@@ -326,18 +328,31 @@ const AdminDashboard: React.FC = () => {
                      <tbody className="bg-white divide-y divide-gray-200 text-left">
                        {orders.map((order) => (
                          <tr key={order.id}>
-                           <td className="px-6 py-4 whitespace-nowrap font-medium">#{order.id}</td>
-                           <td className="px-6 py-4 whitespace-nowrap text-gray-500">{new Date(order.date).toLocaleDateString()}</td>
-                           <td className="px-6 py-4 whitespace-nowrap font-bold">₹{order.total.toFixed(2)}</td>
+                           <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">#{order.id}</td>
+                           <td className="px-6 py-4">
+                               <div className="text-sm font-medium text-gray-900">{order.shippingDetails?.name || 'Guest'}</div>
+                               <div className="text-sm text-gray-500">{order.shippingDetails?.phone || 'N/A'}</div>
+                           </td>
+                           <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate" title={order.shippingDetails?.address}>
+                               {order.shippingDetails?.address || 'N/A'}
+                           </td>
+                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(order.date).toLocaleDateString()}</td>
+                           <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">₹{order.total.toFixed(2)}</td>
                            <td className="px-6 py-4 whitespace-nowrap">
-                            <span className="px-2 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800 uppercase">{order.status}</span>
+                            <span className={`px-2 py-1 rounded-full text-xs font-semibold uppercase ${
+                                order.status === 'delivered' ? 'bg-green-100 text-green-800' :
+                                order.status === 'shipped' ? 'bg-blue-100 text-blue-800' :
+                                'bg-yellow-100 text-yellow-800'
+                            }`}>
+                                {order.status}
+                            </span>
                            </td>
                          </tr>
                        ))}
                      </tbody>
                    </table>
                   ) : (
-                    "No orders found."
+                    <div className="p-8 text-center text-gray-500">No orders found.</div>
                   )}
                 </div>
               </div>
