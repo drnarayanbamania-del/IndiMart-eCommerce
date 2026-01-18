@@ -361,8 +361,9 @@ const AdminDashboard: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Product Name</label>
+                    <label htmlFor="productName" className="block text-sm font-medium text-gray-700">Product Name</label>
                     <input
+                      id="productName"
                       required
                       type="text"
                       className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
