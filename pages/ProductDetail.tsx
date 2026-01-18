@@ -284,11 +284,9 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
   const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
   const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
 
-  // Determine button text and styling based on link
   const isMeesho = product.affiliateLink?.toLowerCase().includes('meesho');
   const affiliateButtonText = isMeesho ? 'Buy Now on Meesho' : 'Buy Now';
   const affiliateButtonClass = "w-full flex items-center justify-center py-4 rounded-xl text-white text-lg font-black uppercase tracking-widest shadow-xl transition-all hover:scale-[1.02] bg-[#7b2cbf] hover:bg-[#6a25a5] shadow-[#7b2cbf]/30";
-
 
   return (
     <div className="bg-white min-h-screen pb-12 font-sans animate-in fade-in duration-500">
