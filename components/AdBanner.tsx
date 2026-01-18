@@ -59,7 +59,7 @@ const AdBanner: React.FC = () => {
   }, []);
 
   return (
-    <div className="hidden md:flex justify-center items-center w-full py-6 bg-slate-50/50 border-y border-slate-100 my-4">
+    <div className="hidden md:flex justify-center items-center w-full py-2 bg-slate-50/50 border-y border-slate-100 my-2">
         <div 
             ref={bannerRef} 
             className="w-[728px] h-[90px] bg-white shadow-sm rounded-lg overflow-hidden flex items-center justify-center relative z-10"

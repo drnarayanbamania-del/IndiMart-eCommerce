@@ -56,14 +56,14 @@ const NativeAdBanner: React.FC = () => {
   }, []);
 
   return (
-    <div className="w-full py-6 md:py-8 bg-transparent flex justify-center items-center my-4 md:my-6 px-4 sm:px-6 lg:px-8">
+    <div className="w-full py-4 bg-transparent flex justify-center items-center my-2 px-4 sm:px-6 lg:px-8">
         <div 
             ref={bannerRef} 
-            className="w-full max-w-7xl h-[250px] sm:h-[300px] md:h-[350px] bg-white rounded-2xl overflow-hidden flex items-center justify-center relative z-10 border border-slate-100 shadow-md hover:shadow-lg transition-shadow duration-300"
+            className="w-full max-w-7xl h-[160px] md:h-[200px] bg-white rounded-xl overflow-hidden flex items-center justify-center relative z-10 border border-slate-100 shadow-sm hover:shadow-md transition-shadow duration-300"
             aria-label="Sponsored Content"
         >
              <div className="absolute inset-0 flex items-center justify-center pointer-events-none -z-10 text-slate-300">
-                <span className="text-xs font-bold uppercase tracking-widest">Sponsored</span>
+                <span className="text-[10px] font-bold uppercase tracking-widest">Sponsored</span>
              </div>
         </div>
     </div>
