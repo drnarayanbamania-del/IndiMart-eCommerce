@@ -281,6 +281,8 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
   const shareUrl = window.location.href;
   const shareText = `Check out this ${product.name} at Bharat E Mart! Only ₹${product.price}`;
   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText + " " + shareUrl)}`;
+  const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
+  const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
 
   // Determine button text and styling based on link
   const isMeesho = product.affiliateLink?.toLowerCase().includes('meesho');
@@ -583,9 +585,9 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
 
             <div className="mt-8 flex items-center space-x-4 text-sm text-slate-500 border-t border-slate-100 pt-8">
                 <span className="font-bold uppercase tracking-wider text-xs">Share:</span>
-                <button onClick={() => window.open(whatsappUrl, '_blank')} className="hover:text-[#25D366] transition-colors"><MessageCircle className="w-5 h-5" /></button>
-                <button className="hover:text-[#1877F2] transition-colors"><Facebook className="w-5 h-5" /></button>
-                <button className="hover:text-[#1DA1F2] transition-colors"><Twitter className="w-5 h-5" /></button>
+                <button onClick={() => window.open(whatsappUrl, '_blank')} className="hover:text-[#25D366] transition-colors" title="Share on WhatsApp"><MessageCircle className="w-5 h-5" /></button>
+                <button onClick={() => window.open(facebookUrl, '_blank')} className="hover:text-[#1877F2] transition-colors" title="Share on Facebook"><Facebook className="w-5 h-5" /></button>
+                <button onClick={() => window.open(twitterUrl, '_blank')} className="hover:text-[#1DA1F2] transition-colors" title="Share on Twitter"><Twitter className="w-5 h-5" /></button>
             </div>
           </div>
         </div>

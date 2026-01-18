@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { useStore } from '../../contexts/StoreContext';
 import { UserRole, Product } from '../../types';
-import { generateProductDescription } from '../../services/geminiService';
-import { GoogleGenAI } from "@google/genai";
+import { generateProductDescription, generateProductImage } from '../../services/geminiService';
 import {
   LayoutDashboard, ShoppingBag, Users, Settings, Plus, Trash, Edit, Bot, TrendingUp, RefreshCcw, Image as ImageIcon, Sparkles, Link
 } from 'lucide-react';
@@ -70,21 +69,14 @@ const AdminDashboard: React.FC = () => {
     }
     setIsGeneratingImage(true);
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const prompt = `A high-quality, professional e-commerce studio photograph of a ${newProduct.name} in the ${newProduct.category} category. Clean white background, soft cinematic lighting, 8k resolution, realistic textures, commercial product photography style.`;
-      
-      const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash-image',
-        contents: { parts: [{ text: prompt }] },
-      });
+      const description = newProduct.description || "A professional product image";
+      const image = await generateProductImage(newProduct.name, newProduct.category, description);
 
-      for (const part of response.candidates[0].content.parts) {
-        if (part.inlineData) {
-          const base64Data = `data:image/png;base64,${part.inlineData.data}`;
-          setNewProduct({ ...newProduct, image: base64Data });
-          setImagePreviewError(false);
-          break;
-        }
+      if (image) {
+        setNewProduct({ ...newProduct, image: image });
+        setImagePreviewError(false);
+      } else {
+        alert("Failed to generate image. Please ensure your API key is configured and try again.");
       }
     } catch (error) {
       console.error("Image Generation Error:", error);
