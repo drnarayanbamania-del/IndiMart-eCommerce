@@ -3,7 +3,7 @@ import { useStore } from '../../contexts/StoreContext';
 import { UserRole, Product } from '../../types';
 import { generateProductDescription, generateProductImage } from '../../services/geminiService';
 import {
-  LayoutDashboard, ShoppingBag, Users, Settings, Plus, Trash, Edit, Bot, TrendingUp, RefreshCcw, Image as ImageIcon, Sparkles, Link
+  LayoutDashboard, ShoppingBag, Users, Settings, Plus, Trash, Edit, Bot, TrendingUp, RefreshCcw, Image as ImageIcon, Sparkles, Link, Phone, MapPin
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
@@ -310,8 +310,8 @@ const AdminDashboard: React.FC = () => {
                      <thead className="bg-gray-50">
                        <tr>
                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
-                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
-                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Address</th>
+                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer & Contact</th>
+                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Shipping Address</th>
                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
@@ -322,11 +322,19 @@ const AdminDashboard: React.FC = () => {
                          <tr key={order.id}>
                            <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">#{order.id}</td>
                            <td className="px-6 py-4">
-                               <div className="text-sm font-medium text-gray-900">{order.shippingDetails?.name || 'Guest'}</div>
-                               <div className="text-sm text-gray-500">{order.shippingDetails?.phone || 'N/A'}</div>
+                               <div className="text-sm font-bold text-gray-900">{order.shippingDetails?.name || 'Guest'}</div>
+                               <div className="flex items-center text-xs text-slate-500 mt-1 bg-slate-100 w-fit px-2 py-1 rounded">
+                                   <Phone className="w-3 h-3 mr-1" />
+                                   {order.shippingDetails?.phone || 'No Mobile'}
+                               </div>
                            </td>
-                           <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate" title={order.shippingDetails?.address}>
-                               {order.shippingDetails?.address || 'N/A'}
+                           <td className="px-6 py-4">
+                               <div className="flex items-start max-w-xs">
+                                   <MapPin className="w-3 h-3 mr-1 mt-1 text-gray-400 flex-shrink-0" />
+                                   <span className="text-sm text-gray-600 whitespace-normal">
+                                        {order.shippingDetails?.address || 'No Address Provided'}
+                                   </span>
+                               </div>
                            </td>
                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(order.date).toLocaleDateString()}</td>
                            <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">₹{order.total.toFixed(2)}</td>
