@@ -10,6 +10,18 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
 
+const getCategoryPlaceholder = (category: string) => {
+    switch(category) {
+        case 'Electronics': return 'https://images.unsplash.com/photo-1550009158-9ebf69173e03?q=80&w=400&auto=format&fit=crop';
+        case 'Accessories': return 'https://images.unsplash.com/photo-1576053139778-7e32f2ae3cfd?q=80&w=400&auto=format&fit=crop';
+        case 'Furniture': return 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?q=80&w=400&auto=format&fit=crop';
+        case 'Computers': return 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=400&auto=format&fit=crop';
+        case 'Home Appliances': return 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=400&auto=format&fit=crop';
+        case 'Meesho Finds': return 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=400&auto=format&fit=crop';
+        default: return 'https://images.unsplash.com/photo-1557821552-17105176677c?q=80&w=400&auto=format&fit=crop'; // Generic shopping bag/cart
+    }
+}
+
 const AdminDashboard: React.FC = () => {
   const { user, products, orders, addProduct, deleteProduct, categories, resetProducts } = useStore();
   const [activeTab, setActiveTab] = useState<'overview' | 'products' | 'orders'>('overview');
@@ -20,7 +32,9 @@ const AdminDashboard: React.FC = () => {
 
   // New product form state
   const [newProduct, setNewProduct] = useState<Partial<Product>>({
-    name: '', category: 'Electronics', price: 0, description: '', stock: 0, image: 'https://picsum.photos/400/400', affiliateLink: ''
+    name: '', category: 'Electronics', price: 0, description: '', stock: 0, 
+    image: getCategoryPlaceholder('Electronics'), 
+    affiliateLink: ''
   });
 
   if (user?.role !== UserRole.ADMIN) {
@@ -90,13 +104,14 @@ const AdminDashboard: React.FC = () => {
         price: Number(newProduct.price),
         description: newProduct.description || '',
         stock: Number(newProduct.stock) || 0,
-        image: newProduct.image || 'https://picsum.photos/400/400',
+        image: newProduct.image || getCategoryPlaceholder(newProduct.category || 'Electronics'),
         rating: 0,
         reviews: 0,
         affiliateLink: newProduct.affiliateLink
       } as Product);
       setShowAddModal(false);
-      setNewProduct({ name: '', category: 'Electronics', price: 0, description: '', stock: 0, image: 'https://picsum.photos/400/400', affiliateLink: '' });
+      // Reset form with category default
+      setNewProduct({ name: '', category: 'Electronics', price: 0, description: '', stock: 0, image: getCategoryPlaceholder('Electronics'), affiliateLink: '' });
       setImagePreviewError(false);
     }
   };
@@ -111,7 +126,22 @@ const AdminDashboard: React.FC = () => {
       if(window.confirm("Reset all products to default demo data? This will clear any custom products.")) {
           resetProducts();
       }
-  }
+  };
+
+  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newCategory = e.target.value;
+    const currentPlaceholder = getCategoryPlaceholder(newProduct.category || 'Electronics');
+    
+    // Check if the current image is a placeholder (either unplash category placeholder or picsum)
+    const isPlaceholder = newProduct.image?.includes('unsplash') || newProduct.image?.includes('picsum');
+
+    setNewProduct(prev => ({
+        ...prev, 
+        category: newCategory,
+        // Only update image if it was a placeholder or empty, preserving custom uploaded URLs
+        image: (isPlaceholder || !prev.image) ? getCategoryPlaceholder(newCategory) : prev.image
+    }));
+  };
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -339,7 +369,7 @@ const AdminDashboard: React.FC = () => {
                     <select
                       className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                       value={newProduct.category}
-                      onChange={e => setNewProduct({ ...newProduct, category: e.target.value })}
+                      onChange={handleCategoryChange}
                     >
                       {categories.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
                     </select>

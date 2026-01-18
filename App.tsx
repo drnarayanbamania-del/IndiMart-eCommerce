@@ -3,6 +3,7 @@ import { StoreProvider, useStore } from './contexts/StoreContext';
 import Navbar from './components/Navbar';
 import CartDrawer from './components/CartDrawer';
 import VoiceAssistant from './components/VoiceAssistant';
+import AdBanner from './components/AdBanner';
 import Home from './pages/Home';
 import Shop from './pages/Shop';
 import ProductDetail from './pages/ProductDetail';
@@ -249,6 +250,7 @@ const Checkout = ({ onNavigate }: { onNavigate: (page: string) => void }) => {
             firstName: formData.get('first-name'),
             lastName: formData.get('last-name'),
             email: formData.get('email-address'),
+            phone: formData.get('phone'),
             address: formData.get('address'),
             city: formData.get('city'),
             zip: formData.get('postal-code'),
@@ -259,7 +261,8 @@ const Checkout = ({ onNavigate }: { onNavigate: (page: string) => void }) => {
                 "First Name": orderDetails.firstName,
                 "Last Name": orderDetails.lastName,
                 "Email": orderDetails.email,
-                "Address": orderDetails.address,
+                "Mobile Number": orderDetails.phone,
+                "Street Address": orderDetails.address,
                 "City": orderDetails.city,
                 "Zip": orderDetails.zip,
                 "Product Name": cart.map(item => `${item.name} (x${item.quantity})`).join(', '),
@@ -306,12 +309,14 @@ const Checkout = ({ onNavigate }: { onNavigate: (page: string) => void }) => {
             const paymentId = 'RZP-' + Math.random().toString(36).substr(2, 9).toUpperCase();
             const formData = new FormData(document.querySelector('form') as HTMLFormElement);
             const address = formData.get('address') as string;
+            const phone = formData.get('phone') as string;
             
             const sheetData = {
                 "First Name": formData.get('first-name'),
                 "Last Name": formData.get('last-name'),
                 "Email": formData.get('email-address'),
-                "Address": address,
+                "Mobile Number": phone,
+                "Street Address": address,
                 "City": formData.get('city'),
                 "Zip": formData.get('postal-code'),
                 "Product Name": cart.map(item => `${item.name} (x${item.quantity})`).join(', '),
@@ -388,6 +393,10 @@ const Checkout = ({ onNavigate }: { onNavigate: (page: string) => void }) => {
                                 <div className="sm:col-span-2">
                                     <label htmlFor="email-address" className="block text-sm font-medium text-gray-700">Email address</label>
                                     <input type="email" id="email-address" name="email-address" autoComplete="email" className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm p-2.5 border" required />
+                                </div>
+                                <div className="sm:col-span-2">
+                                    <label htmlFor="phone" className="block text-sm font-medium text-gray-700">Mobile Number</label>
+                                    <input type="tel" id="phone" name="phone" autoComplete="tel" className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm p-2.5 border" required />
                                 </div>
                                 <div className="sm:col-span-2">
                                     <label htmlFor="address" className="block text-sm font-medium text-gray-700">Street address</label>
@@ -624,6 +633,7 @@ const AppContent = () => {
       <main className="flex-grow">
         {renderPage()}
       </main>
+      <AdBanner />
       <footer className="bg-gray-900 text-white py-16">
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12 border-b border-gray-800 pb-12">

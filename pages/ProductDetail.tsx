@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useStore } from '../contexts/StoreContext';
 import { GoogleGenAI } from "@google/genai";
-import { Star, ShoppingCart, ArrowLeft, Heart, ChevronLeft, ChevronRight, Facebook, Twitter, MessageCircle, Check, ShieldCheck, Filter, AlertCircle, CheckCircle2, Maximize2, X, ExternalLink, Sparkles, Upload, Plus } from 'lucide-react';
+import { Star, ShoppingCart, ArrowLeft, Heart, ChevronLeft, ChevronRight, Facebook, Twitter, MessageCircle, Check, ShieldCheck, Filter, AlertCircle, CheckCircle2, Maximize2, X, ExternalLink, Sparkles, Upload, Plus, ZoomIn } from 'lucide-react';
 
 interface ProductDetailProps {
   productId: string;
@@ -40,6 +40,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
   const [zoomPos, setZoomPos] = useState({ x: 0, y: 0, opacity: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
   const thumbnailsRef = useRef<HTMLDivElement>(null);
+  const relatedCarouselRef = useRef<HTMLDivElement>(null);
 
   // Review State
   const [reviews, setReviews] = useState<Review[]>([
@@ -64,18 +65,14 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
 
   const images = useMemo(() => {
     if(!product) return [];
-    const baseImages = [
-        product.image,
-        `https://picsum.photos/800/800?random=${product.id}1`,
-        `https://picsum.photos/800/800?random=${product.id}2`,
-        `https://picsum.photos/800/800?random=${product.id}3`,
-    ];
+    // Start with the main product image
+    const baseImages = [product.image];
     
     let combined = [...baseImages];
     
     // Add uploaded images
     if (uploadedImages.length > 0) {
-        combined = [...uploadedImages, ...combined];
+        combined = [...combined, ...uploadedImages];
     }
     
     // Add generated image (highest priority if exists)
@@ -114,22 +111,30 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
         const newFiles = Array.from(e.target.files);
-        const readers = newFiles.map(file => {
+        const readers = newFiles.map((file) => {
             return new Promise<string>((resolve) => {
                 const reader = new FileReader();
                 reader.onloadend = () => {
                     if (typeof reader.result === 'string') resolve(reader.result);
                 };
-                reader.readAsDataURL(file);
+                reader.readAsDataURL(file as Blob);
             });
         });
 
         Promise.all(readers).then(results => {
             setUploadedImages(prev => [...results, ...prev]);
-            // If there's a generated image, the new upload is at index 1, otherwise 0
-            setActiveImage(generatedImage ? 1 : 0);
+            // Switch to the newly uploaded image (it will be at index 1 after main image, or 2 if gen image exists)
+            setActiveImage(generatedImage ? 2 : 1);
         });
     }
+  };
+
+  const scrollRelated = (direction: 'left' | 'right') => {
+      if (relatedCarouselRef.current) {
+          const { current } = relatedCarouselRef;
+          const scrollAmount = 300;
+          current.scrollBy({ left: direction === 'left' ? -scrollAmount : scrollAmount, behavior: 'smooth' });
+      }
   };
 
   // Keyboard Navigation for Lightbox
@@ -274,7 +279,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
   };
 
   const shareUrl = window.location.href;
-  const shareText = `Check out this ${product.name} at Apna Store! Only ₹${product.price}`;
+  const shareText = `Check out this ${product.name} at Bharat E Mart! Only ₹${product.price}`;
   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText + " " + shareUrl)}`;
 
   // Determine button text and styling based on link
@@ -301,7 +306,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
             </p>
         </div>
 
-        <div className="lg:grid lg:grid-cols-2 lg:gap-x-12 xl:gap-x-16">
+        <div className="lg:grid lg:grid-cols-2 lg:gap-x-12 xl:gap-x-16 mb-24">
           <div className="product-images">
             <div 
               ref={containerRef}
@@ -365,6 +370,11 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
                 }}
               />
 
+              {/* Added hint for Zoom */}
+              <div className="absolute top-4 right-4 z-20 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 text-white text-[10px] font-bold px-2 py-1 rounded-full backdrop-blur-sm flex items-center mt-12 mr-1">
+                  <ZoomIn className="w-3 h-3 mr-1" /> Hover to Zoom
+              </div>
+
               {/* Gallery Controls Overlay */}
               <div className="absolute inset-0 z-40 pointer-events-none flex flex-col justify-between p-6">
                  <div className="flex justify-between items-start">
@@ -401,6 +411,15 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
 
             {/* Thumbnail Carousel */}
             <div className="relative group">
+                <style>{`
+                     .scrollbar-hide::-webkit-scrollbar {
+                         display: none;
+                     }
+                     .scrollbar-hide {
+                         -ms-overflow-style: none;
+                         scrollbar-width: none;
+                     }
+                   `}</style>
                 <div 
                   ref={thumbnailsRef}
                   className="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide snap-x px-1"
@@ -443,6 +462,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
           </div>
 
           <div className="mt-10 lg:mt-0">
+            {/* ... Rest of the product details ... */}
             <div className="flex justify-between items-start">
                 <div>
                   <h1 className="text-4xl font-black tracking-tight text-slate-900 font-heading mb-3">{product.name}</h1>
@@ -570,8 +590,80 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
           </div>
         </div>
 
+        {/* Related Products Section - Moved Below Description */}
+        {relatedProducts.length > 0 && (
+            <div className="mt-24 border-t border-slate-100 pt-16">
+                <div className="flex items-center justify-between mb-8">
+                  <h2 className="text-2xl md:text-3xl font-black text-slate-900 font-heading">Complete the Mood</h2>
+                  <div className="flex space-x-2">
+                      <button 
+                        onClick={() => scrollRelated('left')}
+                        className="p-3 rounded-full border border-slate-200 hover:bg-slate-50 text-slate-600 transition-colors"
+                        aria-label="Scroll left"
+                      >
+                          <ChevronLeft className="w-5 h-5" />
+                      </button>
+                      <button 
+                        onClick={() => scrollRelated('right')}
+                        className="p-3 rounded-full border border-slate-200 hover:bg-slate-50 text-slate-600 transition-colors"
+                        aria-label="Scroll right"
+                      >
+                          <ChevronRight className="w-5 h-5" />
+                      </button>
+                  </div>
+                </div>
+                
+                {/* Carousel Container */}
+                <div 
+                    ref={relatedCarouselRef}
+                    className="flex gap-8 overflow-x-auto pb-8 snap-x scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0 scroll-smooth"
+                    style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                >
+                    {relatedProducts.map((rel) => (
+                        <div 
+                          key={rel.id} 
+                          className="min-w-[280px] w-[280px] md:min-w-[300px] md:w-[300px] snap-center group bg-white rounded-[2rem] shadow-sm border border-slate-100 hover:shadow-2xl hover:-translate-y-3 transition-all duration-500 cursor-pointer flex-shrink-0 flex flex-col overflow-hidden" 
+                          onClick={() => onViewProduct(rel.id)}
+                        >
+                            {/* Edge-to-Edge Image */}
+                            <div className="aspect-square w-full bg-slate-50 relative overflow-hidden">
+                                <img src={rel.image} alt={`${rel.name} related product`} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300" />
+                                
+                                {/* Quick Action Overlay */}
+                                <div className="absolute bottom-4 right-4 translate-y-12 group-hover:translate-y-0 transition-transform duration-300">
+                                   <div className="p-3 bg-white rounded-full shadow-lg text-indigo-600">
+                                       <ShoppingCart className="w-5 h-5" />
+                                   </div>
+                                </div>
+                            </div>
+                            
+                            {/* Content */}
+                            <div className="p-6 flex flex-col flex-grow">
+                                <div className="mb-2">
+                                   <p className="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-1">{rel.category}</p>
+                                   <h3 className="text-lg font-bold text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-1">{rel.name}</h3>
+                                </div>
+                                
+                                <div className="mt-auto flex items-end justify-between border-t border-slate-50 pt-4">
+                                    <div>
+                                       <p className="text-slate-400 text-xs font-bold line-through">₹{(rel.price * 1.2).toFixed(0)}</p>
+                                       <p className="text-2xl font-black text-slate-900">₹{rel.price}</p>
+                                    </div>
+                                    <div className="flex text-yellow-400">
+                                        <Star className="w-4 h-4 fill-current" />
+                                        <span className="text-slate-400 text-xs font-bold ml-1">{rel.rating}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        )}
+
         {/* Reviews Section */}
-        <div id="reviews" className="mt-32 pt-20 border-t border-slate-100">
+        <div id="reviews" className="mt-24 pt-16 border-t border-slate-100">
             <div className="flex flex-col md:flex-row md:items-center justify-between mb-16">
               <h2 className="text-4xl font-black text-slate-900 font-heading">Feedback</h2>
               <div className="mt-4 md:mt-0 flex items-center space-x-3 bg-green-50 px-4 py-2 rounded-full border border-green-100">
@@ -746,35 +838,6 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ productId, onBack, onView
                 </div>
             </div>
         </div>
-
-        {relatedProducts.length > 0 && (
-            <div className="mt-40 border-t border-slate-100 pt-20 pb-20">
-                <div className="flex items-end justify-between mb-12">
-                  <h2 className="text-4xl font-black text-slate-900 font-heading">Complete the Mood</h2>
-                  <button onClick={onBack} className="text-sm font-black text-indigo-600 hover:text-indigo-700 uppercase tracking-widest flex items-center group">
-                    View All <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </button>
-                </div>
-                <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4">
-                    {relatedProducts.map((rel) => (
-                        <div 
-                          key={rel.id} 
-                          className="group bg-white p-5 rounded-[2rem] shadow-sm border border-slate-100 hover:shadow-2xl hover:-translate-y-3 transition-all duration-500 cursor-pointer" 
-                          onClick={() => onViewProduct(rel.id)}
-                        >
-                            <div className="aspect-square bg-slate-50 rounded-3xl overflow-hidden mb-6">
-                                <img src={rel.image} alt={`${rel.name} related product`} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                            </div>
-                            <div>
-                                <h3 className="text-sm font-black text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-1">{rel.name}</h3>
-                                <p className="text-xs text-slate-300 font-bold mt-1 uppercase tracking-widest">{rel.category}</p>
-                                <p className="text-xl font-black text-slate-900 mt-4">₹{rel.price}</p>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-        )}
       </div>
 
       {/* Lightbox Modal */}

@@ -3,25 +3,25 @@ import { User, Product, CartItem, Order, UserRole, Category } from '../types';
 
 // Mock Data
 const INITIAL_PRODUCTS: Product[] = [
-  { id: '1', name: 'Premium Leather Watch', description: 'Elegant minimalist design with genuine leather strap.', price: 1299, category: 'Accessories', image: 'https://picsum.photos/400/400?random=1', stock: 50, rating: 4.5, reviews: 12 },
-  { id: '2', name: 'Wireless Noise Cancelling Headphones', description: 'Immersive sound with 30-hour battery life.', price: 2999, category: 'Electronics', image: 'https://picsum.photos/400/400?random=2', stock: 25, rating: 4.8, reviews: 45, affiliateLink: 'https://amazon.com' },
-  { id: '3', name: 'Ergonomic Office Chair', description: 'Designed for comfort and productivity.', price: 1999, category: 'Furniture', image: 'https://picsum.photos/400/400?random=3', stock: 10, rating: 4.2, reviews: 8 },
-  { id: '4', name: 'Smart Fitness Tracker', description: 'Track your health metrics in real-time.', price: 899, category: 'Electronics', image: 'https://picsum.photos/400/400?random=4', stock: 100, rating: 4.0, reviews: 30 },
-  { id: '5', name: 'Designer Sunglasses', description: 'UV protection with a classic look.', price: 1500, category: 'Accessories', image: 'https://picsum.photos/400/400?random=5', stock: 15, rating: 4.7, reviews: 22 },
-  { id: '6', name: 'Ultra-Slim Laptop Pro', description: 'High performance meets portability. 16GB RAM, 512GB SSD.', price: 54999, category: 'Computers', image: 'https://picsum.photos/400/400?random=6', stock: 8, rating: 4.9, reviews: 15 },
-  { id: '7', name: 'Smart Inverter Refrigerator', description: 'Energy efficient cooling with auto-defrost technology.', price: 22499, category: 'Home Appliances', image: 'https://picsum.photos/400/400?random=7', stock: 12, rating: 4.6, reviews: 34 },
-  { id: '8', name: 'Banarasi Silk Saree', description: 'Authentic Banarasi silk with zari work. Perfect for weddings.', price: 1499, category: 'Meesho Finds', image: 'https://images.meesho.com/images/products/42345678/abcde_512.jpg', stock: 20, rating: 4.3, reviews: 56, affiliateLink: 'https://www.meesho.com/sarees/p/abcde' },
-  { id: '9', name: 'Rayon Printed Kurti', description: 'Comfortable daily wear printed kurti set.', price: 499, category: 'Meesho Finds', image: 'https://images.meesho.com/images/products/87654321/vwxyz_512.jpg', stock: 50, rating: 4.1, reviews: 89, affiliateLink: 'https://www.meesho.com/kurtis/p/vwxyz' },
+  { id: '1', name: 'Premium Leather Watch', description: 'Elegant minimalist design with genuine leather strap.', price: 1299, category: 'Accessories', image: 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?q=80&w=800&auto=format&fit=crop', stock: 50, rating: 4.5, reviews: 12 },
+  { id: '2', name: 'Wireless Noise Cancelling Headphones', description: 'Immersive sound with 30-hour battery life.', price: 2999, category: 'Electronics', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800&auto=format&fit=crop', stock: 25, rating: 4.8, reviews: 45, affiliateLink: 'https://amazon.com' },
+  { id: '3', name: 'Ergonomic Office Chair', description: 'Designed for comfort and productivity.', price: 1999, category: 'Furniture', image: 'https://images.unsplash.com/photo-1592078615290-033ee584e267?q=80&w=800&auto=format&fit=crop', stock: 10, rating: 4.2, reviews: 8 },
+  { id: '4', name: 'Smart Fitness Tracker', description: 'Track your health metrics in real-time.', price: 899, category: 'Electronics', image: 'https://images.unsplash.com/photo-1575311373937-040b8e1fd5b6?q=80&w=800&auto=format&fit=crop', stock: 100, rating: 4.0, reviews: 30 },
+  { id: '5', name: 'Designer Sunglasses', description: 'UV protection with a classic look.', price: 1500, category: 'Accessories', image: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?q=80&w=800&auto=format&fit=crop', stock: 15, rating: 4.7, reviews: 22 },
+  { id: '6', name: 'Ultra-Slim Laptop Pro', description: 'High performance meets portability. 16GB RAM, 512GB SSD.', price: 54999, category: 'Computers', image: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?q=80&w=800&auto=format&fit=crop', stock: 8, rating: 4.9, reviews: 15 },
+  { id: '7', name: 'Smart Inverter Refrigerator', description: 'Energy efficient cooling with auto-defrost technology.', price: 22499, category: 'Home Appliances', image: 'https://images.unsplash.com/photo-1571175443880-49e1d58b794a?q=80&w=800&auto=format&fit=crop', stock: 12, rating: 4.6, reviews: 34 },
+  { id: '8', name: 'Banarasi Silk Saree', description: 'Authentic Banarasi silk with zari work. Perfect for weddings.', price: 1499, category: 'Meesho Finds', image: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?q=80&w=800&auto=format&fit=crop', stock: 20, rating: 4.3, reviews: 56, affiliateLink: 'https://www.meesho.com/sarees/p/abcde' },
+  { id: '9', name: 'Rayon Printed Kurti', description: 'Comfortable daily wear printed kurti set.', price: 499, category: 'Meesho Finds', image: 'https://images.unsplash.com/photo-1605763240004-7e93b172d754?q=80&w=800&auto=format&fit=crop', stock: 50, rating: 4.1, reviews: 89, affiliateLink: 'https://www.meesho.com/kurtis/p/vwxyz' },
   { id: 'test-1', name: 'Test Payment Item', description: 'Product for testing payment gateway integration (1 INR).', price: 1, category: 'Test', image: 'https://placehold.co/400x400?text=Test+Item', stock: 999, rating: 5.0, reviews: 0 },
 ];
 
 const INITIAL_CATEGORIES: Category[] = [
-  { id: '1', name: 'Electronics', image: 'https://picsum.photos/300/200?random=10' },
-  { id: '2', name: 'Accessories', image: 'https://picsum.photos/300/200?random=11' },
-  { id: '3', name: 'Furniture', image: 'https://picsum.photos/300/200?random=12' },
-  { id: '4', name: 'Computers', image: 'https://picsum.photos/300/200?random=13' },
-  { id: '5', name: 'Home Appliances', image: 'https://picsum.photos/300/200?random=14' },
-  { id: '6', name: 'Meesho Finds', image: 'https://images.unsplash.com/photo-1583394838336-acd977736f90?q=80&w=600&auto=format&fit=crop' },
+  { id: '1', name: 'Electronics', image: 'https://images.unsplash.com/photo-1498049860654-af1a5c5668ba?q=80&w=800&auto=format&fit=crop' },
+  { id: '2', name: 'Accessories', image: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?q=80&w=800&auto=format&fit=crop' },
+  { id: '3', name: 'Furniture', image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?q=80&w=800&auto=format&fit=crop' },
+  { id: '4', name: 'Computers', image: 'https://images.unsplash.com/photo-1531297424005-06674ceb1d78?q=80&w=800&auto=format&fit=crop' },
+  { id: '5', name: 'Home Appliances', image: 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=800&auto=format&fit=crop' },
+  { id: '6', name: 'Meesho Finds', image: 'https://images.unsplash.com/photo-1583394838336-acd977736f90?q=80&w=800&auto=format&fit=crop' },
 ];
 
 const ADMIN_EMAIL = 'drnarayanbamania@gmail.com';
